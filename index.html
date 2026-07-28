@@ -404,6 +404,7 @@
       </div>
       <div class="hbtns">
         <button class="ic" id="musicBtn" aria-label="Focus music" title="Focus music">♪</button>
+        <button class="ic" id="acctBtn" aria-label="Account & sync" title="Account">👤</button>
         <button class="ic" id="themeBtn" aria-label="Toggle theme" title="Theme">◐</button>
       </div>
     </header>
@@ -546,6 +547,13 @@
     <div id="jnyBody"></div>
   </div>
 
+  <!-- account sheet -->
+  <div class="sheet" id="acctSheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <h3>Account &amp; sync</h3>
+    <div id="acctBody"></div>
+  </div>
+
   <!-- generic log sheet -->
   <div class="sheet" id="logSheet" role="dialog" aria-modal="true">
     <div class="grab"></div>
@@ -557,6 +565,13 @@
     </div>
   </div>
 
+<script>
+/* Cloud config — filled in when the Supabase project is connected.
+   The anon key is safe to publish: all data access is enforced by
+   Row Level Security on the database (each user can only touch their own row). */
+window.FLOURISH_CLOUD = { url: "", anonKey: "" };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
 "use strict";
@@ -620,7 +635,7 @@ var S=load();
 if(!S.settings)S.settings={faith:false};
 function load(){try{var r=localStorage.getItem(SK);if(!r)return clone(DEFAULT);var o=JSON.parse(r);
   for(var k in DEFAULT){if(!(k in o))o[k]=clone(DEFAULT[k]);}return o;}catch(e){return clone(DEFAULT);}}
-function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+function save(){S.updatedAt=Date.now();try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}schedulePush();}
 function clone(o){return JSON.parse(JSON.stringify(o));}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 
@@ -1306,6 +1321,7 @@ function openSheet(el){scrim.classList.add("open");el.classList.add("open");}
 function closeSheets(){scrim.classList.remove("open");habitSheet.classList.remove("open");logSheet.classList.remove("open");
   var ms=document.getElementById("musicSheet");if(ms)ms.classList.remove("open");
   var js=document.getElementById("journeySheet");if(js)js.classList.remove("open");
+  var as=document.getElementById("acctSheet");if(as)as.classList.remove("open");
   document.getElementById("hName").blur();}
 scrim.addEventListener("click",closeSheets);
 
@@ -1378,6 +1394,90 @@ document.getElementById("musicBtn").addEventListener("click",openMusic);
 /* ============ REMINDERS LOOP ============ */
 if("Notification" in window && Notification.permission==="granted")firedReminders={};
 setInterval(checkReminders,20000);
+
+/* ============ CLOUD (accounts + sync) ============ */
+/* Offline-first: localStorage stays the source of truth; when signed in,
+   the whole state blob is pushed (debounced) and pulled on login/load.
+   Newer updatedAt wins; an empty remote never overwrites real local data. */
+var sb=null, cloudUser=null, syncStamp=0, pushTimer=null, cloudReady=false;
+function cloudConfigured(){var c=window.FLOURISH_CLOUD;return !!(window.supabase&&c&&c.url&&c.anonKey);}
+function initCloud(){
+  if(!cloudConfigured())return;
+  try{sb=window.supabase.createClient(window.FLOURISH_CLOUD.url,window.FLOURISH_CLOUD.anonKey);}catch(e){return;}
+  cloudReady=true;
+  sb.auth.onAuthStateChange(function(ev,session){
+    cloudUser=session?session.user:null;updateAcctUI();
+    if(cloudUser&&(ev==="SIGNED_IN"||ev==="INITIAL_SESSION"))pullCloud();
+  });
+}
+function schedulePush(){if(!sb||!cloudUser)return;clearTimeout(pushTimer);pushTimer=setTimeout(pushCloud,1800);}
+function pushCloud(){
+  if(!sb||!cloudUser)return;
+  sb.from("flourish_data").upsert({user_id:cloudUser.id,data:S,updated_at:new Date().toISOString()})
+    .then(function(res){if(!res.error){syncStamp=Date.now();updateAcctUI();}});
+}
+function countStuff(o){return (o.habits?o.habits.length:0)+Object.keys(o.journal||{}).length+(o.fitness?o.fitness.length:0);}
+function pullCloud(){
+  if(!sb||!cloudUser)return;
+  sb.from("flourish_data").select("data").eq("user_id",cloudUser.id).maybeSingle().then(function(res){
+    if(res.error)return;
+    var remote=res.data&&res.data.data;
+    if(remote&&(remote.updatedAt||0)>(S.updatedAt||0)&&countStuff(remote)>0){
+      S=remote;if(!S.settings)S.settings={faith:false};
+      try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}
+      toast("Synced from your account","☁️");renderCurrent();
+    }else{pushCloud();}
+    syncStamp=Date.now();updateAcctUI();
+  });
+}
+/* ---- account sheet ---- */
+var acctSheet=document.getElementById("acctSheet");
+function updateAcctUI(){
+  var b=document.getElementById("acctBtn");
+  b.classList.toggle("live",!!cloudUser);
+  if(acctSheet.classList.contains("open"))renderAcct();
+}
+function renderAcct(){
+  var m=document.getElementById("acctBody");
+  if(!cloudReady){
+    m.innerHTML='<div class="empty" style="padding:24px 10px"><div class="ei">☁️</div><h3>Cloud sync is coming</h3>'+
+      '<p>Accounts aren’t connected yet. Your data is saved safely on this device in the meantime.</p></div>'+
+      '<div class="actions"><button class="btn btn-ghost" id="acctClose" style="flex:1">Done</button></div>';
+    document.getElementById("acctClose").addEventListener("click",closeSheets);return;
+  }
+  if(cloudUser){
+    var when=syncStamp?new Date(syncStamp).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}):"—";
+    m.innerHTML='<div class="card pad" style="text-align:center;margin-bottom:14px">'+
+      '<div style="font-size:30px">👤</div><div style="font-family:var(--fr);font-weight:700;margin-top:4px">'+esc(cloudUser.email||"Signed in")+'</div>'+
+      '<div class="savedtag" style="margin-top:6px">✓ Syncing · last '+esc(when)+'</div></div>'+
+      '<p class="mini-note" style="text-align:center">Your habits, journals, and progress are backed up and follow you to any device you sign in on.</p>'+
+      '<div class="actions"><button class="btn btn-ghost" id="acctClose">Done</button><button class="btn btn-primary" id="acctSync">Sync now</button></div>'+
+      '<button class="btn-danger-t" id="acctOut">Sign out</button>';
+    document.getElementById("acctClose").addEventListener("click",closeSheets);
+    document.getElementById("acctSync").addEventListener("click",function(){pullCloud();toast("Syncing…","☁️");});
+    document.getElementById("acctOut").addEventListener("click",function(){sb.auth.signOut();toast("Signed out — data stays on this device","👋");});
+    return;
+  }
+  m.innerHTML='<p class="mini-note" style="text-align:center;margin:0 8px 4px">Create a free account to back up your progress and sync it across devices.</p>'+
+    '<div class="flabel">Email</div><input class="tin" id="acctEmail" type="email" placeholder="you@example.com" autocomplete="email" />'+
+    '<div class="flabel">Password</div><input class="tin" id="acctPass" type="password" placeholder="At least 6 characters" autocomplete="current-password" />'+
+    '<div class="actions"><button class="btn btn-ghost" id="acctUp">Create account</button><button class="btn btn-primary" id="acctIn">Sign in</button></div>';
+  function creds(){return {email:document.getElementById("acctEmail").value.trim(),password:document.getElementById("acctPass").value};}
+  document.getElementById("acctIn").addEventListener("click",function(){
+    var c=creds();if(!c.email||!c.password){toast("Enter your email and password","✋");return;}
+    sb.auth.signInWithPassword(c).then(function(r){
+      if(r.error)toast(r.error.message,"⚠️");else{toast("Welcome back","👤");closeSheets();}});
+  });
+  document.getElementById("acctUp").addEventListener("click",function(){
+    var c=creds();if(!c.email||c.password.length<6){toast("Email + a password of 6+ characters","✋");return;}
+    sb.auth.signUp(c).then(function(r){
+      if(r.error)toast(r.error.message,"⚠️");
+      else if(r.data&&r.data.session){toast("Account created — you're synced","🎉");closeSheets();}
+      else toast("Check your email to confirm your account","📬");});
+  });
+}
+document.getElementById("acctBtn").addEventListener("click",function(){renderAcct();openSheet(acctSheet);});
+initCloud();
 
 /* redraw garden on resize (responsive canvas) */
 var _grz;window.addEventListener("resize",function(){clearTimeout(_grz);_grz=setTimeout(function(){if(current==="today")drawGarden(scoresNow());},160);});
