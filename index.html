@@ -350,6 +350,43 @@
 
   .jhistory{margin-top:8px;}
 
+  /* journey */
+  .jny-card{margin-top:12px;padding:15px 16px;position:relative;overflow:hidden;cursor:pointer;}
+  .jny-card .jc-top{display:flex;align-items:center;gap:12px;}
+  .jny-card .jc-ico{width:42px;height:42px;flex-shrink:0;border-radius:13px;display:grid;place-items:center;font-size:21px;
+    background:var(--accent-tint);}
+  .jny-card .jc-main{flex:1;min-width:0;}
+  .jny-card .jc-main .jc-name{font-family:var(--fr);font-size:15.5px;font-weight:700;}
+  .jny-card .jc-main .jc-sub{font-size:12.5px;color:var(--muted);margin-top:1px;}
+  .jny-card .jc-go{font-size:18px;color:var(--muted);}
+  .jny-bar{height:7px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin-top:12px;}
+  .jny-bar i{display:block;height:100%;border-radius:5px;background:var(--accent);transition:width .5s cubic-bezier(.22,1,.36,1);}
+  .jny-start{border:1.5px dashed var(--line);background:transparent;box-shadow:none;}
+  .jny-start .jc-ico{background:var(--surface-2);}
+
+  .jny-head{text-align:center;margin-bottom:4px;}
+  .jny-head .jh-emoji{font-size:34px;}
+  .jny-head h3{font-family:var(--fr);font-size:19px;font-weight:800;margin-top:4px;}
+  .jny-head .jh-day{font-size:12.5px;font-weight:700;color:var(--accent-ink);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+  .jny-dots{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:14px 4px 4px;}
+  .jny-dots button{aspect-ratio:1;border-radius:8px;background:var(--surface-2);font-size:10px;font-weight:700;color:var(--muted);
+    display:grid;place-items:center;font-family:var(--fr);}
+  .jny-dots button.dn{background:var(--accent);color:#fff;}
+  @media (prefers-color-scheme:dark){.jny-dots button.dn{color:#0C130A;}}
+  :root[data-theme="dark"] .jny-dots button.dn{color:#0C130A;} :root[data-theme="light"] .jny-dots button.dn{color:#fff;}
+  .jny-dots button.cur{box-shadow:inset 0 0 0 2px var(--accent);color:var(--accent-ink);}
+  .jny-dots button.lk{opacity:.38;}
+  .jny-day-title{font-family:var(--fr);font-size:17px;font-weight:800;margin:16px 2px 8px;}
+  .jny-teach{font-size:14.5px;line-height:1.6;color:var(--ink-2);}
+  .jny-act{margin-top:14px;padding:13px 15px;border-radius:14px;background:var(--accent-tint);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));}
+  .jny-act .ja-lbl{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:4px;}
+  .jny-act p{font-size:14px;font-weight:600;color:var(--ink);line-height:1.5;}
+  .jny-prompt{margin-top:13px;}
+  .jny-prompt .ja-lbl{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 2px 7px;}
+  .jny-done-tag{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;padding:12px;border-radius:14px;
+    background:var(--surface-2);color:var(--up);font-family:var(--fr);font-weight:700;font-size:14.5px;}
+  .jny-leave{background:transparent;color:var(--muted);font-size:12.5px;margin:10px auto 0;display:block;padding:6px;font-weight:600;}
+
   /* toast */
   .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:60;
     background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;font-family:var(--fr);
@@ -387,6 +424,8 @@
       </div>
 
       <div id="streakMount"></div>
+
+      <div id="journeyMount"></div>
 
       <div class="section-h"><h2>Daily inspiration</h2></div>
       <div class="card inspire-card quote" id="quoteCard">
@@ -501,6 +540,12 @@
     <div class="actions"><button class="btn btn-ghost" id="mClose" style="flex:1">Done</button></div>
   </div>
 
+  <!-- journey sheet -->
+  <div class="sheet" id="journeySheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <div id="jnyBody"></div>
+  </div>
+
   <!-- generic log sheet -->
   <div class="sheet" id="logSheet" role="dialog" aria-modal="true">
     <div class="grab"></div>
@@ -569,7 +614,7 @@ var DEFAULT={
   fitness:[], weightLog:[], diet:{water:{},meals:[]},
   finance:{tx:[],goal:1000}, career:{goals:[],wins:[]},
   favQuotes:[], favVerses:[], rewards:{},
-  journal:{}, playlists:[], settings:{faith:false}
+  journal:{}, playlists:[], settings:{faith:false}, journey:null
 };
 var S=load();
 if(!S.settings)S.settings={faith:false};
@@ -762,6 +807,8 @@ function renderToday(){
     '<div class="sc"><div class="scv'+(currentStreak(actSet)>0?" flameon":"")+'">'+flame()+'<span class="tn">'+currentStreak(actSet)+'</span></div><div class="sck">Day streak</div></div>'+
     '<div class="sc"><div class="scv"><span class="tn">'+maxConsec(actSet)+'</span></div><div class="sck">Longest</div></div>'+
     '<div class="sc"><div class="scv"><span class="tn">'+currentStreak(journalDaySet())+'</span></div><div class="sck">Journaling</div></div></div>';
+
+  renderJourneyCard();
 
   // habits
   renderTodayHabits();
@@ -959,6 +1006,110 @@ function renderInspire(){
   });
 }
 
+/* ============ JOURNEYS ============ */
+var JOURNEYS=[{id:"discipline30",name:"30 Days of Discipline",emoji:"🧭",tagline:"Build the muscle of keeping promises to yourself",days:[
+ {t:"Decide who you're becoming",teach:"Discipline doesn't start with willpower — it starts with identity. People who keep showing up aren't forcing themselves; they're acting like the person they've decided to be. Today isn't about doing more. It's about choosing a direction on purpose.",act:"Write one sentence: “I am becoming someone who ___.” Put it where you'll see it tomorrow.",prompt:"Why does becoming this person actually matter to you?"},
+ {t:"Shrink the start",teach:"The hardest part of any habit is the first two minutes. Motivation isn't required to begin something tiny — and once you begin, continuing is far easier than starting was. Make the entry point so small it's almost embarrassing.",act:"Pick your hardest habit and do only a 2-minute version of it today.",prompt:"What felt different about starting when the bar was tiny?"},
+ {t:"Design your environment",teach:"Your surroundings vote on your behavior all day long. The cookie on the counter wins more often than the willpower fighting it. Disciplined people don't resist temptation more — they arrange their world so there's less to resist.",act:"Remove one temptation from sight and place one good cue where you can't miss it.",prompt:"Which part of your environment works against you the most?"},
+ {t:"Give it a time and place",teach:"“I'll do it today” is a wish. “I'll do it at 7am in the kitchen” is a plan. Intentions with a time and place are two to three times more likely to actually happen, because the decision is already made before the moment arrives.",act:"Give tomorrow's most important habit an exact time and place. Say it out loud.",prompt:"What usually steals the time you meant to use?"},
+ {t:"First things first",teach:"Whatever you do first sets the tone for everything after. When the most important thing happens before the noise — before the phone, the inbox, the feed — the day is already a win by breakfast. Don't spend your best energy on other people's priorities.",act:"Do your most important task before you open any feed or inbox.",prompt:"How did the rest of the day feel after winning the morning?"},
+ {t:"One thing at a time",teach:"Every time you switch tasks, you pay a tax — a few minutes of scattered focus you never get back. Doing two things at once mostly means doing both badly. Single-tasking is a superpower precisely because almost nobody does it anymore.",act:"Choose one task and work on it for 20 minutes with your phone in another room.",prompt:"When are you most tempted to split your attention?"},
+ {t:"Rest is part of the work",teach:"Discipline isn't grinding until you break — that's just a slower way to quit. Sleep, recovery, and real breaks are what make tomorrow's effort possible. Treating rest as a reward you must earn is how burnout wins.",act:"Set a real bedtime for tonight and protect it like an appointment.",prompt:"What does 'tired you' do that 'rested you' would never do?"},
+ {t:"Track what matters",teach:"What gets measured gets managed — not because numbers are magic, but because attention is. A simple record of whether you showed up turns vague guilt into clear information. You can't improve a pattern you can't see.",act:"Check off every habit honestly in this app today — including the ones you missed.",prompt:"What does your record show that your memory hides?"},
+ {t:"Make it satisfying",teach:"Brains repeat what feels good. If the only payoff of your habit is 'someday', today's effort feels like pure cost. Attach a small, immediate reward to the behavior — even just pausing to feel the win — and the habit starts pulling you instead of you pushing it.",act:"After finishing your key habit today, take ten seconds to actually enjoy having done it.",prompt:"Which of your habits feels like punishment? How could it feel like progress?"},
+ {t:"The two-day rule",teach:"Missing once is an accident. Missing twice is the start of a new identity. The rule is simple: never miss two days in a row. It leaves room to be human while refusing to let one bad day become a bad month.",act:"If you've missed a habit lately, do the smallest possible version of it today.",prompt:"What usually turns one missed day into a lost week?"},
+ {t:"Say no to say yes",teach:"Every yes is a no to something else. Undisciplined schedules aren't caused by laziness but by saying yes to everything that asks. Protecting what matters requires disappointing some people — politely, and on purpose.",act:"Decline or cancel one thing this week that doesn't serve what you're building.",prompt:"Where do you keep saying yes out of guilt instead of choice?"},
+ {t:"Do it badly",teach:"Perfectionism is procrastination wearing a suit. The draft can be rough, the workout can be short, the start can be clumsy — done teaches you things perfect never will. High standards are for finishing, not for starting.",act:"Do one thing today at 70% quality that you've been postponing until you could do it perfectly.",prompt:"What has waiting for 'ready' actually cost you?"},
+ {t:"Handle the boring middle",teach:"Every meaningful pursuit has a stretch where novelty is gone and results aren't visible yet. Most people quit there and call it a plateau. It isn't a plateau — it's the part where the roots grow. Boredom is not a sign you're failing; it's a sign you've arrived at the real work.",act:"Do your key habit today with zero upgrades or novelty. Just the plain rep.",prompt:"What do you usually reach for when a good pursuit gets boring?"},
+ {t:"Week two review",teach:"Feedback beats intensity. A short honest look at what's working — and what keeps breaking — is worth more than a heroic burst of effort. Review isn't judgment day; it's navigation.",act:"Write down: one habit that's sticking, one that's slipping, and one small fix for the slipping one.",prompt:"What pattern do you notice in when you slip?"},
+ {t:"Plan for obstacles",teach:"Hope is not a strategy. The disciplined don't expect smooth days — they pre-decide what happens on rough ones: 'If it rains, I train inside. If I'm exhausted, I do five minutes.' An if-then plan removes the negotiation when your resolve is weakest.",act:"Write one if-then plan for your most common obstacle: “If ___, then I will ___.”",prompt:"Which obstacle keeps surprising you even though it shouldn't?"},
+ {t:"Control the controllables",teach:"You don't control outcomes — you control actions. The scale, the promotion, the response of others: all downstream, all partly luck. Effort, attitude, and attention are yours entirely. Discipline aims at what it can actually reach.",act:"Name one outcome you've been anxious about, and the one action today that's actually yours to take.",prompt:"Where are you grading yourself on results instead of effort?"},
+ {t:"Talk to yourself like a coach",teach:"The voice in your head is either a coach or a critic, and you get to pick. Self-criticism feels productive but reliably drains the energy change requires. Coaches tell the truth *and* keep you in the game.",act:"Catch one harsh inner comment today and restate it the way a good coach would.",prompt:"Whose voice does your inner critic actually sound like?"},
+ {t:"The power of again",teach:"Mastery is mostly repetition without resentment. The rep you've done a hundred times still counts; the fundamentals never stop being the point. Falling in love with 'again' is what separates the consistent from the occasional.",act:"Repeat yesterday's key habit today with full attention, as if it were the first time.",prompt:"What fundamental have you been skipping because it feels beneath you?"},
+ {t:"Discomfort is information",teach:"The urge to quit mid-effort isn't an emergency — it's just weather. Urges crest and pass in minutes if you don't feed them. You can feel the pull toward comfort and still not obey it; that gap between feeling and action is where discipline lives.",act:"Next time you want to quit early today, wait ten minutes before deciding.",prompt:"What does your urge to quit usually promise you? Does it deliver?"},
+ {t:"Finish what you start",teach:"Half-finished things leak energy. Every open loop — the almost-done task, the 90% project — quietly taxes your attention. Closing loops returns that energy, and it trains the deeper skill: being someone whose starts mean something.",act:"Pick one small unfinished thing and finish it completely today.",prompt:"What's your oldest open loop, and what would closing it free up?"},
+ {t:"Strengthen by subtraction",teach:"Progress isn't only addition. Often the fastest gain is removing something: one commitment, one app, one late-night hour. Sculptors don't add marble. Ask not just 'what should I do more of' but 'what is in the way'.",act:"Delete, unsubscribe, or quit one small thing today that steadily drains you.",prompt:"If you could remove one thing from your weeks, what would it be?"},
+ {t:"Week three review",teach:"Three weeks in, effort has a shape. Some things you feared were hard turned out fine; some easy-looking things keep biting. Update the plan — stubbornness about methods is not the same as commitment to the goal.",act:"Adjust one habit's time, size, or trigger based on what three weeks have taught you.",prompt:"What have you learned about yourself that you didn't know on day one?"},
+ {t:"Keep promises to yourself",teach:"Self-trust is built exactly like trust with others: promises made, promises kept. Every kept commitment — however small — is a deposit. Every quiet self-betrayal is a withdrawal. Confidence isn't hype; it's a track record.",act:"Make one small, specific promise to yourself this morning and keep it before sunset.",prompt:"How does it change you to know your own word is good?"},
+ {t:"Let it be seen",teach:"Private goals die quietly. A little accountability — one person who knows what you're attempting — multiplies follow-through. Not for applause: for the honest weight of being witnessed.",act:"Tell one person what you're building and ask them to check on you in a week.",prompt:"What keeps you from letting people see your attempts?"},
+ {t:"Act your way into feeling",teach:"Waiting to feel motivated gets the order backwards. Action generates motivation more reliably than motivation generates action. Start cold, and warmth follows — the body leads, the mood tags along.",act:"Do your key habit today especially if you don't feel like it. Note how you feel after.",prompt:"How often does the feeling you waited for actually arrive on its own?"},
+ {t:"Raise the floor, not the ceiling",teach:"Your worst days define your results more than your best ones. A spectacular Monday can't outweigh four zeros. The discipline that compounds is a higher floor: the version of the habit you do even on terrible days.",act:"Define your 'floor' version of each key habit — the minimum that still counts — and write it down.",prompt:"What would change if your bad days were half as bad?"},
+ {t:"Gratitude is fuel",teach:"Discipline powered by self-loathing runs out; discipline powered by appreciation renews. Noticing what's already good doesn't make you complacent — it makes the effort feel like building instead of escaping.",act:"Write down three things about your current life you'd miss if they vanished.",prompt:"Are you building from 'not good enough' or toward something you love?"},
+ {t:"Teach it to keep it",teach:"The best test of whether you've learned something is whether you can give it away. Explaining what works for you — to a friend, a kid, a note to your future self — locks it in deeper than another week of silent practice.",act:"Share one thing this month taught you with someone who'd benefit from it.",prompt:"Which lesson from these weeks do you most want to keep?"},
+ {t:"Plan the next mountain",teach:"Arrival is a myth — there's only the next stretch of trail. Before this journey ends, aim the momentum somewhere: a new habit, a deeper version of an old one, a goal that scares you a little. Momentum unaimed dissolves.",act:"Write down the one thing you'll build next, and its first tiny step.",prompt:"What are you now capable of that you weren't 30 days ago?"},
+ {t:"Become the promise",teach:"Thirty days ago you wrote: 'I am becoming someone who ___.' Today, read it again. Discipline was never about the streak — it was about becoming someone whose actions and intentions match. Keep the identity; the habits will follow it anywhere.",act:"Reread your day-one sentence. Rewrite it in the present tense: “I am someone who ___.”",prompt:"What will you do tomorrow, now that no one is prescribing it?"}
+]}];
+function activeJourney(){if(!S.journey)return null;var p=JOURNEYS.find(function(j){return j.id===S.journey.programId;});return p?{p:p,st:S.journey}:null;}
+function journeyDayIdx(){var a=activeJourney();if(!a)return 0;
+  var ms=new Date(TODAY+"T00:00:00")-new Date(a.st.startKey+"T00:00:00");
+  return Math.max(0,Math.min(a.p.days.length-1,Math.round(ms/864e5)));}
+var jnyView=0;
+function renderJourneyCard(){
+  var m=document.getElementById("journeyMount");if(!m)return;
+  var a=activeJourney();
+  if(!a){
+    var p=JOURNEYS[0];
+    m.innerHTML='<div class="card jny-card jny-start" id="jnyOpen" role="button" tabindex="0">'+
+      '<div class="jc-top"><div class="jc-ico">'+p.emoji+'</div><div class="jc-main">'+
+      '<div class="jc-name">Start a journey: '+esc(p.name)+'</div>'+
+      '<div class="jc-sub">'+esc(p.tagline)+'</div></div><div class="jc-go">›</div></div></div>';
+  }else{
+    var doneN=Object.keys(a.st.done||{}).length, idx=journeyDayIdx(), day=a.p.days[idx];
+    m.innerHTML='<div class="card jny-card" id="jnyOpen" role="button" tabindex="0">'+
+      '<div class="jc-top"><div class="jc-ico">'+a.p.emoji+'</div><div class="jc-main">'+
+      '<div class="jc-name">'+esc(a.p.name)+'</div>'+
+      '<div class="jc-sub">Day '+(idx+1)+' of '+a.p.days.length+' · '+esc(day.t)+(a.st.done[idx]?" ✓":"")+'</div></div><div class="jc-go">›</div></div>'+
+      '<div class="jny-bar"><i style="width:'+Math.round(doneN/a.p.days.length*100)+'%"></i></div></div>';
+  }
+  document.getElementById("jnyOpen").addEventListener("click",function(){openJourney();});
+}
+function openJourney(){jnyView=journeyDayIdx();renderJourneySheet();openSheet(document.getElementById("journeySheet"));}
+function renderJourneySheet(){
+  var body=document.getElementById("jnyBody"), a=activeJourney();
+  if(!a){
+    var p=JOURNEYS[0];
+    body.innerHTML='<div class="jny-head"><div class="jh-emoji">'+p.emoji+'</div><h3>'+esc(p.name)+'</h3>'+
+      '<div class="jh-day">'+p.days.length+' days · one small step a day</div></div>'+
+      '<p class="jny-teach" style="text-align:center;margin:10px 4px">'+esc(p.tagline)+'. Each day: a short idea, one small action, and a question worth sitting with. Miss a day? Just pick up where you left off.</p>'+
+      '<div class="actions"><button class="btn btn-ghost" id="jnyCancel">Not yet</button><button class="btn btn-primary" id="jnyStart">Begin Day 1</button></div>';
+    document.getElementById("jnyCancel").addEventListener("click",closeSheets);
+    document.getElementById("jnyStart").addEventListener("click",function(){
+      S.journey={programId:p.id,startKey:TODAY,done:{},notes:{}};save();chimeDone();
+      toast("Journey begun — Day 1 awaits","🧭");jnyView=0;renderJourneySheet();renderCurrent();});
+    return;
+  }
+  var p=a.p, cur=journeyDayIdx(), i=Math.min(jnyView,cur), day=p.days[i], isDone=!!a.st.done[i];
+  var dots='<div class="jny-dots">';
+  for(var d=0;d<p.days.length;d++){
+    dots+='<button data-jd="'+d+'" class="'+(a.st.done[d]?"dn":"")+(d===i?" cur":"")+(d>cur?" lk":"")+'"'+(d>cur?' disabled':'')+'>'+(d+1)+'</button>';}
+  dots+='</div>';
+  body.innerHTML='<div class="jny-head"><div class="jh-emoji">'+p.emoji+'</div><h3>'+esc(p.name)+'</h3>'+
+    '<div class="jh-day">Day '+(i+1)+' of '+p.days.length+'</div></div>'+dots+
+    '<div class="jny-day-title">'+esc(day.t)+'</div>'+
+    '<p class="jny-teach">'+esc(day.teach)+'</p>'+
+    '<div class="jny-act"><div class="ja-lbl">Today\'s action</div><p>'+esc(day.act)+'</p></div>'+
+    '<div class="jny-prompt"><div class="ja-lbl">Reflect</div>'+
+    '<textarea class="jarea" id="jnyNote" placeholder="'+esc(day.prompt)+'">'+esc(a.st.notes[i]||"")+'</textarea></div>'+
+    (isDone?'<div class="jny-done-tag">✓ Day '+(i+1)+' complete</div>'
+      :'<button class="quick-add" id="jnyDone" style="margin-top:14px"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Mark Day '+(i+1)+' complete</button>')+
+    '<button class="jny-leave" id="jnyLeave">Leave this journey</button>';
+  body.querySelectorAll("[data-jd]").forEach(function(b){b.addEventListener("click",function(){
+    saveJnyNote(i);jnyView=+b.getAttribute("data-jd");renderJourneySheet();});});
+  var noteEl=document.getElementById("jnyNote");
+  noteEl.addEventListener("blur",function(){saveJnyNote(i);});
+  if(!isDone)document.getElementById("jnyDone").addEventListener("click",function(){
+    saveJnyNote(i);a.st.done[i]=true;save();chimeDone();if(navigator.vibrate)navigator.vibrate(12);
+    var total=Object.keys(a.st.done).length;
+    if(total===p.days.length){setTimeout(chimeReward,400);toast("Journey complete — 30 days. Remarkable.","🏆");}
+    else toast("Day "+(i+1)+" complete","🧭");
+    renderJourneySheet();renderCurrent();});
+  document.getElementById("jnyLeave").addEventListener("click",function(){
+    if(!confirm("Leave this journey? Your progress will be cleared."))return;
+    S.journey=null;save();closeSheets();renderCurrent();});
+}
+function saveJnyNote(i){var el=document.getElementById("jnyNote"),a=activeJourney();
+  if(el&&a){a.st.notes[i]=el.value.trim();save();}}
+
 /* ============ JOURNAL ============ */
 var jTab="morning", jDraft={};
 var MOODS=[{e:"😣",v:1},{e:"😕",v:2},{e:"🙂",v:3},{e:"😀",v:4},{e:"🔥",v:5}];
@@ -1154,6 +1305,7 @@ function editGoal(){promptSheet("Savings goal",[{k:"g",label:"Target amount",typ
 function openSheet(el){scrim.classList.add("open");el.classList.add("open");}
 function closeSheets(){scrim.classList.remove("open");habitSheet.classList.remove("open");logSheet.classList.remove("open");
   var ms=document.getElementById("musicSheet");if(ms)ms.classList.remove("open");
+  var js=document.getElementById("journeySheet");if(js)js.classList.remove("open");
   document.getElementById("hName").blur();}
 scrim.addEventListener("click",closeSheets);
 
