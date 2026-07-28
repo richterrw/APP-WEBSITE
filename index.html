@@ -569,9 +569,12 @@
 /* Cloud config — filled in when the Supabase project is connected.
    The anon key is safe to publish: all data access is enforced by
    Row Level Security on the database (each user can only touch their own row). */
-window.FLOURISH_CLOUD = { url: "", anonKey: "" };
+window.FLOURISH_CLOUD = {
+  url: "https://ipynzoypuhjbgybqjfnx.supabase.co",
+  anonKey: "sb_publishable_sRx5A8w5BaQgM6xAKfe2_g_VpXUEjdJ"
+};
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase.js"></script>
 <script>
 (function(){
 "use strict";
