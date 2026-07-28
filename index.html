@@ -223,7 +223,7 @@
   .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mix(in srgb,var(--paper) 88%,transparent);
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);
     padding:8px 10px calc(8px + env(safe-area-inset-bottom));}
-  .nav .row{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);}
+  .nav .row{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);}
   .nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;color:var(--muted);font-size:10.5px;font-weight:650;}
   .nav button svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round;}
   .nav button.on{color:var(--accent-ink);}
@@ -282,6 +282,75 @@
   @keyframes burst{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--hc,var(--accent)) 55%,transparent);}100%{box-shadow:0 0 0 15px transparent;}}
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;}}
   :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px;}
+
+  /* streak card */
+  .streakcard{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);}
+  .sc{background:var(--surface);padding:13px 10px;text-align:center;}
+  .sc .scv{font-family:var(--fr);font-size:23px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;justify-content:center;gap:4px;}
+  .sc .scv.flameon{color:var(--gold);}
+  .sc .sck{font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
+  .sc .scv svg{width:16px;height:16px;}
+
+  /* clock badge on habit */
+  .clockbadge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:650;color:var(--muted);}
+  .clockbadge.due{color:var(--p-physical);}
+  .clockbadge svg{width:11px;height:11px;stroke:currentColor;stroke-width:2;fill:none;}
+
+  /* music sheet */
+  .music-toggle{width:100%;display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;background:var(--surface-2);text-align:left;margin-bottom:6px;transition:.15s;}
+  .music-toggle.on{background:var(--accent-tint);box-shadow:inset 0 0 0 1.5px var(--accent);}
+  .music-toggle .mt-ico{font-size:22px;width:26px;text-align:center;}
+  .music-toggle .mt-body{flex:1;min-width:0;}
+  .music-toggle .mt-body b{font-family:var(--fr);font-size:15px;font-weight:700;display:block;}
+  .music-toggle .mt-body span{font-size:12px;color:var(--muted);}
+  .music-toggle .mt-state{font-size:12px;font-weight:700;color:var(--muted);padding:4px 10px;border-radius:999px;background:var(--surface);}
+  .music-toggle.on .mt-state{color:var(--accent-ink);background:var(--surface);}
+  .play-list{display:flex;flex-direction:column;gap:8px;}
+  .play-item{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--surface-2);border-radius:13px;color:var(--ink);text-decoration:none;}
+  .play-item .sp{width:30px;height:30px;flex-shrink:0;border-radius:50%;background:#1DB954;display:grid;place-items:center;}
+  .play-item .sp svg{width:17px;height:17px;fill:#fff;}
+  .play-item .pmain{flex:1;min-width:0;}
+  .play-item .pmain b{font-family:var(--fr);font-size:14.5px;font-weight:650;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .play-item .pmain span{font-size:11.5px;color:var(--muted);}
+  .play-item .go{font-size:16px;color:var(--muted);}
+  .play-item .del{font-size:15px;color:var(--muted);padding:4px;}
+
+  /* journal */
+  .jsession{display:flex;flex-direction:column;gap:16px;}
+  .jcard{padding:16px;}
+  .jhead{display:flex;align-items:center;gap:11px;margin-bottom:4px;}
+  .jhead .jico{font-size:26px;}
+  .jhead b{font-family:var(--fr);font-size:18px;font-weight:700;display:block;}
+  .jhead span{font-size:12.5px;color:var(--muted);}
+  .jq{font-family:var(--fr);font-size:14px;font-weight:650;margin:14px 2px 8px;display:flex;align-items:center;gap:7px;}
+  .jq .qn{width:20px;height:20px;flex-shrink:0;border-radius:50%;background:var(--accent-tint);color:var(--accent-ink);font-size:11px;display:grid;place-items:center;font-weight:800;}
+  .jarea{width:100%;background:var(--surface-2);border:1.5px solid transparent;border-radius:13px;padding:12px 14px;font-size:15px;font-family:var(--fb);color:var(--ink);outline:none;resize:vertical;min-height:52px;line-height:1.5;transition:border-color .15s;}
+  .jarea:focus{border-color:var(--accent);}
+  .jarea::placeholder{color:var(--muted);}
+  .moodrow{display:flex;gap:8px;}
+  .moodrow button{flex:1;aspect-ratio:1;max-height:52px;border-radius:13px;background:var(--surface-2);font-size:23px;display:grid;place-items:center;transition:.14s;}
+  .moodrow button.sel{background:var(--accent-tint);box-shadow:inset 0 0 0 2px var(--accent);transform:scale(1.04);}
+  .prio-in{margin-bottom:8px;}
+  .savedtag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--up);}
+
+  /* feedback */
+  .fbcard{padding:16px;border:1px solid var(--accent);background:linear-gradient(160deg,var(--accent-tint),var(--surface));}
+  .fbcard .fbh{display:flex;align-items:center;gap:8px;font-family:var(--fr);font-size:15px;font-weight:800;color:var(--accent-ink);margin-bottom:9px;}
+  .fbcard .fbsum{font-size:14px;line-height:1.55;color:var(--ink);margin-bottom:13px;}
+  .fbcard .fbplan-h{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:8px;}
+  .fbcard ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .fbcard li{display:flex;gap:9px;font-size:13.5px;line-height:1.5;color:var(--ink-2);}
+  .fbcard li .ck{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;margin-top:1px;}
+  @media (prefers-color-scheme:dark){.fbcard li .ck{color:#0C130A;}}
+  :root[data-theme="dark"] .fbcard li .ck{color:#0C130A;} :root[data-theme="light"] .fbcard li .ck{color:#fff;}
+
+  .jhistory{margin-top:8px;}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:60;
+    background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;font-family:var(--fr);
+    box-shadow:0 10px 30px -8px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.3s;max-width:88vw;display:flex;align-items:center;gap:9px;}
+  .toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
 </head>
 <body>
@@ -314,6 +383,8 @@
         <div class="rt"><b id="rewardTitle">Today's reward track</b><span id="rewardSub">Finish everything to unlock</span></div>
         <button class="play" id="rewardPlay" disabled aria-label="Play reward"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
       </div>
+
+      <div id="streakMount"></div>
 
       <div class="section-h"><h2>Daily inspiration</h2></div>
       <div class="card inspire-card quote" id="quoteCard">
@@ -359,6 +430,16 @@
       <div id="trackMount"></div>
     </section>
 
+    <!-- ============ JOURNAL ============ -->
+    <section class="view" id="view-journal">
+      <div class="section-h"><h2>Journal</h2><span class="sub" id="jStreakSub">reflect & grow</span></div>
+      <div class="seg" id="jSeg">
+        <button data-j="morning" class="on">🌅 Morning</button>
+        <button data-j="evening">🌙 Evening</button>
+      </div>
+      <div id="journalMount"></div>
+    </section>
+
     <!-- ============ INSPIRE ============ -->
     <section class="view" id="view-inspire">
       <div class="section-h"><h2>Inspiration</h2><span class="sub">grow the mind & spirit</span></div>
@@ -368,10 +449,13 @@
 
   <button class="fab" id="fab" aria-label="New habit"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
 
+  <div class="toast" id="toast"></div>
+
   <nav class="nav"><div class="row">
     <button data-v="today" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Today</button>
     <button data-v="grow"><svg viewBox="0 0 24 24"><path d="M12 21v-8M12 13c0-4 3-6 7-6 0 4-3 6-7 6zM12 13c0-3-2.2-4.5-5-4.5C7 11.5 9 13 12 13z"/></svg>Grow</button>
     <button data-v="track"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M4 19h16"/></svg>Track</button>
+    <button data-v="journal"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2zM4 17a2 2 0 0 1 2-2h12M8 7h6M8 11h6"/></svg>Journal</button>
     <button data-v="inspire"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.2 1 2.5h6c0-1.3.3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>Inspire</button>
   </div></nav>
 
@@ -386,11 +470,33 @@
     <div class="pill-choose" id="hPillars"></div>
     <div class="flabel">Icon</div>
     <div class="emoji-grid" id="hEmojis"></div>
+    <div class="flabel">Reminder <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted)">(optional)</span></div>
+    <div class="two" style="align-items:center">
+      <input class="tin" id="hRemind" type="time" style="flex:1" />
+      <button class="btn btn-ghost" id="hRemindClear" type="button" style="height:48px">Clear</button>
+    </div>
+    <p class="mini-note" id="remindNote">Nudges you at this time while Flourish is open in your browser.</p>
     <div class="actions">
       <button class="btn btn-ghost" id="hCancel">Cancel</button>
       <button class="btn btn-primary" id="hSave">Add habit</button>
     </div>
     <button class="btn-danger-t" id="hDelete" style="display:none;">Delete this habit</button>
+  </div>
+
+  <!-- music sheet -->
+  <div class="sheet" id="musicSheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <h3>Music &amp; sound</h3>
+    <button class="music-toggle" id="focusToggle">
+      <span class="mt-ico" id="focusIco">🎧</span>
+      <span class="mt-body"><b id="focusLabel">Focus sounds</b><span id="focusSub">Gentle ambient tones to help you concentrate</span></span>
+      <span class="mt-state" id="focusState">Off</span>
+    </button>
+    <div class="flabel" style="display:flex;align-items:center;gap:6px"><span style="color:#1DB954">●</span> Your Spotify playlists</div>
+    <div id="playlistMount"></div>
+    <button class="add-in" id="addPlaylist" style="margin-top:8px"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add Spotify playlist</button>
+    <p class="mini-note">Opens in your Spotify app. Paste any playlist, album, or track share link from Spotify.</p>
+    <div class="actions"><button class="btn btn-ghost" id="mClose" style="flex:1">Done</button></div>
   </div>
 
   <!-- generic log sheet -->
@@ -460,7 +566,8 @@ var DEFAULT={
   ],
   fitness:[], weightLog:[], diet:{water:{},meals:[]},
   finance:{tx:[],goal:1000}, career:{goals:[],wins:[]},
-  favQuotes:[], favVerses:[], rewards:{}
+  favQuotes:[], favVerses:[], rewards:{},
+  journal:{}, playlists:[]
 };
 var S=load();
 function load(){try{var r=localStorage.getItem(SK);if(!r)return clone(DEFAULT);var o=JSON.parse(r);
@@ -476,6 +583,35 @@ function dayOfYear(){var n=new Date();var s=new Date(n.getFullYear(),0,0);return
 function lastDays(n){var o=[];for(var i=n-1;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);o.push({key:keyOf(d),dow:d.getDay(),isToday:keyOf(d)===TODAY});}return o;}
 function streakOf(h){var c=0,d=new Date();if(!h.history[keyOf(d)])d.setDate(d.getDate()-1);while(h.history[keyOf(d)]){c++;d.setDate(d.getDate()-1);}return c;}
 function money(n){return "$"+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});}
+function pad2(n){return String(n).padStart(2,"0");}
+
+/* ---- streaks (goal-based) ---- */
+function activeDaySet(){var s={};S.habits.forEach(function(h){for(var k in h.history)s[k]=1;});return s;}
+function maxConsec(setObj){var keys=Object.keys(setObj).sort();if(!keys.length)return 0;var max=1,cur=1;
+  for(var i=1;i<keys.length;i++){var diff=Math.round((new Date(keys[i])-new Date(keys[i-1]))/864e5);
+    if(diff===1)cur++;else if(diff>1)cur=1;max=Math.max(max,cur);}return max;}
+function currentStreak(setObj){var c=0,d=new Date();if(!setObj[keyOf(d)])d.setDate(d.getDate()-1);
+  while(setObj[keyOf(d)]){c++;d.setDate(d.getDate()-1);}return c;}
+function journalDaySet(){var s={};for(var k in S.journal){if(S.journal[k]&&(S.journal[k].morning||S.journal[k].evening))s[k]=1;}return s;}
+function bestGoalStreak(){var m=0;S.habits.forEach(function(h){m=Math.max(m,streakOf(h));});return m;}
+
+/* ---- toast + reminders ---- */
+function toast(msg,icon){var t=document.getElementById("toast");t.innerHTML=(icon?'<span>'+icon+'</span>':'')+'<span>'+esc(msg)+'</span>';
+  t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove("show");},3600);}
+var firedReminders={};
+function requestNotify(){if("Notification" in window && Notification.permission==="default"){Notification.requestPermission();}}
+function checkReminders(){
+  var now=new Date(),hm=pad2(now.getHours())+":"+pad2(now.getMinutes());
+  S.habits.forEach(function(h){
+    if(h.remindAt===hm && !h.history[TODAY]){
+      var fk=TODAY+"|"+h.id;if(firedReminders[fk])return;firedReminders[fk]=1;
+      toast("Time to "+h.name.toLowerCase(),h.emoji);chimeDone();
+      if("Notification" in window && Notification.permission==="granted"){
+        try{new Notification("Flourish · "+h.name,{body:"It's time for your "+pillar(h.pillar).name.toLowerCase()+" goal 🌱",tag:fk});}catch(e){}}
+    }
+  });
+  if(current==="today")renderTodayHabits();
+}
 
 /* ============ AUDIO (achievement music) ============ */
 var AC=window.AudioContext||window.webkitAudioContext, actx=null, focusOn=false, focusTimer=null, focusStep=0;
@@ -489,8 +625,10 @@ function chimeReward(){[523.25,659.25,783.99,1046.5,987.77,1174.7,1567.98].forEa
 function focusTick(){var chords=[[220,277.18,329.63],[196,246.94,293.66],[174.61,220,261.63],[164.81,207.65,246.94]];
   var ch=chords[focusStep%chords.length];ch.forEach(function(f){note(f,0,3.6,"sine",.05);});
   note(ch[0]/2,0,3.6,"sine",.04);focusStep++;}
-function toggleFocus(){var b=document.getElementById("musicBtn");if(focusOn){focusOn=false;clearInterval(focusTimer);b.classList.remove("live");b.textContent="♪";}
-  else{focusOn=true;audio();focusStep=0;focusTick();focusTimer=setInterval(focusTick,3400);b.classList.add("live");b.textContent="♫";}}
+function toggleFocus(){if(focusOn){focusOn=false;clearInterval(focusTimer);}
+  else{focusOn=true;audio();focusStep=0;focusTick();focusTimer=setInterval(focusTick,3400);}updateMusicUI();}
+function updateMusicUI(){var b=document.getElementById("musicBtn");b.classList.toggle("live",focusOn);b.textContent=focusOn?"♫":"♪";
+  var t=document.getElementById("focusToggle");if(t){t.classList.toggle("on",focusOn);document.getElementById("focusState").textContent=focusOn?"On":"Off";document.getElementById("focusIco").textContent=focusOn?"🔊":"🎧";}}
 
 /* ============ RADAR ============ */
 function drawRadar(vals){
@@ -557,7 +695,19 @@ function renderToday(){
   document.getElementById("verseFav").classList.toggle("on",S.favVerses.indexOf(vi)>=0);
   document.getElementById("verseFav").textContent=S.favVerses.indexOf(vi)>=0?"♥":"♡";
 
+  // streaks
+  var actSet=activeDaySet();
+  var sm=document.getElementById("streakMount");
+  sm.innerHTML='<div class="streakcard">'+
+    '<div class="sc"><div class="scv'+(currentStreak(actSet)>0?" flameon":"")+'">'+flame()+'<span class="tn">'+currentStreak(actSet)+'</span></div><div class="sck">Day streak</div></div>'+
+    '<div class="sc"><div class="scv"><span class="tn">'+maxConsec(actSet)+'</span></div><div class="sck">Longest</div></div>'+
+    '<div class="sc"><div class="scv"><span class="tn">'+currentStreak(journalDaySet())+'</span></div><div class="sck">Journaling</div></div></div>';
+
   // habits
+  renderTodayHabits();
+}
+function renderTodayHabits(){
+  var doneT=S.habits.filter(function(h){return h.history[TODAY];}).length, tot=S.habits.length;
   document.getElementById("todayCount").textContent=doneT+" of "+tot;
   var ul=document.getElementById("todayHabits");ul.innerHTML="";
   if(!tot){var e=document.createElement("div");e.className="empty";
@@ -570,9 +720,13 @@ function habitRow(h,showTag){
   var li=document.createElement("li");li.className="habit"+(h.history[TODAY]?" done":"");li.style.setProperty("--hc",p.color);
   var edit=document.createElement("button");edit.className="eh";edit.setAttribute("aria-label","Edit "+h.name);
   var st=streakOf(h);
+  var clock="";
+  if(h.remindAt){var nowHM=pad2(new Date().getHours())+":"+pad2(new Date().getMinutes());
+    var due=!h.history[TODAY]&&h.remindAt<=nowHM;
+    clock='<span class="clockbadge'+(due?" due":"")+'"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2"/></svg>'+h.remindAt+'</span>';}
   edit.innerHTML='<div class="h-emoji">'+h.emoji+'</div><div class="h-body"><div class="h-name">'+esc(h.name)+'</div>'+
     '<div class="h-meta"><span class="streak'+(st>0?" on":"")+'">'+flame()+'<span class="tn">'+(st>0?st+"d":"—")+'</span></span>'+
-    (showTag?'<span class="pill-tag">'+p.name+'</span>':'')+'</div></div>';
+    clock+(showTag?'<span class="pill-tag">'+p.name+'</span>':'')+'</div></div>';
   edit.addEventListener("click",function(){openHabit(h.id);});
   var ck=document.createElement("button");ck.className="check";ck.setAttribute("aria-pressed",h.history[TODAY]?"true":"false");
   ck.setAttribute("aria-label",(h.history[TODAY]?"Mark not done: ":"Mark done: ")+h.name);
@@ -734,6 +888,121 @@ function renderInspire(){
   m.innerHTML=html;
 }
 
+/* ============ JOURNAL ============ */
+var jTab="morning", jDraft={};
+var MOODS=[{e:"😣",v:1},{e:"😕",v:2},{e:"🙂",v:3},{e:"😀",v:4},{e:"🔥",v:5}];
+function jEntry(){return S.journal[TODAY]||{};}
+function renderJournal(){
+  var hr=new Date().getHours();
+  // auto-suggest tab by time on first open handled in show()
+  document.getElementById("jSeg").querySelectorAll("button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-j")===jTab);});
+  var entry=jEntry(), saved=entry[jTab];
+  jDraft=saved?JSON.parse(JSON.stringify(saved)):(jTab==="morning"?{mood:0,grateful:"",priorities:["","",""],intention:""}:{mood:0,wins:"",drains:"",improve:""});
+  document.getElementById("jStreakSub").textContent=currentStreak(journalDaySet())+"-day journaling streak";
+  var m=document.getElementById("journalMount");
+  if(jTab==="morning")m.innerHTML=morningHTML(saved);else m.innerHTML=eveningHTML(saved);
+  wireJournal(saved);
+}
+function moodPicker(sel){return '<div class="moodrow" id="moodRow">'+MOODS.map(function(x){return '<button type="button" data-mood="'+x.v+'" class="'+(sel===x.v?"sel":"")+'">'+x.e+'</button>';}).join("")+'</div>';}
+function morningHTML(saved){
+  var e=jDraft;
+  return '<div class="jsession"><div class="card jcard">'+
+    '<div class="jhead"><span class="jico">🌅</span><div><b>Morning intention</b><span>Set the tone before the day begins</span></div></div>'+
+    '<div class="jq"><span class="qn">1</span>How are you feeling?</div>'+moodPicker(e.mood)+
+    '<div class="jq"><span class="qn">2</span>What are you grateful for?</div><textarea class="jarea" id="jGrateful" placeholder="Three things, big or small…">'+esc(e.grateful||"")+'</textarea>'+
+    '<div class="jq"><span class="qn">3</span>Your top 3 priorities today</div>'+
+      '<input class="tin prio-in" id="jP0" placeholder="1 · Most important thing" value="'+esc(e.priorities?e.priorities[0]:"")+'" />'+
+      '<input class="tin prio-in" id="jP1" placeholder="2 · " value="'+esc(e.priorities?e.priorities[1]:"")+'" />'+
+      '<input class="tin prio-in" id="jP2" placeholder="3 · " value="'+esc(e.priorities?e.priorities[2]:"")+'" />'+
+    '<div class="jq"><span class="qn">4</span>Who do you want to be today?</div><textarea class="jarea" id="jIntention" placeholder="e.g. Patient, focused, present…">'+esc(e.intention||"")+'</textarea>'+
+    '<button class="quick-add" id="jSave" style="margin-top:18px"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> '+(saved?"Update & get plan":"Save & get my plan")+'</button>'+
+    '</div>'+
+    (saved?'<div class="card fbcard">'+feedbackHTML(buildFeedback("morning",saved))+'</div>':'')+
+    journalHistoryHTML()+'</div>';
+}
+function eveningHTML(saved){
+  var e=jDraft, morn=jEntry().morning;
+  var prioHint=morn&&morn.priorities&&morn.priorities.filter(Boolean).length?'<p class="mini-note" style="margin:0 2px 8px">This morning you set: '+esc(morn.priorities.filter(Boolean).join(" · "))+'</p>':'';
+  return '<div class="jsession"><div class="card jcard">'+
+    '<div class="jhead"><span class="jico">🌙</span><div><b>Evening reflection</b><span>Close the day with honesty and grace</span></div></div>'+
+    '<div class="jq"><span class="qn">1</span>How was today, overall?</div>'+moodPicker(e.mood)+
+    '<div class="jq"><span class="qn">2</span>What went well? Your wins.</div>'+prioHint+'<textarea class="jarea" id="jWins" placeholder="What are you proud of today?">'+esc(e.wins||"")+'</textarea>'+
+    '<div class="jq"><span class="qn">3</span>What drained you or felt hard?</div><textarea class="jarea" id="jDrains" placeholder="Name it — naming it loosens its grip.">'+esc(e.drains||"")+'</textarea>'+
+    '<div class="jq"><span class="qn">4</span>One thing to improve tomorrow</div><textarea class="jarea" id="jImprove" placeholder="Small and specific beats big and vague.">'+esc(e.improve||"")+'</textarea>'+
+    '<button class="quick-add" id="jSave" style="margin-top:18px"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> '+(saved?"Update & get plan":"Save & get my plan")+'</button>'+
+    '</div>'+
+    (saved?'<div class="card fbcard">'+feedbackHTML(buildFeedback("evening",saved))+'</div>':'')+
+    journalHistoryHTML()+'</div>';
+}
+function journalHistoryHTML(){
+  var days=Object.keys(S.journal).filter(function(k){return k!==TODAY&&(S.journal[k].morning||S.journal[k].evening);}).sort().reverse().slice(0,5);
+  if(!days.length)return "";
+  var h='<div class="section-h jhistory"><h2 style="font-size:14px">Recent entries</h2></div><ul class="loglist">';
+  days.forEach(function(k){var d=S.journal[k],mo=new Date(k+"T00:00:00");
+    var bits=[];if(d.morning)bits.push("🌅");if(d.evening)bits.push("🌙");
+    var mood=(d.evening&&d.evening.mood)||(d.morning&&d.morning.mood);var me=MOODS.find(function(x){return x.v===mood;});
+    h+='<li class="logitem"><span class="lemoji">'+bits.join("")+'</span><div class="lmain"><b>'+mo.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})+'</b><span>'+(d.morning&&d.morning.intention?esc(d.morning.intention):(d.evening&&d.evening.wins?esc(d.evening.wins.slice(0,40)):"reflection"))+'</span></div>'+(me?'<span class="lval">'+me.e+'</span>':'')+'</li>';});
+  return h+'</ul>';
+}
+function wireJournal(saved){
+  var mr=document.getElementById("moodRow");
+  if(mr)mr.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){jDraft.mood=+b.getAttribute("data-mood");
+    mr.querySelectorAll("button").forEach(function(x){x.classList.toggle("sel",x===b);});});});
+  document.getElementById("jSave").addEventListener("click",saveJournal);
+}
+function collectJournal(){
+  if(jTab==="morning"){jDraft.grateful=val("jGrateful");jDraft.priorities=[val("jP0"),val("jP1"),val("jP2")];jDraft.intention=val("jIntention");}
+  else{jDraft.wins=val("jWins");jDraft.drains=val("jDrains");jDraft.improve=val("jImprove");}
+  jDraft.ts=Date.now();
+}
+function val(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+function saveJournal(){
+  collectJournal();
+  if(!S.journal[TODAY])S.journal[TODAY]={};
+  S.journal[TODAY][jTab]=JSON.parse(JSON.stringify(jDraft));
+  save();chimeDone();if(navigator.vibrate)navigator.vibrate(12);
+  toast("Journal saved — here's your plan",jTab==="morning"?"🌅":"🌙");
+  renderJournal();
+  setTimeout(function(){var fb=document.querySelector(".fbcard");if(fb)fb.scrollIntoView({behavior:"smooth",block:"center"});},120);
+}
+
+/* ---- feedback engine (rule-based, personalized from your own data) ---- */
+function has(text,words){text=(text||"").toLowerCase();return words.some(function(w){return text.indexOf(w)>=0;});}
+function buildFeedback(type,e){
+  var plan=[], sum="";
+  var jStreak=currentStreak(journalDaySet());
+  var doneT=S.habits.filter(function(h){return h.history[TODAY];}).length, tot=S.habits.length;
+  var undone=S.habits.filter(function(h){return !h.history[TODAY];});
+  if(type==="morning"){
+    var prio=(e.priorities||[]).filter(Boolean);
+    sum="Good morning. "+(e.mood>=4?"You're starting with real energy — ride it.":e.mood===3?"A steady start is a strong foundation. ":e.mood?"Some mornings feel heavy; showing up anyway is the win. ":"")+
+      (prio.length?"You named "+prio.length+" priorit"+(prio.length>1?"ies":"y")+" — that clarity is most of the battle.":"Try naming one clear priority to anchor your day.");
+    if(prio.length)plan.push("Do your #1 priority first — “"+prio[0]+"” — before the day fills up.");
+    if(prio.length>1)plan.push("Protect a focused block for “"+prio[1]+"”; decide *when* it happens now, not later.");
+    if(e.grateful)plan.push("Carry one thing you're grateful for into a hard moment today.");
+    if(e.intention)plan.push("When you feel pulled off course, ask: “Is this who I said I'd be today — "+e.intention.toLowerCase().replace(/\.$/,"")+"?”");
+    if(tot)plan.push(doneT?"You've already done "+doneT+" of "+tot+" habits — keep the momentum.":"Knock out one quick habit early to prime the day's momentum.");
+    if(e.mood&&e.mood<=2)plan.push("Lower the bar today: aim for “good enough,” and be as kind to yourself as you'd be to a friend.");
+  } else {
+    var goodMood=e.mood>=4;
+    sum=(goodMood?"Sounds like a genuinely good day. ":e.mood===3?"A balanced day — not every day needs to be a peak. ":e.mood?"A hard day, and you still showed up to reflect on it. That matters. ":"")+
+      (e.wins?"Naming your wins trains your brain to notice progress.":"Even a small win counts — try to name one before bed.");
+    if(e.wins)plan.push("Re-read your win — “"+e.wins.slice(0,60)+(e.wins.length>60?"…":"")+"” — and let it land. You did that.");
+    if(e.drains&&has(e.drains,["stress","overwhelm","anxious","tired","exhausted","burn","too much","busy"]))
+      plan.push("Today drained you. Pick one thing to remove or shrink tomorrow, not one more to add.");
+    else if(e.drains)plan.push("You named what was hard. Tomorrow, decide one small way to meet that same challenge differently.");
+    if(e.improve)plan.push("Tomorrow's focus: “"+e.improve+"”. Set a reminder for it so it actually happens.");
+    if(tot&&doneT<tot)plan.push("You left "+(tot-doneT)+" habit"+(tot-doneT>1?"s":"")+" for tomorrow — "+(undone[0]?"start with “"+undone[0].name+"”.":"a fresh page."));
+    plan.push("Wind down screens and let today be complete. Rest is part of the work.");
+    if(jStreak>=3)plan.push("🔥 "+jStreak+" days of reflecting in a row — this habit is becoming who you are.");
+  }
+  return {summary:sum, plan:plan.slice(0,5)};
+}
+function feedbackHTML(fb){
+  return '<div class="fbh">✦ Your success plan</div><div class="fbsum">'+esc(fb.summary)+'</div>'+
+    '<div class="fbplan-h">Do this next</div><ul>'+fb.plan.map(function(p){return '<li><span class="ck">✓</span><span>'+esc(p)+'</span></li>';}).join("")+'</ul>';
+}
+
 /* ============ HABIT SHEET ============ */
 var scrim=document.getElementById("scrim"), habitSheet=document.getElementById("habitSheet"), logSheet=document.getElementById("logSheet");
 var editingId=null, draft={emoji:EMOJIS[0],pillar:"physical"};
@@ -745,18 +1014,20 @@ PILLARS.forEach(function(p){var b=document.createElement("button");b.type="butto
 function syncHabitPickers(){[].forEach.call(hEmojis.children,function(c){c.classList.toggle("sel",c.textContent===draft.emoji);});
   [].forEach.call(hPillars.children,function(c,i){c.classList.toggle("sel",PILLARS[i].id===draft.pillar);});}
 function openHabit(id,presetPillar){
-  editingId=id||null;var del=document.getElementById("hDelete"),nm=document.getElementById("hName");
+  editingId=id||null;var del=document.getElementById("hDelete"),nm=document.getElementById("hName"),rm=document.getElementById("hRemind");
   if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});document.getElementById("hsTitle").textContent="Edit habit";
-    document.getElementById("hSave").textContent="Save";nm.value=h.name;draft.emoji=h.emoji;draft.pillar=h.pillar;del.style.display="block";}
+    document.getElementById("hSave").textContent="Save";nm.value=h.name;draft.emoji=h.emoji;draft.pillar=h.pillar;rm.value=h.remindAt||"";del.style.display="block";}
   else{document.getElementById("hsTitle").textContent="New habit";document.getElementById("hSave").textContent="Add habit";
-    nm.value="";draft.emoji=EMOJIS[0];draft.pillar=presetPillar||"physical";del.style.display="none";}
-  syncHabitPickers();openSheet(habitSheet);setTimeout(function(){if(!editingId)nm.focus();},340);
+    nm.value="";draft.emoji=EMOJIS[0];draft.pillar=presetPillar||"physical";rm.value="";del.style.display="none";}
+  nm.style.borderColor="";syncHabitPickers();openSheet(habitSheet);setTimeout(function(){if(!editingId)nm.focus();},340);
 }
+document.getElementById("hRemindClear").addEventListener("click",function(){document.getElementById("hRemind").value="";});
 document.getElementById("hSave").addEventListener("click",function(){
-  var nm=document.getElementById("hName"),name=nm.value.trim();
+  var nm=document.getElementById("hName"),name=nm.value.trim(),remindAt=document.getElementById("hRemind").value||"";
   if(!name){nm.focus();nm.style.borderColor="var(--danger)";return;}
-  if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});h.name=name;h.emoji=draft.emoji;h.pillar=draft.pillar;}
-  else S.habits.push({id:uid(),name:name,emoji:draft.emoji,pillar:draft.pillar,history:{}});
+  if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});h.name=name;h.emoji=draft.emoji;h.pillar=draft.pillar;h.remindAt=remindAt;}
+  else S.habits.push({id:uid(),name:name,emoji:draft.emoji,pillar:draft.pillar,remindAt:remindAt,history:{}});
+  if(remindAt)requestNotify();
   save();closeSheets();renderCurrent();
 });
 document.getElementById("hDelete").addEventListener("click",function(){if(!editingId)return;
@@ -811,6 +1082,7 @@ function editGoal(){promptSheet("Savings goal",[{k:"g",label:"Target amount",typ
 /* ============ SHEET HELPERS ============ */
 function openSheet(el){scrim.classList.add("open");el.classList.add("open");}
 function closeSheets(){scrim.classList.remove("open");habitSheet.classList.remove("open");logSheet.classList.remove("open");
+  var ms=document.getElementById("musicSheet");if(ms)ms.classList.remove("open");
   document.getElementById("hName").blur();}
 scrim.addEventListener("click",closeSheets);
 
@@ -827,13 +1099,16 @@ document.getElementById("rewardPlay").addEventListener("click",function(){if(!th
 
 /* ============ NAV ============ */
 var current="today";
-function renderCurrent(){if(current==="today")renderToday();else if(current==="grow")renderGrow();else if(current==="track")renderTrack();else renderInspire();}
+function renderCurrent(){if(current==="today")renderToday();else if(current==="grow")renderGrow();else if(current==="track")renderTrack();else if(current==="journal")renderJournal();else renderInspire();}
+var journalSeen=false;
 function show(v){current=v;
+  if(v==="journal"&&!journalSeen){journalSeen=true;jTab=new Date().getHours()>=17||new Date().getHours()<4?"evening":"morning";}
   document.querySelectorAll(".view").forEach(function(s){s.classList.toggle("on",s.id==="view-"+v);});
   document.querySelectorAll(".nav button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-v")===v);});
   document.getElementById("fab").style.display=(v==="grow")?"grid":"none";
   window.scrollTo(0,0);renderCurrent();}
 document.querySelectorAll(".nav button").forEach(function(b){b.addEventListener("click",function(){show(b.getAttribute("data-v"));});});
+document.getElementById("jSeg").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){jTab=b.getAttribute("data-j");renderJournal();});});
 document.getElementById("fab").addEventListener("click",function(){openHabit(null);});
 document.getElementById("trackSeg").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){
   trackTab=b.getAttribute("data-t");document.getElementById("trackSeg").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);});renderTrack();});});
@@ -848,7 +1123,38 @@ document.getElementById("themeBtn").addEventListener("click",function(){
   var cur=(function(){try{return localStorage.getItem(TK)||"system";}catch(e){return "system";}})();
   var dark=cur==="dark"||(cur==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);var next=dark?"light":"dark";
   try{localStorage.setItem(TK,next);}catch(e){}applyTheme(next);});
-document.getElementById("musicBtn").addEventListener("click",toggleFocus);
+/* ============ MUSIC SHEET + SPOTIFY ============ */
+var musicSheet=document.getElementById("musicSheet");
+function openMusic(){renderPlaylists();updateMusicUI();openSheet(musicSheet);}
+function renderPlaylists(){
+  var m=document.getElementById("playlistMount");
+  if(!S.playlists.length){m.innerHTML='<p class="mini-note" style="margin-top:6px">No playlists yet. Add your focus, workout, or worship playlists to launch them in one tap.</p>';return;}
+  m.innerHTML='<div class="play-list">'+S.playlists.map(function(pl){
+    return '<a class="play-item" href="'+esc(pl.url)+'" target="_blank" rel="noopener" data-pl="'+pl.id+'">'+
+      '<span class="sp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.6 14.4a.6.6 0 0 1-.86.2c-2.3-1.4-5.2-1.72-8.64-.94a.62.62 0 1 1-.28-1.2c3.76-.86 7-.5 9.58 1.08.3.18.38.56.2.86zm1.23-2.74a.78.78 0 0 1-1.07.26c-2.63-1.62-6.64-2.1-9.75-1.15a.78.78 0 1 1-.45-1.49c3.56-1.08 8-.55 11 1.3.36.22.48.7.27 1.08zm.1-2.85C14.7 8.96 9.5 8.79 6.5 9.7a.94.94 0 1 1-.54-1.8c3.45-1.04 9.2-.84 12.8 1.3a.94.94 0 0 1-.96 1.62z"/></svg></span>'+
+      '<span class="pmain"><b>'+esc(pl.name)+'</b><span>Open in Spotify</span></span>'+
+      '<button class="del" data-del-pl="'+pl.id+'" aria-label="Remove">✕</button></a>';
+  }).join("")+'</div>';
+  m.querySelectorAll("[data-del-pl]").forEach(function(b){b.addEventListener("click",function(ev){ev.preventDefault();
+    S.playlists=S.playlists.filter(function(p){return p.id!==b.getAttribute("data-del-pl");});save();renderPlaylists();});});
+}
+document.getElementById("focusToggle").addEventListener("click",toggleFocus);
+document.getElementById("mClose").addEventListener("click",closeSheets);
+document.getElementById("addPlaylist").addEventListener("click",function(){
+  closeSheets();
+  promptSheet("Add Spotify playlist",[
+    {k:"name",label:"Name",ph:"e.g. Deep Focus"},
+    {k:"url",label:"Spotify link",ph:"https://open.spotify.com/playlist/…"}
+  ],function(v){var url=(v.url||"").trim();
+    if(!v.name.trim()){openMusic();return;}
+    if(url&&!/spotify\.com|spotify:/.test(url)){toast("That doesn't look like a Spotify link","⚠️");}
+    S.playlists.push({id:uid(),name:v.name.trim(),url:url||"https://open.spotify.com"});save();openMusic();});
+});
+document.getElementById("musicBtn").addEventListener("click",openMusic);
+
+/* ============ REMINDERS LOOP ============ */
+if("Notification" in window && Notification.permission==="granted")firedReminders={};
+setInterval(checkReminders,20000);
 
 /* ============ GO ============ */
 show("today");
