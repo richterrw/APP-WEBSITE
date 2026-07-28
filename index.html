@@ -563,15 +563,16 @@ var DEFAULT={
     {id:uid(),name:"Drink water",emoji:"💧",pillar:"physical",history:{}},
     {id:uid(),name:"Meditate",emoji:"🧘",pillar:"mental",history:{}},
     {id:uid(),name:"Gratitude journal",emoji:"✍️",pillar:"emotional",history:{}},
-    {id:uid(),name:"Prayer / devotion",emoji:"🙏",pillar:"spiritual",history:{}},
+    {id:uid(),name:"Quiet reflection",emoji:"🕊️",pillar:"spiritual",history:{}},
     {id:uid(),name:"Read 10 pages",emoji:"📖",pillar:"intellectual",history:{}}
   ],
   fitness:[], weightLog:[], diet:{water:{},meals:[]},
   finance:{tx:[],goal:1000}, career:{goals:[],wins:[]},
   favQuotes:[], favVerses:[], rewards:{},
-  journal:{}, playlists:[]
+  journal:{}, playlists:[], settings:{faith:false}
 };
 var S=load();
+if(!S.settings)S.settings={faith:false};
 function load(){try{var r=localStorage.getItem(SK);if(!r)return clone(DEFAULT);var o=JSON.parse(r);
   for(var k in DEFAULT){if(!(k in o))o[k]=clone(DEFAULT[k]);}return o;}catch(e){return clone(DEFAULT);}}
 function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
@@ -745,6 +746,7 @@ function renderToday(){
   document.getElementById("quoteText").textContent="“"+q.t+"”";
   document.getElementById("quoteAuthor").textContent=q.a;
   document.getElementById("quoteBreak").textContent=q.b;
+  document.getElementById("verseCard").style.display=S.settings.faith?"":"none";
   document.getElementById("verseText").textContent="“"+v.t+"”";
   document.getElementById("verseRef").textContent=v.r;
   document.getElementById("verseBreak").textContent=v.b;
@@ -935,15 +937,26 @@ function renderInspire(){
   var html='<div class="card inspire-card quote"><div class="badge">✦ Motivation for today</div>'+
     '<div class="body">“'+esc(q.t)+'”</div><div class="attr">— <b>'+esc(q.a)+'</b></div>'+
     '<div class="expand open"><div class="inner"><div class="lbl">What it means</div><p>'+esc(q.b)+'</p></div></div></div>';
-  html+='<div class="card inspire-card verse" style="margin-top:14px"><div class="badge">✝ Verse for today</div>'+
-    '<div class="body">“'+esc(v.t)+'”</div><div class="attr"><b>'+esc(v.r)+'</b></div>'+
-    '<div class="expand open"><div class="inner"><div class="lbl">Reflection</div><p>'+esc(v.b)+'</p></div></div></div>';
-  if(S.favQuotes.length||S.favVerses.length){
+  if(S.settings.faith){
+    html+='<div class="card inspire-card verse" style="margin-top:14px"><div class="badge">✝ Verse for today</div>'+
+      '<div class="body">“'+esc(v.t)+'”</div><div class="attr"><b>'+esc(v.r)+'</b></div>'+
+      '<div class="expand open"><div class="inner"><div class="lbl">Reflection</div><p>'+esc(v.b)+'</p></div></div></div>';
+  }
+  if(S.favQuotes.length||(S.settings.faith&&S.favVerses.length)){
     html+='<div class="section-h"><h2>Saved ♥</h2></div>';
     S.favQuotes.forEach(function(i){var Q=QUOTES[i];if(Q)html+='<div class="card inspire-card quote" style="margin-bottom:12px"><div class="body" style="font-size:16px">“'+esc(Q.t)+'”</div><div class="attr">— <b>'+esc(Q.a)+'</b></div></div>';});
-    S.favVerses.forEach(function(i){var V=VERSES[i];if(V)html+='<div class="card inspire-card verse" style="margin-bottom:12px"><div class="body" style="font-size:16px">“'+esc(V.t)+'”</div><div class="attr"><b>'+esc(V.r)+'</b></div></div>';});
+    if(S.settings.faith)S.favVerses.forEach(function(i){var V=VERSES[i];if(V)html+='<div class="card inspire-card verse" style="margin-bottom:12px"><div class="body" style="font-size:16px">“'+esc(V.t)+'”</div><div class="attr"><b>'+esc(V.r)+'</b></div></div>';});
   }
+  html+='<button class="music-toggle'+(S.settings.faith?" on":"")+'" id="faithToggle" style="margin-top:18px">'+
+    '<span class="mt-ico">🕊️</span>'+
+    '<span class="mt-body"><b>Faith mode</b><span>Adds a daily Bible verse with a reflection</span></span>'+
+    '<span class="mt-state">'+(S.settings.faith?"On":"Off")+'</span></button>';
   m.innerHTML=html;
+  document.getElementById("faithToggle").addEventListener("click",function(){
+    S.settings.faith=!S.settings.faith;save();
+    toast(S.settings.faith?"Faith mode on — daily verses added":"Faith mode off","🕊️");
+    renderInspire();
+  });
 }
 
 /* ============ JOURNAL ============ */
