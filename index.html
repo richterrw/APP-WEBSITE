@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-<meta name="theme-color" content="#F3F0E9" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#121114" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#E9EEF8" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#070B15" media="(prefers-color-scheme: dark)" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <title>Flourish — grow whole</title>
 <style>
   :root {
-    --paper:#F3F0E9; --surface:#FBFAF6; --surface-2:#EAE6DC; --surface-3:#E1DCCF;
-    --ink:#211F1B; --ink-2:#4A463F; --muted:#847D71; --line:#E4DFD3;
-    --accent:#5B6E4B; --accent-ink:#3F5233; --accent-tint:#E4EAD9;
+    --paper:#E9EEF8; --surface:#F8FAFF; --surface-2:#DCE4F2; --surface-3:#CFD9EC;
+    --ink:#0B1526; --ink-2:#3A4A66; --muted:#6E7F9E; --line:#D3DCEC;
+    --accent:#0E7FA8; --accent-ink:#085E80; --accent-tint:#D6EDF5;
     --gold:#C08A2D;
-    --p-physical:#D9552E; --p-mental:#2E8FA8; --p-emotional:#CE5285;
-    --p-spiritual:#7659C6; --p-intellectual:#C68A1E;
-    --danger:#BF4230; --up:#3C8C5A; --down:#C05A3E;
-    --shadow:0 1px 2px rgba(33,31,27,.05), 0 10px 26px -14px rgba(33,31,27,.20);
+    --p-physical:#E04E24; --p-mental:#0B8FBF; --p-emotional:#D6337E;
+    --p-spiritual:#6A48D8; --p-intellectual:#C0871A;
+    --danger:#C93A28; --up:#1F9160; --down:#C25B33;
+    --shadow:0 1px 2px rgba(11,21,38,.05), 0 10px 26px -14px rgba(11,21,38,.22);
     --radius:20px;
     --fb:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --fr:ui-rounded,"SF Pro Rounded","Hiragino Maru Gothic ProN","Segoe UI",system-ui,sans-serif;
@@ -25,29 +25,29 @@
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --paper:#121114; --surface:#1B1A1D; --surface-2:#252328; --surface-3:#2F2C32;
-      --ink:#F1EDE6; --ink-2:#C9C3B9; --muted:#968E82; --line:#2E2B31;
-      --accent:#93A87C; --accent-ink:#B4C79C; --accent-tint:#26301E;
-      --gold:#E0A93E;
-      --p-physical:#E8734E; --p-mental:#4DAFC7; --p-emotional:#E574A2;
-      --p-spiritual:#9E86E0; --p-intellectual:#E0AC3E;
-      --danger:#E27059; --up:#5FB683; --down:#E0805E;
-      --shadow:0 1px 2px rgba(0,0,0,.35), 0 12px 30px -16px rgba(0,0,0,.8);
+      --paper:#070B15; --surface:#0D1424; --surface-2:#152036; --surface-3:#1D2B48;
+      --ink:#E9F1FF; --ink-2:#B9C8E2; --muted:#7C8CAC; --line:#1D2A45;
+      --accent:#45D5EC; --accent-ink:#8FE9F8; --accent-tint:#0C2E3C;
+      --gold:#FFC24D;
+      --p-physical:#FF6B45; --p-mental:#3ECBFF; --p-emotional:#FF57A8;
+      --p-spiritual:#A98BFF; --p-intellectual:#FFBE45;
+      --danger:#FF6E58; --up:#4FE0A0; --down:#FF8A5C;
+      --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 32px -14px rgba(20,60,120,.45);
     }
   }
   :root[data-theme="dark"]{
-    --paper:#121114; --surface:#1B1A1D; --surface-2:#252328; --surface-3:#2F2C32;
-    --ink:#F1EDE6; --ink-2:#C9C3B9; --muted:#968E82; --line:#2E2B31;
-    --accent:#93A87C; --accent-ink:#B4C79C; --accent-tint:#26301E; --gold:#E0A93E;
-    --p-physical:#E8734E; --p-mental:#4DAFC7; --p-emotional:#E574A2; --p-spiritual:#9E86E0; --p-intellectual:#E0AC3E;
-    --danger:#E27059; --up:#5FB683; --down:#E0805E; --shadow:0 1px 2px rgba(0,0,0,.35), 0 12px 30px -16px rgba(0,0,0,.8);
+    --paper:#070B15; --surface:#0D1424; --surface-2:#152036; --surface-3:#1D2B48;
+    --ink:#E9F1FF; --ink-2:#B9C8E2; --muted:#7C8CAC; --line:#1D2A45;
+    --accent:#45D5EC; --accent-ink:#8FE9F8; --accent-tint:#0C2E3C; --gold:#FFC24D;
+    --p-physical:#FF6B45; --p-mental:#3ECBFF; --p-emotional:#FF57A8; --p-spiritual:#A98BFF; --p-intellectual:#FFBE45;
+    --danger:#FF6E58; --up:#4FE0A0; --down:#FF8A5C; --shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 32px -14px rgba(20,60,120,.45);
   }
   :root[data-theme="light"]{
-    --paper:#F3F0E9; --surface:#FBFAF6; --surface-2:#EAE6DC; --surface-3:#E1DCCF;
-    --ink:#211F1B; --ink-2:#4A463F; --muted:#847D71; --line:#E4DFD3;
-    --accent:#5B6E4B; --accent-ink:#3F5233; --accent-tint:#E4EAD9; --gold:#C08A2D;
-    --p-physical:#D9552E; --p-mental:#2E8FA8; --p-emotional:#CE5285; --p-spiritual:#7659C6; --p-intellectual:#C68A1E;
-    --danger:#BF4230; --up:#3C8C5A; --down:#C05A3E; --shadow:0 1px 2px rgba(33,31,27,.05), 0 10px 26px -14px rgba(33,31,27,.20);
+    --paper:#E9EEF8; --surface:#F8FAFF; --surface-2:#DCE4F2; --surface-3:#CFD9EC;
+    --ink:#0B1526; --ink-2:#3A4A66; --muted:#6E7F9E; --line:#D3DCEC;
+    --accent:#0E7FA8; --accent-ink:#085E80; --accent-tint:#D6EDF5; --gold:#C08A2D;
+    --p-physical:#E04E24; --p-mental:#0B8FBF; --p-emotional:#D6337E; --p-spiritual:#6A48D8; --p-intellectual:#C0871A;
+    --danger:#C93A28; --up:#1F9160; --down:#C25B33; --shadow:0 1px 2px rgba(11,21,38,.05), 0 10px 26px -14px rgba(11,21,38,.22);
   }
 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -200,8 +200,8 @@
   .logitem .del{color:var(--muted);font-size:16px;padding:4px;}
   .quick-add{width:100%;height:48px;border-radius:14px;background:var(--accent);color:#fff;font-family:var(--fr);
     font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;}
-  @media (prefers-color-scheme:dark){.quick-add{color:#0C130A;}}
-  :root[data-theme="dark"] .quick-add{color:#0C130A;} :root[data-theme="light"] .quick-add{color:#fff;}
+  @media (prefers-color-scheme:dark){.quick-add{color:#041220;}}
+  :root[data-theme="dark"] .quick-add{color:#041220;} :root[data-theme="light"] .quick-add{color:#fff;}
   .quick-add:active{transform:scale(.98);}
   .quick-add svg{width:18px;height:18px;stroke:currentColor;stroke-width:2.6;fill:none;stroke-linecap:round;}
   .goalbar{height:9px;border-radius:6px;background:var(--surface-2);overflow:hidden;margin-top:9px;}
@@ -238,8 +238,8 @@
     width:56px;height:56px;border-radius:18px;background:var(--accent);color:#fff;display:grid;place-items:center;
     box-shadow:0 10px 24px -8px color-mix(in srgb,var(--accent) 70%,transparent);transition:transform .15s;}
   @media (max-width:516px){.fab{right:18px;}}
-  @media (prefers-color-scheme:dark){.fab{color:#0C130A;}}
-  :root[data-theme="dark"] .fab{color:#0C130A;} :root[data-theme="light"] .fab{color:#fff;}
+  @media (prefers-color-scheme:dark){.fab{color:#041220;}}
+  :root[data-theme="dark"] .fab{color:#041220;} :root[data-theme="light"] .fab{color:#fff;}
   .fab:active{transform:scale(.92);}
   .fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2.6;fill:none;stroke-linecap:round;}
 
@@ -274,8 +274,8 @@
   .btn{flex:1;height:52px;border-radius:14px;font-family:var(--fr);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .14s;}
   .btn:active{transform:scale(.97);}
   .btn-primary{background:var(--accent);color:#fff;}
-  @media (prefers-color-scheme:dark){.btn-primary{color:#0C130A;}}
-  :root[data-theme="dark"] .btn-primary{color:#0C130A;} :root[data-theme="light"] .btn-primary{color:#fff;}
+  @media (prefers-color-scheme:dark){.btn-primary{color:#041220;}}
+  :root[data-theme="dark"] .btn-primary{color:#041220;} :root[data-theme="light"] .btn-primary{color:#fff;}
   .btn-ghost{background:var(--surface-2);color:var(--ink);flex:0 0 auto;padding:0 20px;}
   .btn-danger-t{background:transparent;color:var(--danger);font-size:14px;margin:12px auto 0;display:block;padding:8px;font-weight:700;}
 
@@ -345,8 +345,8 @@
   .fbcard ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
   .fbcard li{display:flex;gap:9px;font-size:13.5px;line-height:1.5;color:var(--ink-2);}
   .fbcard li .ck{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;margin-top:1px;}
-  @media (prefers-color-scheme:dark){.fbcard li .ck{color:#0C130A;}}
-  :root[data-theme="dark"] .fbcard li .ck{color:#0C130A;} :root[data-theme="light"] .fbcard li .ck{color:#fff;}
+  @media (prefers-color-scheme:dark){.fbcard li .ck{color:#041220;}}
+  :root[data-theme="dark"] .fbcard li .ck{color:#041220;} :root[data-theme="light"] .fbcard li .ck{color:#fff;}
 
   .jhistory{margin-top:8px;}
 
@@ -372,8 +372,8 @@
   .jny-dots button{aspect-ratio:1;border-radius:8px;background:var(--surface-2);font-size:10px;font-weight:700;color:var(--muted);
     display:grid;place-items:center;font-family:var(--fr);}
   .jny-dots button.dn{background:var(--accent);color:#fff;}
-  @media (prefers-color-scheme:dark){.jny-dots button.dn{color:#0C130A;}}
-  :root[data-theme="dark"] .jny-dots button.dn{color:#0C130A;} :root[data-theme="light"] .jny-dots button.dn{color:#fff;}
+  @media (prefers-color-scheme:dark){.jny-dots button.dn{color:#041220;}}
+  :root[data-theme="dark"] .jny-dots button.dn{color:#041220;} :root[data-theme="light"] .jny-dots button.dn{color:#fff;}
   .jny-dots button.cur{box-shadow:inset 0 0 0 2px var(--accent);color:var(--accent-ink);}
   .jny-dots button.lk{opacity:.38;}
   .jny-day-title{font-family:var(--fr);font-size:17px;font-weight:800;margin:16px 2px 8px;}
@@ -415,6 +415,22 @@
   .d-body{max-width:480px;margin:0 auto;padding:18px 16px calc(40px + env(safe-area-inset-bottom));}
   .d-extra{margin-top:16px;}
 
+  /* warp travel */
+  .warp{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:0;transition:opacity .15s;}
+  .warp.on{opacity:1;}
+  .warp canvas{width:100%;height:100%;display:block;}
+
+  /* holo grid inside sector scenes */
+  .d-scene{overflow:hidden;}
+  .d-scene::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:linear-gradient(color-mix(in srgb,var(--dc) 20%,transparent) 1px,transparent 1px),
+      linear-gradient(90deg,color-mix(in srgb,var(--dc) 20%,transparent) 1px,transparent 1px);
+    background-size:26px 26px;
+    -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.75),transparent 88%);
+    mask-image:linear-gradient(180deg,rgba(0,0,0,.75),transparent 88%);}
+  .d-scene h2{text-transform:uppercase;letter-spacing:.06em;}
+  .d-scene .d-tag{font-style:normal;letter-spacing:.02em;}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -452,7 +468,7 @@
     <!-- ============ TODAY ============ -->
     <section class="view on" id="view-today">
       <div class="card garden-hero">
-        <div class="garden-top"><div class="cap">The Ascent</div><div class="garden-pct"><b id="balancePct" class="tn">0%</b> climbed</div></div>
+        <div class="garden-top"><div class="cap">The Spire</div><div class="garden-pct"><b id="balancePct" class="tn">0%</b> ascended</div></div>
         <div class="garden-canvas-wrap"><canvas id="world"></canvas></div>
         <div class="garden-sub" id="gardenSub">Tap a tier to visit its district.</div>
         <div class="d-chips" id="dChips"></div>
@@ -534,13 +550,15 @@
   <!-- district (place) view -->
   <div class="district" id="district" hidden>
     <div class="d-scene" id="dScene">
-      <button class="d-back" id="dBack">‹ The Ascent</button>
+      <button class="d-back" id="dBack">‹ The Spire</button>
       <div class="d-emoji" id="dEmoji">⚒️</div>
       <h2 id="dName">District</h2>
       <p class="d-tag" id="dTag"></p>
     </div>
     <div class="d-body" id="dBody"></div>
   </div>
+
+  <div class="warp" id="warp"><canvas id="warpCv"></canvas></div>
 
   <div class="toast" id="toast"></div>
 
@@ -649,11 +667,11 @@ window.FLOURISH_CLOUD = {
 /* ============ DATA ============ */
 var SK="flourish.v1", TK="flourish.theme";
 var PILLARS=[
-  {id:"physical",name:"Physical",emoji:"💪",color:"#D9552E",cssv:"--p-physical"},
-  {id:"mental",name:"Mental",emoji:"🧠",color:"#2E8FA8",cssv:"--p-mental"},
-  {id:"emotional",name:"Emotional",emoji:"❤️",color:"#CE5285",cssv:"--p-emotional"},
-  {id:"spiritual",name:"Spiritual",emoji:"🕊️",color:"#7659C6",cssv:"--p-spiritual"},
-  {id:"intellectual",name:"Intellectual",emoji:"📚",color:"#C68A1E",cssv:"--p-intellectual"}
+  {id:"physical",name:"Physical",emoji:"💪",color:"#F25A33",cssv:"--p-physical"},
+  {id:"mental",name:"Mental",emoji:"🧠",color:"#21A9DD",cssv:"--p-mental"},
+  {id:"emotional",name:"Emotional",emoji:"❤️",color:"#E8459A",cssv:"--p-emotional"},
+  {id:"spiritual",name:"Spiritual",emoji:"🕊️",color:"#8A66E8",cssv:"--p-spiritual"},
+  {id:"intellectual",name:"Intellectual",emoji:"📚",color:"#D89A28",cssv:"--p-intellectual"}
 ];
 function pillar(id){return PILLARS.find(function(p){return p.id===id;})||PILLARS[0];}
 var EMOJIS=["💪","🏃","🧘","🥗","💧","😴","🧠","📖","✍️","🎯","❤️","🙏","🕊️","☀️","🌱","💰","💼","☕","🎸","🧹","🚶","🚭","💊","🎨"];
@@ -779,87 +797,139 @@ function scoresNow(){return PILLARS.map(function(p){return growthScore(p.id);});
    14-day consistency. Spirit crowns the summit. Tap a tier to travel. */
 var TIER_ORDER=["physical","mental","emotional","intellectual","spiritual"];
 var DISTRICTS={
-  physical:{name:"The Forge",tag:"Where strength is made",emoji:"⚒️"},
-  mental:{name:"The Stillwater",tag:"A clear mind cuts deepest",emoji:"🌊"},
-  emotional:{name:"The Hearth",tag:"Tend the fires of the heart",emoji:"🕯️"},
-  intellectual:{name:"The Athenaeum",tag:"Halls of learning",emoji:"🏛️"},
-  spiritual:{name:"The Sanctuary",tag:"The shrine at the summit",emoji:"⛩️"}
+  physical:{name:"Forge Core",tag:"Power systems online",emoji:"⚙️"},
+  mental:{name:"Mindstream",tag:"Signal over noise",emoji:"🌐"},
+  emotional:{name:"Pulse District",tag:"Feel everything. Fear nothing.",emoji:"💠"},
+  intellectual:{name:"The Archive",tag:"All knowledge, indexed",emoji:"💾"},
+  spiritual:{name:"The Beacon",tag:"The light above the grid",emoji:"🔆"}
 };
 var worldTiers=[];
 function mixColor(hex1,hex2,t){
   function p(h){h=h.replace("#","");if(h.length===3)h=h.split("").map(function(c){return c+c;}).join("");var n=parseInt(h,16);return[(n>>16)&255,(n>>8)&255,n&255];}
   var a=p(hex1),b=p(hex2);return "rgb("+Math.round(a[0]+(b[0]-a[0])*t)+","+Math.round(a[1]+(b[1]-a[1])*t)+","+Math.round(a[2]+(b[2]-a[2])*t)+")";}
-function drawWorld(scores){
-  var cv=document.getElementById("world");if(!cv)return;
-  var w=cv.clientWidth||(cv.parentElement&&cv.parentElement.clientWidth)||0;if(w<=0)return;var h=230;
-  var dpr=Math.min(window.devicePixelRatio||1,3);cv.width=w*dpr;cv.height=h*dpr;
+/* --- The Spire: a rotating holographic ziggurat over a synthwave grid --- */
+var worldRAF=null, worldScores=null, worldT0=Date.now(), worldLast=-1;
+var REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function drawWorld(scores){worldScores=scores;startWorld();}
+function startWorld(){
+  if(worldRAF){cancelAnimationFrame(worldRAF);worldRAF=null;}
+  if(REDUCED){renderWorldFrame(0.9);return;}
+  var frame=function(){
+    var t=(Date.now()-worldT0)/1000;
+    if(t-worldLast>=0.033){worldLast=t;renderWorldFrame(t);}
+    if(current==="today"&&!document.hidden)worldRAF=requestAnimationFrame(frame);else worldRAF=null;
+  };
+  frame();
+}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&current==="today"&&worldScores)startWorld();});
+function renderWorldFrame(t){
+  var cv=document.getElementById("world");if(!cv||!worldScores)return;
+  var w=cv.clientWidth||0;if(w<=0)return;var h=cv.clientHeight||230;
+  var dpr=Math.min(window.devicePixelRatio||1,2.5);
+  if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
   var ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   var cs=getComputedStyle(document.documentElement);
   var dark=document.documentElement.getAttribute("data-theme")==="dark"||(!document.documentElement.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
-  var stone=cs.getPropertyValue("--surface-2").trim(), lineC=cs.getPropertyValue("--line").trim(),
-      gold=cs.getPropertyValue("--gold").trim(), accent=cs.getPropertyValue("--accent").trim(),
-      muted=cs.getPropertyValue("--muted").trim();
-  var byPid={};PILLARS.forEach(function(p,i){byPid[p.id]={score:scores[i],color:cs.getPropertyValue(p.cssv).trim(),emoji:p.emoji};});
-  // sky: sun/moon glow
-  var sun=ctx.createRadialGradient(w*0.83,34,5,w*0.83,34,100);
-  sun.addColorStop(0,hexA(gold,dark?.25:.3));sun.addColorStop(1,hexA(gold,0));
-  ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);
-  ctx.fillStyle=dark?hexA(gold,.9):hexA(gold,.85);ctx.beginPath();ctx.arc(w*0.83,34,9,0,7);ctx.fill();
-  // clouds
-  ctx.fillStyle=hexA(muted,dark?.12:.16);
-  ctx.beginPath();ctx.ellipse(w*0.18,40,26,8,0,0,7);ctx.ellipse(w*0.24,34,18,7,0,0,7);ctx.fill();
-  ctx.beginPath();ctx.ellipse(w*0.62,22,20,6,0,0,7);ctx.fill();
-  // ground
-  var gy=h-22;
-  var gg=ctx.createLinearGradient(0,gy-4,0,h);
-  gg.addColorStop(0,hexA(accent,dark?.28:.3));gg.addColorStop(1,hexA(accent,dark?.12:.14));
-  ctx.fillStyle=gg;ctx.fillRect(0,gy,w,h-gy);
-  ctx.strokeStyle=hexA(accent,dark?.5:.4);ctx.lineWidth=1.4;
-  ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();
-  // pyramid
-  var cx=w/2, ph=176, topY=gy-ph, bw=Math.min(w*0.84,330), tn=5, th=ph/tn;
+  var gold=cs.getPropertyValue("--gold").trim(), accent=cs.getPropertyValue("--accent").trim(), muted=cs.getPropertyValue("--muted").trim();
+  var byPid={};PILLARS.forEach(function(p,i){byPid[p.id]={score:worldScores[i],color:cs.getPropertyValue(p.cssv).trim()};});
+
+  // starfield (deterministic positions, twinkling)
+  function fr(n){var v=Math.sin(n*127.1)*43758.5453;v=v-Math.floor(v);return v;}
+  for(var i=0;i<44;i++){
+    var sx=fr(i+1)*w, sy=fr(i+50)*(h*0.5), tw=0.35+0.4*Math.sin(t*1.8+i*1.7);
+    ctx.fillStyle=hexA(dark?"#BFD9FF":accent,dark?tw*.8:tw*.3);
+    var sz=fr(i+90)>0.85?2:1.3;
+    ctx.fillRect(sx,sy,sz,sz);
+  }
+
+  // synthwave floor grid
+  var horizon=h-62, vpx=w/2;
+  var g=ctx.createLinearGradient(0,horizon,0,h);
+  g.addColorStop(0,hexA(accent,dark?.26:.22));g.addColorStop(1,hexA(accent,.02));
+  ctx.fillStyle=g;ctx.fillRect(0,horizon,w,h-horizon);
+  ctx.lineWidth=1;
+  for(var r=-6;r<=6;r++){
+    ctx.strokeStyle=hexA(accent,dark?.2:.16);
+    ctx.beginPath();ctx.moveTo(vpx,horizon);ctx.lineTo(vpx+r*w*0.15,h+10);ctx.stroke();
+  }
+  var scroll=REDUCED?0.4:(t*0.35)%1;
+  for(var li=0;li<7;li++){
+    var f=((li+scroll)/7), yy=horizon+(h-horizon)*f*f*1.9;if(yy>h)continue;
+    ctx.strokeStyle=hexA(accent,(dark?.3:.22)*(0.25+f));
+    ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke();
+  }
+  ctx.strokeStyle=hexA(accent,dark?.5:.38);
+  ctx.beginPath();ctx.moveTo(0,horizon);ctx.lineTo(w,horizon);ctx.stroke();
+
+  // 3D ziggurat (Y-axis rotation, slight camera tilt)
+  var theta=REDUCED?0.55:t*0.28;
+  var cosT=Math.cos(theta),sinT=Math.sin(theta);
+  var camD=560, baseY=h-66;
+  function proj(x,y,z){
+    var xr=x*cosT-z*sinT, zr=x*sinT+z*cosT;
+    var s=camD/(camD+zr);
+    return {x:w/2+xr*s, y:baseY-y*0.95*s+zr*0.16*s, z:zr};
+  }
+  var tn=5, tierH=27, halfBase=78, shrink=0.82;
+  function halfAt(fr2){return halfBase*(1-fr2*shrink);}
   worldTiers=[];
-  function halfAt(frac){return (bw/2)*(1-frac*0.82);}
-  for(var i=0;i<tn;i++){
-    var pid=TIER_ORDER[i], d=byPid[pid];
-    var y0=gy-i*th, y1=y0-th;
-    var hb=halfAt(i/tn), ht=halfAt((i+1)/tn);
-    var s=d.score.empty?0:d.score.score;
-    var fill=mixColor(stone.length===7?stone:"#cccccc",d.color.length===7?d.color:"#888888",0.12+s*0.75);
-    ctx.fillStyle=fill;
-    ctx.beginPath();ctx.moveTo(cx-hb,y0);ctx.lineTo(cx-ht,y1);ctx.lineTo(cx+ht,y1);ctx.lineTo(cx+hb,y0);ctx.closePath();ctx.fill();
-    ctx.strokeStyle=hexA(dark?"#000000":"#584f42",dark?.5:.22);ctx.lineWidth=1.2;ctx.stroke();
-    // stairs up the center
-    ctx.fillStyle=hexA(dark?"#000000":"#584f42",dark?.28:.14);
-    ctx.fillRect(cx-7,y1+2,14,th-3);
-    // tier emoji on the left half of the face, inside the slope
-    ctx.font="13px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.fillText(d.emoji,i===tn-1?cx:cx-(ht+14+(hb-ht)*0.35),(y0+y1)/2+1);
-    // done-today pennant on right edge
-    if(d.score.todayAll){
-      var fx=cx+(hb+ht)/2-2, fy=y1+3;
-      ctx.strokeStyle=hexA(dark?"#ddd":"#584f42",.7);ctx.lineWidth=1.4;
-      ctx.beginPath();ctx.moveTo(fx,fy+10);ctx.lineTo(fx,fy-4);ctx.stroke();
-      ctx.fillStyle=d.color;ctx.beginPath();ctx.moveTo(fx,fy-4);ctx.lineTo(fx+9,fy-1);ctx.lineTo(fx,fy+2);ctx.closePath();ctx.fill();
+  var faces=[];
+  for(var i2=0;i2<tn;i2++){
+    var pid=TIER_ORDER[i2], dd=byPid[pid];
+    var yb=i2*tierH, yt2=yb+tierH;
+    var hb=halfAt(i2/tn), ht2=halfAt((i2+1)/tn);
+    var cbs=[[-hb,-hb],[hb,-hb],[hb,hb],[-hb,hb]];
+    var cts=[[-ht2,-ht2],[ht2,-ht2],[ht2,ht2],[-ht2,ht2]];
+    var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
+    for(var f2=0;f2<4;f2++){
+      var f3=(f2+1)%4;
+      var pb1=proj(cbs[f2][0],yb,cbs[f2][1]), pb2=proj(cbs[f3][0],yb,cbs[f3][1]);
+      var pt1=proj(cts[f2][0],yt2,cts[f2][1]), pt2=proj(cts[f3][0],yt2,cts[f3][1]);
+      var zAvg=(pb1.z+pb2.z+pt1.z+pt2.z)/4;
+      faces.push({z:zAvg,pts:[pb1,pb2,pt2,pt1],color:dd.color,score:dd.score.empty?0:dd.score.score,glow:dd.score.todayAll});
+      [pb1,pb2,pt1,pt2].forEach(function(pp){minX=Math.min(minX,pp.x);maxX=Math.max(maxX,pp.x);minY=Math.min(minY,pp.y);maxY=Math.max(maxY,pp.y);});
     }
-    worldTiers.push({y0:y0,y1:y1,hb:hb,ht:ht,pid:pid,cx:cx});
+    worldTiers.push({pid:pid,minX:minX,maxX:maxX,minY:minY,maxY:maxY});
   }
-  // summit flag when everything is done today
+  faces.sort(function(a,b){return b.z-a.z;});
+  faces.forEach(function(fc){
+    var front=fc.z<0;
+    ctx.beginPath();ctx.moveTo(fc.pts[0].x,fc.pts[0].y);
+    for(var k=1;k<4;k++)ctx.lineTo(fc.pts[k].x,fc.pts[k].y);
+    ctx.closePath();
+    ctx.fillStyle=hexA(fc.color,(dark?.10:.08)+fc.score*(front?(dark?.34:.28):(dark?.15:.11)));
+    ctx.fill();
+    ctx.strokeStyle=hexA(fc.color,front?(dark?.9:.7):(dark?.35:.28));
+    ctx.lineWidth=front?1.4:1;
+    if(front&&fc.glow){ctx.save();ctx.shadowColor=fc.color;ctx.shadowBlur=10;ctx.stroke();ctx.restore();}
+    else ctx.stroke();
+  });
+  // top cap
+  var capY=tn*tierH, topHalf=halfAt(1);
+  var cap=[proj(-topHalf,capY,-topHalf),proj(topHalf,capY,-topHalf),proj(topHalf,capY,topHalf),proj(-topHalf,capY,topHalf)];
+  ctx.beginPath();ctx.moveTo(cap[0].x,cap[0].y);for(var c2=1;c2<4;c2++)ctx.lineTo(cap[c2].x,cap[c2].y);ctx.closePath();
+  ctx.strokeStyle=hexA(accent,dark?.8:.55);ctx.lineWidth=1.3;ctx.stroke();
+
+  // summit beacon
+  var apex=proj(0,capY,0);
   var allDone=S.habits.length>0&&S.habits.every(function(hh){return hh.history[TODAY];});
-  var fx=cx, fy=topY;
-  ctx.strokeStyle=dark?"#cbbfa8":"#584f42";ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(fx,fy-20);ctx.stroke();
-  if(allDone){ctx.fillStyle=gold;ctx.beginPath();ctx.moveTo(fx,fy-20);ctx.lineTo(fx+15,fy-15);ctx.lineTo(fx,fy-10);ctx.closePath();ctx.fill();}
-  else{ctx.fillStyle=hexA(muted,.45);ctx.beginPath();ctx.moveTo(fx,fy-20);ctx.lineTo(fx+11,fy-16);ctx.lineTo(fx,fy-12);ctx.closePath();ctx.fill();}
-  // village huts at the base, one per district color
-  var hutY=gy+2;
-  for(var v=0;v<tn;v++){
-    var pid2=TIER_ORDER[v], dd=byPid[pid2];
-    var hx=(w/(tn+1))*(v+1)+(v%2?8:-8);
-    ctx.fillStyle=mixColor(stone.length===7?stone:"#cccccc",dd.color.length===7?dd.color:"#888888",.45);
-    ctx.fillRect(hx-8,hutY+4,16,9);
-    ctx.beginPath();ctx.moveTo(hx-10,hutY+5);ctx.lineTo(hx,hutY-3);ctx.lineTo(hx+10,hutY+5);ctx.closePath();ctx.fill();
+  var pulse=0.6+0.4*Math.sin(t*3);
+  if(allDone){
+    var beam=ctx.createLinearGradient(0,0,0,apex.y);
+    beam.addColorStop(0,hexA(gold,0));beam.addColorStop(1,hexA(gold,.5*pulse));
+    ctx.fillStyle=beam;ctx.fillRect(apex.x-7,0,14,apex.y);
+    ctx.save();ctx.shadowColor=gold;ctx.shadowBlur=16;
+    ctx.fillStyle=hexA(gold,.95);ctx.beginPath();ctx.arc(apex.x,apex.y-8,5,0,7);ctx.fill();ctx.restore();
+  }else{
+    ctx.strokeStyle=hexA(muted,.4);ctx.beginPath();ctx.moveTo(apex.x,apex.y);ctx.lineTo(apex.x,apex.y-9);ctx.stroke();
+    ctx.fillStyle=hexA(muted,.45+.25*pulse);ctx.beginPath();ctx.arc(apex.x,apex.y-11,3,0,7);ctx.fill();
   }
+  // floating sector emblems beside each tier
+  ctx.font="11px system-ui";ctx.textBaseline="middle";ctx.textAlign="left";
+  worldTiers.forEach(function(wt){
+    var midY=(wt.minY+wt.maxY)/2, lx=wt.maxX+8;
+    if(lx<w-24)ctx.fillText(DISTRICTS[wt.pid].emoji,lx,midY);
+  });
 }
 function hexA(h,a){h=h.replace("#","");if(h.length===3)h=h.split("").map(function(c){return c+c;}).join("");
   var n=parseInt(h,16);return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
@@ -867,18 +937,59 @@ function hexA(h,a){h=h.replace("#","");if(h.length===3)h=h.split("").map(functio
 /* ---- district travel ---- */
 var openDistrictPid=null;
 function openDistrict(pid){
-  openDistrictPid=pid;renderDistrict(pid);
-  document.getElementById("district").hidden=false;
-  window.scrollTo(0,0);
+  travelWarp(pillar(pid).color,function(){
+    openDistrictPid=pid;renderDistrict(pid);
+    document.getElementById("district").hidden=false;
+    window.scrollTo(0,0);
+  });
 }
-function closeDistrict(){openDistrictPid=null;document.getElementById("district").hidden=true;}
+function closeDistrict(){
+  var col=openDistrictPid?pillar(openDistrictPid).color:"#45D5EC";
+  travelWarp(col,function(){
+    openDistrictPid=null;document.getElementById("district").hidden=true;
+    renderCurrent();
+  });
+}
 document.getElementById("dBack").addEventListener("click",closeDistrict);
-document.getElementById("world")?document.getElementById("world").addEventListener("click",function(e){
-  var cv=this,r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-  for(var i=0;i<worldTiers.length;i++){var t=worldTiers[i];
-    if(y<=t.y0&&y>=t.y1){var frac=(t.y0-y)/(t.y0-t.y1),half=t.hb+(t.ht-t.hb)*frac;
-      if(Math.abs(x-t.cx)<=half+6){openDistrict(t.pid);return;}}}
-}):null;
+document.getElementById("world").addEventListener("click",function(e){
+  var r=this.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  for(var i=worldTiers.length-1;i>=0;i--){var t=worldTiers[i];
+    if(x>=t.minX-6&&x<=t.maxX+6&&y>=t.minY-4&&y<=t.maxY+4){openDistrict(t.pid);return;}}
+});
+
+/* warp travel animation */
+var warpBusy=false;
+function travelWarp(color,midCb){
+  if(REDUCED||warpBusy){midCb();return;}
+  warpBusy=true;
+  var ov=document.getElementById("warp"),cv=document.getElementById("warpCv");
+  ov.classList.add("on");
+  var w=window.innerWidth,h=window.innerHeight,dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=w*dpr;cv.height=h*dpr;
+  var ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);
+  var t0=performance.now(),dur=560,mid=false;
+  var rays=[];for(var i=0;i<70;i++)rays.push({a:Math.random()*6.283,r:Math.random()*0.35+0.05,l:0.08+Math.random()*0.2});
+  function step(now){
+    var p=(now-t0)/dur;
+    if(p>=0.45&&!mid){mid=true;midCb();}
+    if(p>=1){ov.classList.remove("on");ctx.clearRect(0,0,w,h);warpBusy=false;return;}
+    ctx.clearRect(0,0,w,h);
+    var ease=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+    ctx.fillStyle=hexA("#05070D",Math.sin(p*Math.PI)*.85);ctx.fillRect(0,0,w,h);
+    var cx2=w/2,cy2=h/2,maxR=Math.hypot(cx2,cy2);
+    rays.forEach(function(ry){
+      var r1=(ry.r+ease*1.15)%1.2, r2=r1+ry.l*(0.3+ease*1.4);
+      var x1=cx2+Math.cos(ry.a)*r1*maxR, y1=cy2+Math.sin(ry.a)*r1*maxR;
+      var x2=cx2+Math.cos(ry.a)*r2*maxR, y2=cy2+Math.sin(ry.a)*r2*maxR;
+      var gcol=ctx.createLinearGradient(x1,y1,x2,y2);
+      gcol.addColorStop(0,hexA(color,0));gcol.addColorStop(1,hexA(color,.9*Math.sin(p*Math.PI)));
+      ctx.strokeStyle=gcol;ctx.lineWidth=1.6;
+      ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+    });
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 function renderDistrict(pid){
   var p=pillar(pid), d=DISTRICTS[pid];
   var wrap=document.getElementById("district");wrap.style.setProperty("--dc",p.color);
@@ -896,49 +1007,49 @@ function renderDistrict(pid){
 
   var body=document.getElementById("dBody");body.innerHTML="";
   var h2=document.createElement("div");h2.className="section-h";h2.style.marginTop="4px";
-  h2.innerHTML='<h2>Practices of '+esc(d.name.replace("The ",""))+'</h2>';
+  h2.innerHTML='<h2>'+esc(d.name)+' protocols</h2>';
   body.appendChild(h2);
   var ul=document.createElement("ul");ul.className="habits";
   if(hs.length)hs.forEach(function(h){ul.appendChild(habitRow(h,false));});
   else{var e=document.createElement("div");e.className="empty";
-    e.innerHTML='<div class="ei">'+d.emoji+'</div><h3>No practices yet</h3><p>Add a daily habit to bring this district to life.</p>';ul.appendChild(e);}
+    e.innerHTML='<div class="ei">'+d.emoji+'</div><h3>Sector offline</h3><p>Install a daily protocol to bring this sector online.</p>';ul.appendChild(e);}
   body.appendChild(ul);
   var add=document.createElement("button");add.className="add-in";
-  add.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add a practice';
+  add.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Install a protocol';
   add.addEventListener("click",function(){openHabit(null,pid);});
   body.appendChild(add);
 
   var ex=document.createElement("div");ex.className="d-extra";
   if(pid==="physical"){
     var cups=S.diet.water[TODAY]||0;
-    ex.innerHTML='<div class="card counter"><div class="cinfo"><b>💧 The Well</b><span>'+cups+' of 8 cups drawn</span></div>'+
+    ex.innerHTML='<div class="card counter"><div class="cinfo"><b>💧 Hydro Station</b><span>'+cups+' of 8 cups charged</span></div>'+
       '<div class="cctl"><button id="dxWm">–</button><span class="cnum tn">'+cups+'</span><button id="dxWp">+</button></div></div>'+
-      '<button class="quick-add" id="dxFit" style="margin-top:12px">⚒️ Enter the training grounds</button>';
+      '<button class="quick-add" id="dxFit" style="margin-top:12px">⚙️ Enter the training bay</button>';
     ex.querySelector("#dxWp").addEventListener("click",function(){S.diet.water[TODAY]=(S.diet.water[TODAY]||0)+1;save();chimeDone();renderDistrict(pid);});
     ex.querySelector("#dxWm").addEventListener("click",function(){S.diet.water[TODAY]=Math.max(0,(S.diet.water[TODAY]||0)-1);save();renderDistrict(pid);});
     ex.querySelector("#dxFit").addEventListener("click",function(){closeDistrict();trackTab="fitness";show("track");});
   }else if(pid==="mental"){
-    ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">🎧 The still waters</b>'+
-      '<p class="mini-note" style="margin-top:6px">Let the lake quiet your mind while you work.</p>'+
-      '<button class="quick-add" id="dxFocus" style="margin-top:10px">'+(focusOn?"Silence the waters":"Let the waters sing")+'</button></div>';
+    ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">🎧 Focus frequency</b>'+
+      '<p class="mini-note" style="margin-top:6px">Tune in. Ambient signal for deep work.</p>'+
+      '<button class="quick-add" id="dxFocus" style="margin-top:10px">'+(focusOn?"Cut the signal":"Engage the signal")+'</button></div>';
     ex.querySelector("#dxFocus").addEventListener("click",function(){toggleFocus();renderDistrict(pid);});
   }else if(pid==="emotional"){
-    ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">📔 The hearth journal</b>'+
-      '<p class="mini-note" style="margin-top:6px">Sit by the fire and put the day into words.</p>'+
+    ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">📔 Pulse log</b>'+
+      '<p class="mini-note" style="margin-top:6px">Record your state. Morning boot, evening shutdown.</p>'+
       '<div class="actions" style="margin-top:10px"><button class="btn btn-ghost" id="dxJm">🌅 Morning</button><button class="btn btn-primary" id="dxJe">🌙 Evening</button></div></div>';
     ex.querySelector("#dxJm").addEventListener("click",function(){closeDistrict();jTab="morning";journalSeen=true;show("journal");});
     ex.querySelector("#dxJe").addEventListener("click",function(){closeDistrict();jTab="evening";journalSeen=true;show("journal");});
   }else if(pid==="spiritual"){
     var v=VERSES[dayOfYear()%VERSES.length];
-    ex.innerHTML='<div class="card inspire-card verse"><div class="badge">✝ Inscribed at the shrine today</div>'+
+    ex.innerHTML='<div class="card inspire-card verse"><div class="badge">✝ Transmitted from the Beacon today</div>'+
       '<div class="body">“'+esc(v.t)+'”</div><div class="attr"><b>'+esc(v.r)+'</b></div>'+
       '<div class="expand open"><div class="inner"><div class="lbl">Reflection</div><p>'+esc(v.b)+'</p></div></div></div>';
   }else if(pid==="intellectual"){
     var q=QUOTES[dayOfYear()%QUOTES.length];
-    ex.innerHTML='<div class="card inspire-card quote"><div class="badge">✦ Carved above the door today</div>'+
+    ex.innerHTML='<div class="card inspire-card quote"><div class="badge">✦ Decrypted from the Archive today</div>'+
       '<div class="body">“'+esc(q.t)+'”</div><div class="attr">— <b>'+esc(q.a)+'</b></div>'+
       '<div class="expand open"><div class="inner"><div class="lbl">What it means</div><p>'+esc(q.b)+'</p></div></div></div>'+
-      '<div class="actions" style="margin-top:12px"><button class="btn btn-ghost" id="dxFin">💰 Counting house</button><button class="btn btn-ghost" id="dxCar">💼 The guild</button></div>';
+      '<div class="actions" style="margin-top:12px"><button class="btn btn-ghost" id="dxFin">💰 Credit ledger</button><button class="btn btn-ghost" id="dxCar">💼 Mission board</button></div>';
     ex.querySelector("#dxFin").addEventListener("click",function(){closeDistrict();trackTab="finance";show("track");});
     ex.querySelector("#dxCar").addEventListener("click",function(){closeDistrict();trackTab="career";show("track");});
   }
@@ -964,13 +1075,13 @@ function renderToday(){
   document.getElementById("balancePct").textContent=grownPct+"%";
 
   var sub;
-  if(!tot)sub="Add habits in the Grow tab to begin the climb.";
+  if(!tot)sub="Add habits in the Grow tab to power up the tower.";
   else{var nonEmpty=PILLARS.map(function(p,i){return {p:p,s:scores[i]};}).filter(function(o){return !o.s.empty;});
     var weakest=nonEmpty.slice().sort(function(a,b){return a.s.score-b.s.score;})[0];
     var allToday=doneT===tot;
-    if(allToday)sub="The flag flies at the summit — every district honored today. 🏔️";
-    else if(weakest&&!weakest.s.todayAll&&weakest.s.score<0.6)sub=DISTRICTS[weakest.p.id].name+" ("+weakest.p.name+") awaits your visit today.";
-    else sub="Tap a tier to visit its district.";}
+    if(allToday)sub="Summit beacon lit — all sectors cleared today. ⚡";
+    else if(weakest&&!weakest.s.todayAll&&weakest.s.score<0.6)sub=DISTRICTS[weakest.p.id].name+" ("+weakest.p.name+") is running low on power.";
+    else sub="Tap a tier to jump to its sector.";}
   document.getElementById("gardenSub").textContent=sub;
 
   var chips=document.getElementById("dChips");chips.innerHTML="";
