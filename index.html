@@ -387,6 +387,18 @@
     background:var(--surface-2);color:var(--up);font-family:var(--fr);font-weight:700;font-size:14.5px;}
   .jny-leave{background:transparent;color:var(--muted);font-size:12.5px;margin:10px auto 0;display:block;padding:6px;font-weight:600;}
 
+  /* auth gate */
+  .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
+    padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
+  .auth-gate[hidden]{display:none;}
+  .ag-inner{width:100%;max-width:340px;text-align:center;animation:fade .4s ease;}
+  .ag-emoji{font-size:52px;margin:16px 0 4px;}
+  .ag-inner h2{font-family:var(--fr);font-size:27px;font-weight:800;letter-spacing:-.02em;}
+  .ag-inner p{font-size:14.5px;color:var(--ink-2);line-height:1.55;margin:9px 4px 20px;}
+  .ag-inner .tin{text-align:left;margin-bottom:10px;}
+  .ag-actions{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+  .ag-actions .btn{flex:none;}
+
   /* toast */
   .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:60;
     background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:14px;font-size:14px;font-weight:600;font-family:var(--fr);
@@ -492,6 +504,22 @@
   <button class="fab" id="fab" aria-label="New habit"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
 
   <div class="toast" id="toast"></div>
+
+  <!-- auth gate -->
+  <div class="auth-gate" id="authGate" hidden>
+    <div class="ag-inner">
+      <div class="eyebrow" style="justify-content:center"><span class="dot"></span> Flourish</div>
+      <div class="ag-emoji">🌱</div>
+      <h2>Grow whole.</h2>
+      <p>Body, mind, heart, spirit, and intellect — one day at a time. Sign in and your garden follows you on every device.</p>
+      <input class="tin" id="agEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+      <input class="tin" id="agPass" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" />
+      <div class="ag-actions">
+        <button class="btn btn-primary" id="agIn">Sign in</button>
+        <button class="btn btn-ghost" id="agUp">Create a free account</button>
+      </div>
+    </div>
+  </div>
 
   <nav class="nav"><div class="row">
     <button data-v="today" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Today</button>
@@ -1410,9 +1438,30 @@ function initCloud(){
   cloudReady=true;
   sb.auth.onAuthStateChange(function(ev,session){
     cloudUser=session?session.user:null;updateAcctUI();
-    if(cloudUser&&(ev==="SIGNED_IN"||ev==="INITIAL_SESSION"))pullCloud();
+    if(cloudUser){hideGate();if(ev==="SIGNED_IN"||ev==="INITIAL_SESSION")pullCloud();}
+    else if(ev==="INITIAL_SESSION"||ev==="SIGNED_OUT")showGate();
   });
 }
+/* ---- auth gate ---- */
+function showGate(){var g=document.getElementById("authGate");if(g)g.hidden=false;}
+function hideGate(){var g=document.getElementById("authGate");if(g)g.hidden=true;}
+function doSignIn(email,password){
+  if(!email||!password){toast("Enter your email and password","✋");return;}
+  sb.auth.signInWithPassword({email:email,password:password}).then(function(r){
+    if(r.error)toast(r.error.message,"⚠️");else{toast("Welcome back","👤");closeSheets();}});
+}
+function doSignUp(email,password){
+  if(!email||password.length<6){toast("Email + a password of 6+ characters","✋");return;}
+  sb.auth.signUp({email:email,password:password}).then(function(r){
+    if(r.error)toast(r.error.message,"⚠️");
+    else if(r.data&&r.data.session){toast("Account created — welcome to Flourish","🎉");closeSheets();}
+    else toast("Check your email to confirm your account","📬");});
+}
+document.getElementById("agIn").addEventListener("click",function(){
+  doSignIn(document.getElementById("agEmail").value.trim(),document.getElementById("agPass").value);});
+document.getElementById("agUp").addEventListener("click",function(){
+  doSignUp(document.getElementById("agEmail").value.trim(),document.getElementById("agPass").value);});
+document.getElementById("agPass").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("agIn").click();});
 function schedulePush(){if(!sb||!cloudUser)return;clearTimeout(pushTimer);pushTimer=setTimeout(pushCloud,1800);}
 function pushCloud(){
   if(!sb||!cloudUser)return;
@@ -1465,19 +1514,10 @@ function renderAcct(){
     '<div class="flabel">Email</div><input class="tin" id="acctEmail" type="email" placeholder="you@example.com" autocomplete="email" />'+
     '<div class="flabel">Password</div><input class="tin" id="acctPass" type="password" placeholder="At least 6 characters" autocomplete="current-password" />'+
     '<div class="actions"><button class="btn btn-ghost" id="acctUp">Create account</button><button class="btn btn-primary" id="acctIn">Sign in</button></div>';
-  function creds(){return {email:document.getElementById("acctEmail").value.trim(),password:document.getElementById("acctPass").value};}
   document.getElementById("acctIn").addEventListener("click",function(){
-    var c=creds();if(!c.email||!c.password){toast("Enter your email and password","✋");return;}
-    sb.auth.signInWithPassword(c).then(function(r){
-      if(r.error)toast(r.error.message,"⚠️");else{toast("Welcome back","👤");closeSheets();}});
-  });
+    doSignIn(document.getElementById("acctEmail").value.trim(),document.getElementById("acctPass").value);});
   document.getElementById("acctUp").addEventListener("click",function(){
-    var c=creds();if(!c.email||c.password.length<6){toast("Email + a password of 6+ characters","✋");return;}
-    sb.auth.signUp(c).then(function(r){
-      if(r.error)toast(r.error.message,"⚠️");
-      else if(r.data&&r.data.session){toast("Account created — you're synced","🎉");closeSheets();}
-      else toast("Check your email to confirm your account","📬");});
-  });
+    doSignUp(document.getElementById("acctEmail").value.trim(),document.getElementById("acctPass").value);});
 }
 document.getElementById("acctBtn").addEventListener("click",function(){renderAcct();openSheet(acctSheet);});
 initCloud();
