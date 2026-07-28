@@ -82,18 +82,22 @@
   .section-h h2{font-family:var(--fr);font-size:16px;font-weight:700;}
   .section-h .sub{font-size:12.5px;color:var(--muted);}
 
-  /* balance hero */
-  .hero{padding:18px 16px 16px;text-align:center;}
-  .hero .cap{font-family:var(--fr);font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.02em;}
-  .radar-wrap{position:relative;width:230px;height:230px;margin:6px auto 4px;}
-  .radar-wrap canvas{width:230px;height:230px;display:block;}
-  .radar-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
-  .radar-center b{font-family:var(--fr);font-size:30px;font-weight:800;line-height:1;letter-spacing:-.02em;}
-  .radar-center span{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:3px;}
-  .legend{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:8px;}
+  /* garden hero */
+  .garden-hero{padding:14px 16px 16px;overflow:hidden;}
+  .garden-top{display:flex;align-items:baseline;justify-content:space-between;margin:2px 2px 2px;}
+  .garden-top .cap{font-family:var(--fr);font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.02em;}
+  .garden-top .garden-pct{font-size:12px;color:var(--muted);font-weight:600;}
+  .garden-top .garden-pct b{font-family:var(--fr);font-size:16px;font-weight:800;color:var(--accent-ink);letter-spacing:-.02em;}
+  .garden-canvas-wrap{position:relative;width:100%;height:206px;margin:4px 0 2px;}
+  .garden-canvas-wrap canvas{width:100%;height:206px;display:block;}
+  .garden-sub{text-align:center;font-size:13px;color:var(--ink-2);line-height:1.45;margin:6px 6px 2px;text-wrap:balance;}
+  .legend{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:12px;}
   .legend .lg{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
   .legend .lg .pip{width:9px;height:9px;border-radius:50%;}
   .legend .lg b{font-family:var(--fr);font-size:12.5px;color:var(--ink);font-weight:700;}
+  .legend .lg .lvbar{display:flex;gap:2px;margin-top:1px;}
+  .legend .lg .lvbar i{width:5px;height:5px;border-radius:1.5px;background:var(--surface-2);}
+  .legend .lg .lvbar i.f{background:var(--lc,var(--accent));}
 
   /* reward banner */
   .reward{margin-top:12px;display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:16px;
@@ -369,12 +373,10 @@
 
     <!-- ============ TODAY ============ -->
     <section class="view on" id="view-today">
-      <div class="card hero">
-        <div class="cap">Your balance today</div>
-        <div class="radar-wrap">
-          <canvas id="radar" width="460" height="460"></canvas>
-          <div class="radar-center"><b id="balancePct">0%</b><span>whole</span></div>
-        </div>
+      <div class="card garden-hero">
+        <div class="garden-top"><div class="cap">Your garden</div><div class="garden-pct"><b id="balancePct" class="tn">0%</b> grown</div></div>
+        <div class="garden-canvas-wrap"><canvas id="garden"></canvas></div>
+        <div class="garden-sub" id="gardenSub">Tend each area and watch it flourish.</div>
         <div class="legend" id="legend"></div>
       </div>
 
@@ -630,24 +632,67 @@ function toggleFocus(){if(focusOn){focusOn=false;clearInterval(focusTimer);}
 function updateMusicUI(){var b=document.getElementById("musicBtn");b.classList.toggle("live",focusOn);b.textContent=focusOn?"♫":"♪";
   var t=document.getElementById("focusToggle");if(t){t.classList.toggle("on",focusOn);document.getElementById("focusState").textContent=focusOn?"On":"Off";document.getElementById("focusIco").textContent=focusOn?"🔊":"🎧";}}
 
-/* ============ RADAR ============ */
-function drawRadar(vals){
-  var cv=document.getElementById("radar"),ctx=cv.getContext("2d");
-  var dpr=Math.min(window.devicePixelRatio||1,3),size=230;cv.width=size*dpr;cv.height=size*dpr;ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,size,size);
-  var cx=size/2,cy=size/2,R=88,N=5,cs=getComputedStyle(document.documentElement);
-  var line=cs.getPropertyValue("--line").trim(),muted=cs.getPropertyValue("--muted").trim();
-  function pt(i,r){var a=-Math.PI/2+i*2*Math.PI/N;return[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
-  for(var g=1;g<=4;g++){ctx.beginPath();for(var i=0;i<N;i++){var p=pt(i,R*g/4);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]);}ctx.closePath();
-    ctx.strokeStyle=line;ctx.lineWidth=1;ctx.stroke();}
-  for(var i=0;i<N;i++){var p=pt(i,R);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(p[0],p[1]);ctx.strokeStyle=line;ctx.stroke();}
-  // filled shape
-  var grd=ctx.createRadialGradient(cx,cy,10,cx,cy,R);
-  grd.addColorStop(0,hexA(cs.getPropertyValue("--accent").trim(),.36));grd.addColorStop(1,hexA(cs.getPropertyValue("--accent").trim(),.14));
-  ctx.beginPath();for(var i=0;i<N;i++){var v=Math.max(vals[i],.04),p=pt(i,R*v);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]);}ctx.closePath();
-  ctx.fillStyle=grd;ctx.fill();ctx.strokeStyle=cs.getPropertyValue("--accent").trim();ctx.lineWidth=2;ctx.stroke();
-  for(var i=0;i<N;i++){var v=Math.max(vals[i],.04),p=pt(i,R*v);ctx.beginPath();ctx.arc(p[0],p[1],3.4,0,7);ctx.fillStyle=cs.getPropertyValue(PILLARS[i].cssv).trim();ctx.fill();
-    var lp=pt(i,R+16);ctx.fillStyle=muted;ctx.font="700 13px "+cs.getPropertyValue("--fr");ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(PILLARS[i].emoji,lp[0],lp[1]);}
+/* ============ GARDEN ============ */
+/* Each dimension is a plant; it grows with recent consistency (weighted toward recent days). */
+function growthScore(pid){
+  var hs=S.habits.filter(function(h){return h.pillar===pid;});
+  if(!hs.length)return {score:0,empty:true,todayAll:false};
+  var W=14,acc=0,wsum=0;
+  for(var i=0;i<W;i++){var d=new Date();d.setDate(d.getDate()-i);var k=keyOf(d);
+    var done=hs.filter(function(h){return h.history[k];}).length;
+    var w=W-i;acc+=w*(done/hs.length);wsum+=w;}
+  return {score:wsum?acc/wsum:0,empty:false,todayAll:hs.every(function(h){return h.history[TODAY];})};
+}
+function scoresNow(){return PILLARS.map(function(p){return growthScore(p.id);});}
+function moundY(x,w,gy){var t=x/w;return gy-20*t*(1-t);}
+function blob(ctx,x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();}
+function leafShape(ctx,x,y,dir,green){ctx.fillStyle=green;ctx.beginPath();ctx.ellipse(x+dir*6,y,7,3.6,dir*0.6,0,7);ctx.fill();}
+function drawSparkle(ctx,x,y,col){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.lineCap="round";
+  ctx.beginPath();ctx.moveTo(x-4,y);ctx.lineTo(x+4,y);ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.stroke();ctx.restore();}
+function drawPlant(ctx,x,gy,s,col,green,gold,dark,todayAll){
+  s=Math.max(0,Math.min(1,s));
+  var stem=dark?"#8a6a46":"#7a5730";
+  var ph=12+Math.pow(s,0.85)*116, topY=gy-ph;
+  ctx.strokeStyle=stem;ctx.lineCap="round";ctx.lineWidth=Math.max(2,2.2+s*5);
+  ctx.beginPath();ctx.moveTo(x,gy);ctx.quadraticCurveTo(x-3,gy-ph*0.5,x,topY+(s<0.16?0:ph*0.12));ctx.stroke();
+  var sparkY;
+  if(s<0.16){ leafShape(ctx,x,topY+3,-1,green);leafShape(ctx,x,topY+8,1,green); sparkY=topY-2; }
+  else{
+    var cy=topY+ph*0.10, r=10+s*30;
+    ctx.fillStyle=green;
+    blob(ctx,x,cy,r);blob(ctx,x-r*0.62,cy+r*0.28,r*0.72);blob(ctx,x+r*0.62,cy+r*0.28,r*0.72);blob(ctx,x,cy-r*0.5,r*0.66);
+    if(s>0.5){var n=Math.round((s-0.5)*18);ctx.fillStyle=col;
+      for(var b=0;b<n;b++){var ang=b*2.399,rad=r*(0.35+((b*97)%50)/100*0.6);
+        ctx.beginPath();ctx.arc(x+Math.cos(ang)*rad,cy+Math.sin(ang)*rad*0.85,1.8+s*1.5,0,7);ctx.fill();}}
+    sparkY=cy-r-4;
+  }
+  if(todayAll)drawSparkle(ctx,x+ (s<0.16?6:14),sparkY,gold);
+}
+function drawEmptyPlot(ctx,x,gy,dark,green){ctx.save();ctx.strokeStyle=hexA(green,dark?.4:.45);ctx.setLineDash([3,4]);ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.ellipse(x,gy-3,12,5.5,0,0,7);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=hexA(green,dark?.5:.55);ctx.beginPath();ctx.arc(x,gy-4,2.2,0,7);ctx.fill();ctx.restore();}
+function drawGarden(scores){
+  var cv=document.getElementById("garden");if(!cv)return;
+  var w=cv.clientWidth||(cv.parentElement&&cv.parentElement.clientWidth)||0;if(w<=0)return;var h=206;
+  var dpr=Math.min(window.devicePixelRatio||1,3);cv.width=w*dpr;cv.height=h*dpr;
+  var ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  var cs=getComputedStyle(document.documentElement);
+  var dark=document.documentElement.getAttribute("data-theme")==="dark"||(!document.documentElement.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
+  var green=cs.getPropertyValue("--accent").trim(), gold=cs.getPropertyValue("--gold").trim(), gy=h-26;
+  // sun glow
+  var sun=ctx.createRadialGradient(w*0.82,32,4,w*0.82,32,95);
+  sun.addColorStop(0,hexA(gold,dark?.20:.26));sun.addColorStop(1,hexA(gold,0));
+  ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);
+  // ground mound
+  var gg=ctx.createLinearGradient(0,gy-8,0,h);
+  gg.addColorStop(0,hexA(green,dark?.30:.32));gg.addColorStop(1,hexA(green,dark?.13:.15));
+  ctx.fillStyle=gg;ctx.beginPath();ctx.moveTo(0,gy);ctx.quadraticCurveTo(w*0.5,gy-10,w,gy);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=hexA(green,dark?.5:.42);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,gy);ctx.quadraticCurveTo(w*0.5,gy-10,w,gy);ctx.stroke();
+  // plants
+  var N=5,padX=w*0.10,span=(w-2*padX)/(N-1);
+  for(var i=0;i<N;i++){var x=padX+span*i,py=moundY(x,w,gy),col=cs.getPropertyValue(PILLARS[i].cssv).trim();
+    if(scores[i].empty)drawEmptyPlot(ctx,x,py,dark,green);
+    else drawPlant(ctx,x,py,scores[i].score,col,green,gold,dark,scores[i].todayAll);}
 }
 function hexA(h,a){h=h.replace("#","");if(h.length===3)h=h.split("").map(function(c){return c+c;}).join("");
   var n=parseInt(h,16);return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
@@ -662,15 +707,28 @@ function renderToday(){
   document.getElementById("greeting").textContent=g;
   document.getElementById("subdate").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
 
-  var vals=PILLARS.map(function(p){return pillarFrac(p.id);});
-  drawRadar(vals);
+  var scores=scoresNow();
+  drawGarden(scores);
   var doneT=S.habits.filter(function(h){return h.history[TODAY];}).length,tot=S.habits.length;
-  var pct=tot?Math.round(doneT/tot*100):0;
-  document.getElementById("balancePct").textContent=pct+"%";
+  var planted=scores.filter(function(s){return !s.empty;});
+  var overall=planted.length?planted.reduce(function(a,s){return a+s.score;},0)/planted.length:0;
+  var grownPct=Math.round(overall*100);
+  document.getElementById("balancePct").textContent=grownPct+"%";
+
+  var sub;
+  if(!tot)sub="Plant habits in the Grow tab to start your garden.";
+  else{var nonEmpty=PILLARS.map(function(p,i){return {p:p,s:scores[i]};}).filter(function(o){return !o.s.empty;});
+    var weakest=nonEmpty.slice().sort(function(a,b){return a.s.score-b.s.score;})[0];
+    if(grownPct>=80)sub="Beautifully tended — every part of you is flourishing. 🌸";
+    else if(weakest&&!weakest.s.todayAll&&weakest.s.score<0.6)sub="Your "+weakest.p.name+" plant could use tending today.";
+    else sub="Keep showing up — your garden grows a little every day.";}
+  document.getElementById("gardenSub").textContent=sub;
 
   var lg=document.getElementById("legend");lg.innerHTML="";
-  PILLARS.forEach(function(p,i){var el=document.createElement("div");el.className="lg";
-    el.innerHTML='<span class="pip" style="background:'+p.color+'"></span><b>'+Math.round(vals[i]*100)+'</b>'+p.name.slice(0,4);lg.appendChild(el);});
+  PILLARS.forEach(function(p,i){var st=scores[i].empty?0:Math.max(0,Math.min(5,Math.round(scores[i].score*5)));
+    var bars="";for(var b=0;b<5;b++)bars+='<i class="'+(b<st?"f":"")+'"></i>';
+    var el=document.createElement("div");el.className="lg";el.style.setProperty("--lc",p.color);
+    el.innerHTML='<span class="pip" style="background:'+p.color+'"></span><b>'+(scores[i].empty?"—":st)+'</b>'+p.name.slice(0,4)+'<span class="lvbar">'+bars+'</span>';lg.appendChild(el);});
 
   // reward
   var complete=tot>0&&doneT===tot;
@@ -1116,7 +1174,7 @@ document.getElementById("trackSeg").querySelectorAll("button").forEach(function(
 /* ============ THEME + MUSIC ============ */
 function applyTheme(t){if(t==="system")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",t);
   var dark=t==="dark"||(t==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);
-  document.getElementById("themeBtn").textContent=dark?"☾":"☀";if(current==="today")drawRadar(PILLARS.map(function(p){return pillarFrac(p.id);}));}
+  document.getElementById("themeBtn").textContent=dark?"☾":"☀";if(current==="today")drawGarden(scoresNow());}
 var savedTheme=(function(){try{return localStorage.getItem(TK)||"system";}catch(e){return "system";}})();
 applyTheme(savedTheme);
 document.getElementById("themeBtn").addEventListener("click",function(){
@@ -1155,6 +1213,9 @@ document.getElementById("musicBtn").addEventListener("click",openMusic);
 /* ============ REMINDERS LOOP ============ */
 if("Notification" in window && Notification.permission==="granted")firedReminders={};
 setInterval(checkReminders,20000);
+
+/* redraw garden on resize (responsive canvas) */
+var _grz;window.addEventListener("resize",function(){clearTimeout(_grz);_grz=setTimeout(function(){if(current==="today")drawGarden(scoresNow());},160);});
 
 /* ============ GO ============ */
 show("today");
