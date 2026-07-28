@@ -88,8 +88,8 @@
   .garden-top .cap{font-family:var(--fr);font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.02em;}
   .garden-top .garden-pct{font-size:12px;color:var(--muted);font-weight:600;}
   .garden-top .garden-pct b{font-family:var(--fr);font-size:16px;font-weight:800;color:var(--accent-ink);letter-spacing:-.02em;}
-  .garden-canvas-wrap{position:relative;width:100%;height:206px;margin:4px 0 2px;}
-  .garden-canvas-wrap canvas{width:100%;height:206px;display:block;}
+  .garden-canvas-wrap{position:relative;width:100%;height:230px;margin:4px 0 2px;}
+  .garden-canvas-wrap canvas{width:100%;height:230px;display:block;cursor:pointer;}
   .garden-sub{text-align:center;font-size:13px;color:var(--ink-2);line-height:1.45;margin:6px 6px 2px;text-wrap:balance;}
   .legend{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:12px;}
   .legend .lg{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--muted);}
@@ -387,6 +387,34 @@
     background:var(--surface-2);color:var(--up);font-family:var(--fr);font-weight:700;font-size:14.5px;}
   .jny-leave{background:transparent;color:var(--muted);font-size:12.5px;margin:10px auto 0;display:block;padding:6px;font-weight:600;}
 
+  /* world + districts */
+  .d-chips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px;}
+  .d-chips button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 2px 8px;border-radius:12px;
+    background:color-mix(in srgb,var(--dc) 12%,var(--surface-2));font-size:9.5px;font-weight:700;color:var(--ink-2);transition:transform .13s;}
+  .d-chips button:active{transform:scale(.93);}
+  .d-chips button .de{font-size:17px;line-height:1;}
+  .d-chips button b{font-family:var(--fr);font-size:10.5px;color:var(--ink);}
+  .d-chips button .dlv{width:100%;max-width:34px;height:3.5px;border-radius:2px;background:var(--surface);overflow:hidden;}
+  .d-chips button .dlv i{display:block;height:100%;background:var(--dc);border-radius:2px;}
+
+  .district{position:fixed;inset:0;z-index:36;background:var(--paper);overflow-y:auto;animation:d-in .3s cubic-bezier(.22,1,.36,1);}
+  .district[hidden]{display:none;}
+  @keyframes d-in{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .d-scene{position:relative;padding:max(18px,env(safe-area-inset-top)) 20px 24px;text-align:center;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--dc) 38%,var(--paper)),color-mix(in srgb,var(--dc) 10%,var(--paper)) 78%,var(--paper));
+    border-bottom:1px solid var(--line);}
+  .d-back{position:absolute;left:12px;top:max(14px,env(safe-area-inset-top));font-family:var(--fr);font-size:14px;font-weight:700;
+    color:var(--ink);background:color-mix(in srgb,var(--paper) 65%,transparent);padding:7px 13px;border-radius:999px;backdrop-filter:blur(6px);}
+  .d-emoji{font-size:52px;margin-top:26px;filter:drop-shadow(0 6px 14px color-mix(in srgb,var(--dc) 45%,transparent));}
+  .d-scene h2{font-family:var(--fr);font-size:26px;font-weight:800;letter-spacing:-.02em;margin-top:6px;}
+  .d-scene .d-tag{font-size:13.5px;color:var(--ink-2);margin-top:3px;font-style:italic;}
+  .d-prog{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:7px 14px;border-radius:999px;
+    background:color-mix(in srgb,var(--paper) 70%,transparent);font-family:var(--fr);font-size:13px;font-weight:700;}
+  .d-prog .dp-bar{width:64px;height:6px;border-radius:4px;background:var(--surface-2);overflow:hidden;}
+  .d-prog .dp-bar i{display:block;height:100%;background:var(--dc);border-radius:4px;}
+  .d-body{max-width:480px;margin:0 auto;padding:18px 16px calc(40px + env(safe-area-inset-bottom));}
+  .d-extra{margin-top:16px;}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -424,10 +452,10 @@
     <!-- ============ TODAY ============ -->
     <section class="view on" id="view-today">
       <div class="card garden-hero">
-        <div class="garden-top"><div class="cap">Your garden</div><div class="garden-pct"><b id="balancePct" class="tn">0%</b> grown</div></div>
-        <div class="garden-canvas-wrap"><canvas id="garden"></canvas></div>
-        <div class="garden-sub" id="gardenSub">Tend each area and watch it flourish.</div>
-        <div class="legend" id="legend"></div>
+        <div class="garden-top"><div class="cap">The Ascent</div><div class="garden-pct"><b id="balancePct" class="tn">0%</b> climbed</div></div>
+        <div class="garden-canvas-wrap"><canvas id="world"></canvas></div>
+        <div class="garden-sub" id="gardenSub">Tap a tier to visit its district.</div>
+        <div class="d-chips" id="dChips"></div>
       </div>
 
       <div class="reward" id="reward">
@@ -503,6 +531,17 @@
 
   <button class="fab" id="fab" aria-label="New habit"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
 
+  <!-- district (place) view -->
+  <div class="district" id="district" hidden>
+    <div class="d-scene" id="dScene">
+      <button class="d-back" id="dBack">‹ The Ascent</button>
+      <div class="d-emoji" id="dEmoji">⚒️</div>
+      <h2 id="dName">District</h2>
+      <p class="d-tag" id="dTag"></p>
+    </div>
+    <div class="d-body" id="dBody"></div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <!-- auth gate -->
@@ -522,7 +561,7 @@
   </div>
 
   <nav class="nav"><div class="row">
-    <button data-v="today" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>Today</button>
+    <button data-v="today" class="on"><svg viewBox="0 0 24 24"><path d="M3 20h18L14 5l-2.6 4.4L9 6z"/><path d="M12 20v-3"/></svg>Summit</button>
     <button data-v="grow"><svg viewBox="0 0 24 24"><path d="M12 21v-8M12 13c0-4 3-6 7-6 0 4-3 6-7 6zM12 13c0-3-2.2-4.5-5-4.5C7 11.5 9 13 12 13z"/></svg>Grow</button>
     <button data-v="track"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M4 19h16"/></svg>Track</button>
     <button data-v="journal"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2zM4 17a2 2 0 0 1 2-2h12M8 7h6M8 11h6"/></svg>Journal</button>
@@ -736,58 +775,175 @@ function growthScore(pid){
   return {score:wsum?acc/wsum:0,empty:false,todayAll:hs.every(function(h){return h.history[TODAY];})};
 }
 function scoresNow(){return PILLARS.map(function(p){return growthScore(p.id);});}
-function moundY(x,w,gy){var t=x/w;return gy-20*t*(1-t);}
-function blob(ctx,x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();}
-function leafShape(ctx,x,y,dir,green){ctx.fillStyle=green;ctx.beginPath();ctx.ellipse(x+dir*6,y,7,3.6,dir*0.6,0,7);ctx.fill();}
-function drawSparkle(ctx,x,y,col){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.lineCap="round";
-  ctx.beginPath();ctx.moveTo(x-4,y);ctx.lineTo(x+4,y);ctx.moveTo(x,y-4);ctx.lineTo(x,y+4);ctx.stroke();ctx.restore();}
-function drawPlant(ctx,x,gy,s,col,green,gold,dark,todayAll){
-  s=Math.max(0,Math.min(1,s));
-  var stem=dark?"#8a6a46":"#7a5730";
-  var ph=12+Math.pow(s,0.85)*116, topY=gy-ph;
-  ctx.strokeStyle=stem;ctx.lineCap="round";ctx.lineWidth=Math.max(2,2.2+s*5);
-  ctx.beginPath();ctx.moveTo(x,gy);ctx.quadraticCurveTo(x-3,gy-ph*0.5,x,topY+(s<0.16?0:ph*0.12));ctx.stroke();
-  var sparkY;
-  if(s<0.16){ leafShape(ctx,x,topY+3,-1,green);leafShape(ctx,x,topY+8,1,green); sparkY=topY-2; }
-  else{
-    var cy=topY+ph*0.10, r=10+s*30;
-    ctx.fillStyle=green;
-    blob(ctx,x,cy,r);blob(ctx,x-r*0.62,cy+r*0.28,r*0.72);blob(ctx,x+r*0.62,cy+r*0.28,r*0.72);blob(ctx,x,cy-r*0.5,r*0.66);
-    if(s>0.5){var n=Math.round((s-0.5)*18);ctx.fillStyle=col;
-      for(var b=0;b<n;b++){var ang=b*2.399,rad=r*(0.35+((b*97)%50)/100*0.6);
-        ctx.beginPath();ctx.arc(x+Math.cos(ang)*rad,cy+Math.sin(ang)*rad*0.85,1.8+s*1.5,0,7);ctx.fill();}}
-    sparkY=cy-r-4;
-  }
-  if(todayAll)drawSparkle(ctx,x+ (s<0.16?6:14),sparkY,gold);
-}
-function drawEmptyPlot(ctx,x,gy,dark,green){ctx.save();ctx.strokeStyle=hexA(green,dark?.4:.45);ctx.setLineDash([3,4]);ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.ellipse(x,gy-3,12,5.5,0,0,7);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=hexA(green,dark?.5:.55);ctx.beginPath();ctx.arc(x,gy-4,2.2,0,7);ctx.fill();ctx.restore();}
-function drawGarden(scores){
-  var cv=document.getElementById("garden");if(!cv)return;
-  var w=cv.clientWidth||(cv.parentElement&&cv.parentElement.clientWidth)||0;if(w<=0)return;var h=206;
+/* The Ascent: a five-tier pyramid — one tier per dimension, lit by its
+   14-day consistency. Spirit crowns the summit. Tap a tier to travel. */
+var TIER_ORDER=["physical","mental","emotional","intellectual","spiritual"];
+var DISTRICTS={
+  physical:{name:"The Forge",tag:"Where strength is made",emoji:"⚒️"},
+  mental:{name:"The Stillwater",tag:"A clear mind cuts deepest",emoji:"🌊"},
+  emotional:{name:"The Hearth",tag:"Tend the fires of the heart",emoji:"🕯️"},
+  intellectual:{name:"The Athenaeum",tag:"Halls of learning",emoji:"🏛️"},
+  spiritual:{name:"The Sanctuary",tag:"The shrine at the summit",emoji:"⛩️"}
+};
+var worldTiers=[];
+function mixColor(hex1,hex2,t){
+  function p(h){h=h.replace("#","");if(h.length===3)h=h.split("").map(function(c){return c+c;}).join("");var n=parseInt(h,16);return[(n>>16)&255,(n>>8)&255,n&255];}
+  var a=p(hex1),b=p(hex2);return "rgb("+Math.round(a[0]+(b[0]-a[0])*t)+","+Math.round(a[1]+(b[1]-a[1])*t)+","+Math.round(a[2]+(b[2]-a[2])*t)+")";}
+function drawWorld(scores){
+  var cv=document.getElementById("world");if(!cv)return;
+  var w=cv.clientWidth||(cv.parentElement&&cv.parentElement.clientWidth)||0;if(w<=0)return;var h=230;
   var dpr=Math.min(window.devicePixelRatio||1,3);cv.width=w*dpr;cv.height=h*dpr;
   var ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   var cs=getComputedStyle(document.documentElement);
   var dark=document.documentElement.getAttribute("data-theme")==="dark"||(!document.documentElement.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
-  var green=cs.getPropertyValue("--accent").trim(), gold=cs.getPropertyValue("--gold").trim(), gy=h-26;
-  // sun glow
-  var sun=ctx.createRadialGradient(w*0.82,32,4,w*0.82,32,95);
-  sun.addColorStop(0,hexA(gold,dark?.20:.26));sun.addColorStop(1,hexA(gold,0));
+  var stone=cs.getPropertyValue("--surface-2").trim(), lineC=cs.getPropertyValue("--line").trim(),
+      gold=cs.getPropertyValue("--gold").trim(), accent=cs.getPropertyValue("--accent").trim(),
+      muted=cs.getPropertyValue("--muted").trim();
+  var byPid={};PILLARS.forEach(function(p,i){byPid[p.id]={score:scores[i],color:cs.getPropertyValue(p.cssv).trim(),emoji:p.emoji};});
+  // sky: sun/moon glow
+  var sun=ctx.createRadialGradient(w*0.83,34,5,w*0.83,34,100);
+  sun.addColorStop(0,hexA(gold,dark?.25:.3));sun.addColorStop(1,hexA(gold,0));
   ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);
-  // ground mound
-  var gg=ctx.createLinearGradient(0,gy-8,0,h);
-  gg.addColorStop(0,hexA(green,dark?.30:.32));gg.addColorStop(1,hexA(green,dark?.13:.15));
-  ctx.fillStyle=gg;ctx.beginPath();ctx.moveTo(0,gy);ctx.quadraticCurveTo(w*0.5,gy-10,w,gy);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
-  ctx.strokeStyle=hexA(green,dark?.5:.42);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,gy);ctx.quadraticCurveTo(w*0.5,gy-10,w,gy);ctx.stroke();
-  // plants
-  var N=5,padX=w*0.10,span=(w-2*padX)/(N-1);
-  for(var i=0;i<N;i++){var x=padX+span*i,py=moundY(x,w,gy),col=cs.getPropertyValue(PILLARS[i].cssv).trim();
-    if(scores[i].empty)drawEmptyPlot(ctx,x,py,dark,green);
-    else drawPlant(ctx,x,py,scores[i].score,col,green,gold,dark,scores[i].todayAll);}
+  ctx.fillStyle=dark?hexA(gold,.9):hexA(gold,.85);ctx.beginPath();ctx.arc(w*0.83,34,9,0,7);ctx.fill();
+  // clouds
+  ctx.fillStyle=hexA(muted,dark?.12:.16);
+  ctx.beginPath();ctx.ellipse(w*0.18,40,26,8,0,0,7);ctx.ellipse(w*0.24,34,18,7,0,0,7);ctx.fill();
+  ctx.beginPath();ctx.ellipse(w*0.62,22,20,6,0,0,7);ctx.fill();
+  // ground
+  var gy=h-22;
+  var gg=ctx.createLinearGradient(0,gy-4,0,h);
+  gg.addColorStop(0,hexA(accent,dark?.28:.3));gg.addColorStop(1,hexA(accent,dark?.12:.14));
+  ctx.fillStyle=gg;ctx.fillRect(0,gy,w,h-gy);
+  ctx.strokeStyle=hexA(accent,dark?.5:.4);ctx.lineWidth=1.4;
+  ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();
+  // pyramid
+  var cx=w/2, ph=176, topY=gy-ph, bw=Math.min(w*0.84,330), tn=5, th=ph/tn;
+  worldTiers=[];
+  function halfAt(frac){return (bw/2)*(1-frac*0.82);}
+  for(var i=0;i<tn;i++){
+    var pid=TIER_ORDER[i], d=byPid[pid];
+    var y0=gy-i*th, y1=y0-th;
+    var hb=halfAt(i/tn), ht=halfAt((i+1)/tn);
+    var s=d.score.empty?0:d.score.score;
+    var fill=mixColor(stone.length===7?stone:"#cccccc",d.color.length===7?d.color:"#888888",0.12+s*0.75);
+    ctx.fillStyle=fill;
+    ctx.beginPath();ctx.moveTo(cx-hb,y0);ctx.lineTo(cx-ht,y1);ctx.lineTo(cx+ht,y1);ctx.lineTo(cx+hb,y0);ctx.closePath();ctx.fill();
+    ctx.strokeStyle=hexA(dark?"#000000":"#584f42",dark?.5:.22);ctx.lineWidth=1.2;ctx.stroke();
+    // stairs up the center
+    ctx.fillStyle=hexA(dark?"#000000":"#584f42",dark?.28:.14);
+    ctx.fillRect(cx-7,y1+2,14,th-3);
+    // tier emoji on the left half of the face, inside the slope
+    ctx.font="13px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText(d.emoji,i===tn-1?cx:cx-(ht+14+(hb-ht)*0.35),(y0+y1)/2+1);
+    // done-today pennant on right edge
+    if(d.score.todayAll){
+      var fx=cx+(hb+ht)/2-2, fy=y1+3;
+      ctx.strokeStyle=hexA(dark?"#ddd":"#584f42",.7);ctx.lineWidth=1.4;
+      ctx.beginPath();ctx.moveTo(fx,fy+10);ctx.lineTo(fx,fy-4);ctx.stroke();
+      ctx.fillStyle=d.color;ctx.beginPath();ctx.moveTo(fx,fy-4);ctx.lineTo(fx+9,fy-1);ctx.lineTo(fx,fy+2);ctx.closePath();ctx.fill();
+    }
+    worldTiers.push({y0:y0,y1:y1,hb:hb,ht:ht,pid:pid,cx:cx});
+  }
+  // summit flag when everything is done today
+  var allDone=S.habits.length>0&&S.habits.every(function(hh){return hh.history[TODAY];});
+  var fx=cx, fy=topY;
+  ctx.strokeStyle=dark?"#cbbfa8":"#584f42";ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(fx,fy-20);ctx.stroke();
+  if(allDone){ctx.fillStyle=gold;ctx.beginPath();ctx.moveTo(fx,fy-20);ctx.lineTo(fx+15,fy-15);ctx.lineTo(fx,fy-10);ctx.closePath();ctx.fill();}
+  else{ctx.fillStyle=hexA(muted,.45);ctx.beginPath();ctx.moveTo(fx,fy-20);ctx.lineTo(fx+11,fy-16);ctx.lineTo(fx,fy-12);ctx.closePath();ctx.fill();}
+  // village huts at the base, one per district color
+  var hutY=gy+2;
+  for(var v=0;v<tn;v++){
+    var pid2=TIER_ORDER[v], dd=byPid[pid2];
+    var hx=(w/(tn+1))*(v+1)+(v%2?8:-8);
+    ctx.fillStyle=mixColor(stone.length===7?stone:"#cccccc",dd.color.length===7?dd.color:"#888888",.45);
+    ctx.fillRect(hx-8,hutY+4,16,9);
+    ctx.beginPath();ctx.moveTo(hx-10,hutY+5);ctx.lineTo(hx,hutY-3);ctx.lineTo(hx+10,hutY+5);ctx.closePath();ctx.fill();
+  }
 }
 function hexA(h,a){h=h.replace("#","");if(h.length===3)h=h.split("").map(function(c){return c+c;}).join("");
   var n=parseInt(h,16);return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
+
+/* ---- district travel ---- */
+var openDistrictPid=null;
+function openDistrict(pid){
+  openDistrictPid=pid;renderDistrict(pid);
+  document.getElementById("district").hidden=false;
+  window.scrollTo(0,0);
+}
+function closeDistrict(){openDistrictPid=null;document.getElementById("district").hidden=true;}
+document.getElementById("dBack").addEventListener("click",closeDistrict);
+document.getElementById("world")?document.getElementById("world").addEventListener("click",function(e){
+  var cv=this,r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  for(var i=0;i<worldTiers.length;i++){var t=worldTiers[i];
+    if(y<=t.y0&&y>=t.y1){var frac=(t.y0-y)/(t.y0-t.y1),half=t.hb+(t.ht-t.hb)*frac;
+      if(Math.abs(x-t.cx)<=half+6){openDistrict(t.pid);return;}}}
+}):null;
+function renderDistrict(pid){
+  var p=pillar(pid), d=DISTRICTS[pid];
+  var wrap=document.getElementById("district");wrap.style.setProperty("--dc",p.color);
+  document.getElementById("dEmoji").textContent=d.emoji;
+  document.getElementById("dName").textContent=d.name;
+  document.getElementById("dTag").textContent=d.tag;
+  var hs=S.habits.filter(function(h){return h.pillar===pid;});
+  var done=hs.filter(function(h){return h.history[TODAY];}).length;
+  var sc=growthScore(pid), lvl=sc.empty?0:Math.round(sc.score*100);
+  var scene=document.getElementById("dScene");
+  var old=scene.querySelector(".d-prog");if(old)old.remove();
+  var prog=document.createElement("div");prog.className="d-prog";
+  prog.innerHTML='<span class="tn">'+done+'/'+hs.length+' today</span><span class="dp-bar"><i style="width:'+lvl+'%"></i></span><span class="tn">'+lvl+'</span>';
+  scene.appendChild(prog);
+
+  var body=document.getElementById("dBody");body.innerHTML="";
+  var h2=document.createElement("div");h2.className="section-h";h2.style.marginTop="4px";
+  h2.innerHTML='<h2>Practices of '+esc(d.name.replace("The ",""))+'</h2>';
+  body.appendChild(h2);
+  var ul=document.createElement("ul");ul.className="habits";
+  if(hs.length)hs.forEach(function(h){ul.appendChild(habitRow(h,false));});
+  else{var e=document.createElement("div");e.className="empty";
+    e.innerHTML='<div class="ei">'+d.emoji+'</div><h3>No practices yet</h3><p>Add a daily habit to bring this district to life.</p>';ul.appendChild(e);}
+  body.appendChild(ul);
+  var add=document.createElement("button");add.className="add-in";
+  add.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add a practice';
+  add.addEventListener("click",function(){openHabit(null,pid);});
+  body.appendChild(add);
+
+  var ex=document.createElement("div");ex.className="d-extra";
+  if(pid==="physical"){
+    var cups=S.diet.water[TODAY]||0;
+    ex.innerHTML='<div class="card counter"><div class="cinfo"><b>💧 The Well</b><span>'+cups+' of 8 cups drawn</span></div>'+
+      '<div class="cctl"><button id="dxWm">–</button><span class="cnum tn">'+cups+'</span><button id="dxWp">+</button></div></div>'+
+      '<button class="quick-add" id="dxFit" style="margin-top:12px">⚒️ Enter the training grounds</button>';
+    ex.querySelector("#dxWp").addEventListener("click",function(){S.diet.water[TODAY]=(S.diet.water[TODAY]||0)+1;save();chimeDone();renderDistrict(pid);});
+    ex.querySelector("#dxWm").addEventListener("click",function(){S.diet.water[TODAY]=Math.max(0,(S.diet.water[TODAY]||0)-1);save();renderDistrict(pid);});
+    ex.querySelector("#dxFit").addEventListener("click",function(){closeDistrict();trackTab="fitness";show("track");});
+  }else if(pid==="mental"){
+    ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">🎧 The still waters</b>'+
+      '<p class="mini-note" style="margin-top:6px">Let the lake quiet your mind while you work.</p>'+
+      '<button class="quick-add" id="dxFocus" style="margin-top:10px">'+(focusOn?"Silence the waters":"Let the waters sing")+'</button></div>';
+    ex.querySelector("#dxFocus").addEventListener("click",function(){toggleFocus();renderDistrict(pid);});
+  }else if(pid==="emotional"){
+    ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">📔 The hearth journal</b>'+
+      '<p class="mini-note" style="margin-top:6px">Sit by the fire and put the day into words.</p>'+
+      '<div class="actions" style="margin-top:10px"><button class="btn btn-ghost" id="dxJm">🌅 Morning</button><button class="btn btn-primary" id="dxJe">🌙 Evening</button></div></div>';
+    ex.querySelector("#dxJm").addEventListener("click",function(){closeDistrict();jTab="morning";journalSeen=true;show("journal");});
+    ex.querySelector("#dxJe").addEventListener("click",function(){closeDistrict();jTab="evening";journalSeen=true;show("journal");});
+  }else if(pid==="spiritual"){
+    var v=VERSES[dayOfYear()%VERSES.length];
+    ex.innerHTML='<div class="card inspire-card verse"><div class="badge">✝ Inscribed at the shrine today</div>'+
+      '<div class="body">“'+esc(v.t)+'”</div><div class="attr"><b>'+esc(v.r)+'</b></div>'+
+      '<div class="expand open"><div class="inner"><div class="lbl">Reflection</div><p>'+esc(v.b)+'</p></div></div></div>';
+  }else if(pid==="intellectual"){
+    var q=QUOTES[dayOfYear()%QUOTES.length];
+    ex.innerHTML='<div class="card inspire-card quote"><div class="badge">✦ Carved above the door today</div>'+
+      '<div class="body">“'+esc(q.t)+'”</div><div class="attr">— <b>'+esc(q.a)+'</b></div>'+
+      '<div class="expand open"><div class="inner"><div class="lbl">What it means</div><p>'+esc(q.b)+'</p></div></div></div>'+
+      '<div class="actions" style="margin-top:12px"><button class="btn btn-ghost" id="dxFin">💰 Counting house</button><button class="btn btn-ghost" id="dxCar">💼 The guild</button></div>';
+    ex.querySelector("#dxFin").addEventListener("click",function(){closeDistrict();trackTab="finance";show("track");});
+    ex.querySelector("#dxCar").addEventListener("click",function(){closeDistrict();trackTab="career";show("track");});
+  }
+  body.appendChild(ex);
+}
 
 /* ============ RENDER: TODAY ============ */
 function pillarFrac(pid){var hs=S.habits.filter(function(h){return h.pillar===pid;});if(!hs.length)return 0;
@@ -800,7 +956,7 @@ function renderToday(){
   document.getElementById("subdate").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
 
   var scores=scoresNow();
-  drawGarden(scores);
+  drawWorld(scores);
   var doneT=S.habits.filter(function(h){return h.history[TODAY];}).length,tot=S.habits.length;
   var planted=scores.filter(function(s){return !s.empty;});
   var overall=planted.length?planted.reduce(function(a,s){return a+s.score;},0)/planted.length:0;
@@ -808,19 +964,24 @@ function renderToday(){
   document.getElementById("balancePct").textContent=grownPct+"%";
 
   var sub;
-  if(!tot)sub="Plant habits in the Grow tab to start your garden.";
+  if(!tot)sub="Add habits in the Grow tab to begin the climb.";
   else{var nonEmpty=PILLARS.map(function(p,i){return {p:p,s:scores[i]};}).filter(function(o){return !o.s.empty;});
     var weakest=nonEmpty.slice().sort(function(a,b){return a.s.score-b.s.score;})[0];
-    if(grownPct>=80)sub="Beautifully tended — every part of you is flourishing. 🌸";
-    else if(weakest&&!weakest.s.todayAll&&weakest.s.score<0.6)sub="Your "+weakest.p.name+" plant could use tending today.";
-    else sub="Keep showing up — your garden grows a little every day.";}
+    var allToday=doneT===tot;
+    if(allToday)sub="The flag flies at the summit — every district honored today. 🏔️";
+    else if(weakest&&!weakest.s.todayAll&&weakest.s.score<0.6)sub=DISTRICTS[weakest.p.id].name+" ("+weakest.p.name+") awaits your visit today.";
+    else sub="Tap a tier to visit its district.";}
   document.getElementById("gardenSub").textContent=sub;
 
-  var lg=document.getElementById("legend");lg.innerHTML="";
-  PILLARS.forEach(function(p,i){var st=scores[i].empty?0:Math.max(0,Math.min(5,Math.round(scores[i].score*5)));
-    var bars="";for(var b=0;b<5;b++)bars+='<i class="'+(b<st?"f":"")+'"></i>';
-    var el=document.createElement("div");el.className="lg";el.style.setProperty("--lc",p.color);
-    el.innerHTML='<span class="pip" style="background:'+p.color+'"></span><b>'+(scores[i].empty?"—":st)+'</b>'+p.name.slice(0,4)+'<span class="lvbar">'+bars+'</span>';lg.appendChild(el);});
+  var chips=document.getElementById("dChips");chips.innerHTML="";
+  PILLARS.forEach(function(p,i){
+    var lv=scores[i].empty?0:Math.round(scores[i].score*100);
+    var b=document.createElement("button");b.style.setProperty("--dc",p.color);
+    b.innerHTML='<span class="de">'+DISTRICTS[p.id].emoji+'</span><b>'+DISTRICTS[p.id].name.replace("The ","")+'</b>'+
+      '<span class="dlv"><i style="width:'+lv+'%"></i></span>';
+    b.addEventListener("click",function(){openDistrict(p.id);});
+    chips.appendChild(b);
+  });
 
   // reward
   var complete=tot>0&&doneT===tot;
@@ -1369,7 +1530,8 @@ document.getElementById("rewardPlay").addEventListener("click",function(){if(!th
 
 /* ============ NAV ============ */
 var current="today";
-function renderCurrent(){if(current==="today")renderToday();else if(current==="grow")renderGrow();else if(current==="track")renderTrack();else if(current==="journal")renderJournal();else renderInspire();}
+function renderCurrent(){if(current==="today")renderToday();else if(current==="grow")renderGrow();else if(current==="track")renderTrack();else if(current==="journal")renderJournal();else renderInspire();
+  if(openDistrictPid)renderDistrict(openDistrictPid);}
 var journalSeen=false;
 function show(v){current=v;
   if(v==="journal"&&!journalSeen){journalSeen=true;jTab=new Date().getHours()>=17||new Date().getHours()<4?"evening":"morning";}
@@ -1386,7 +1548,7 @@ document.getElementById("trackSeg").querySelectorAll("button").forEach(function(
 /* ============ THEME + MUSIC ============ */
 function applyTheme(t){if(t==="system")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",t);
   var dark=t==="dark"||(t==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);
-  document.getElementById("themeBtn").textContent=dark?"☾":"☀";if(current==="today")drawGarden(scoresNow());}
+  document.getElementById("themeBtn").textContent=dark?"☾":"☀";if(current==="today")drawWorld(scoresNow());}
 var savedTheme=(function(){try{return localStorage.getItem(TK)||"system";}catch(e){return "system";}})();
 applyTheme(savedTheme);
 document.getElementById("themeBtn").addEventListener("click",function(){
@@ -1523,7 +1685,7 @@ document.getElementById("acctBtn").addEventListener("click",function(){renderAcc
 initCloud();
 
 /* redraw garden on resize (responsive canvas) */
-var _grz;window.addEventListener("resize",function(){clearTimeout(_grz);_grz=setTimeout(function(){if(current==="today")drawGarden(scoresNow());},160);});
+var _grz;window.addEventListener("resize",function(){clearTimeout(_grz);_grz=setTimeout(function(){if(current==="today")drawWorld(scoresNow());},160);});
 
 /* ============ GO ============ */
 show("today");
