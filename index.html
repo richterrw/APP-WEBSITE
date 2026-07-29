@@ -434,6 +434,20 @@
   .d-scene h2{text-transform:uppercase;letter-spacing:.06em;}
   .d-scene .d-tag{font-style:normal;letter-spacing:.02em;}
 
+  /* the world stage: you spawn here */
+  .world-stage{position:relative;margin:2px -16px 14px;height:370px;overflow:hidden;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper);}
+  .world-stage canvas{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation;}
+  .ws-top{position:absolute;top:11px;left:18px;right:18px;display:flex;align-items:baseline;
+    justify-content:space-between;pointer-events:none;}
+  .ws-title{font-family:var(--fr);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(233,241,255,.82);text-shadow:0 1px 10px rgba(0,0,0,.55);}
+  .ws-pct{font-size:11.5px;color:rgba(233,241,255,.72);font-weight:600;text-shadow:0 1px 10px rgba(0,0,0,.55);}
+  .ws-pct b{font-family:var(--fr);font-size:16px;font-weight:800;color:#8FE9F8;letter-spacing:-.02em;}
+  .ws-bottom{position:absolute;left:16px;right:16px;bottom:10px;pointer-events:none;}
+  .ws-bottom .garden-sub{margin:0;font-size:12.5px;color:rgba(233,241,255,.9);
+    text-shadow:0 1px 12px rgba(0,0,0,.7),0 0 22px rgba(0,0,0,.5);}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -470,12 +484,15 @@
 
     <!-- ============ TODAY ============ -->
     <section class="view on" id="view-today">
-      <div class="card garden-hero">
-        <div class="garden-top"><div class="cap">The Spire</div><div class="garden-pct"><b id="balancePct" class="tn">0%</b> ascended</div></div>
-        <div class="garden-canvas-wrap"><canvas id="world"></canvas></div>
-        <div class="garden-sub" id="gardenSub">Tap a tier to visit its district.</div>
-        <div class="d-chips" id="dChips"></div>
+      <div class="world-stage">
+        <canvas id="world"></canvas>
+        <div class="ws-top">
+          <span class="ws-title">The Spire</span>
+          <span class="ws-pct"><b id="balancePct" class="tn">0%</b> ascended</span>
+        </div>
+        <div class="ws-bottom"><div class="garden-sub" id="gardenSub">Tap a building to travel there.</div></div>
       </div>
+      <div class="d-chips" id="dChips"></div>
 
       <div class="reward" id="reward">
         <div class="rico" id="rewardIco">🎧</div>
@@ -838,9 +855,102 @@ function skyPalette(){
   else{phase="night";top="#04070F";bot="#101A38";}
   return {top:top,bot:bot,phase:phase,hf:hf};
 }
+var worldLandmarks=[], worldLabels=[], worldSpawnT=Date.now();
+/* landmark builders: each sector has a signature structure in the town */
+function faceQuad(ctx,pts,fill,edge,lw){
+  ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+  for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.closePath();ctx.fillStyle=fill;ctx.fill();
+  if(edge){ctx.strokeStyle=edge;ctx.lineWidth=lw||1;ctx.stroke();}
+}
+function drawBox(ctx,proj,cx,cz,hw,hd,y0,y1,col,lit){
+  var b=[proj(cx-hw,y0,cz-hd),proj(cx+hw,y0,cz-hd),proj(cx+hw,y0,cz+hd),proj(cx-hw,y0,cz+hd)];
+  var tp=[proj(cx-hw,y1,cz-hd),proj(cx+hw,y1,cz-hd),proj(cx+hw,y1,cz+hd),proj(cx-hw,y1,cz+hd)];
+  var sides=[];
+  for(var i=0;i<4;i++){var j=(i+1)%4;
+    sides.push({z:(b[i].z+b[j].z)/2,pts:[b[i],b[j],tp[j],tp[i]]});}
+  sides.sort(function(a,c){return c.z-a.z;});
+  sides.forEach(function(sd,k){
+    var shade=k<2?.10:.22;
+    faceQuad(ctx,sd.pts,hexA(col,shade+(lit?.16:0)),hexA(col,lit?.85:.45),1.1);
+  });
+  faceQuad(ctx,tp,hexA(col,.20+(lit?.18:0)),hexA(col,lit?.9:.5),1.1);
+  return {b:b,t:tp};
+}
+function drawLandmark(ctx,proj,pid,cx,cz,col,score,lit,t){
+  var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
+  function track(p){minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);}
+  var g=proj(cx,0,cz), sc=g.s;
+  // plinth
+  var pl=drawBox(ctx,proj,cx,cz,19,16,0,5,col,lit);
+  pl.b.forEach(track);
+  if(pid==="physical"){                       /* Forge: hall + chimney + ember glow */
+    var bd=drawBox(ctx,proj,cx,cz,15,12,5,32,col,lit);bd.t.forEach(track);
+    var ch=drawBox(ctx,proj,cx+9,cz-6,3.5,3.5,32,50,col,lit);ch.t.forEach(track);
+    var door=proj(cx,14,cz-12);
+    ctx.fillStyle=hexA("#FFB268",(.45+.35*Math.sin(t*3))*(0.4+score*0.6));
+    ctx.beginPath();ctx.arc(door.x,door.y,5*sc,0,7);ctx.fill();
+    for(var e=0;e<4;e++){var ep=((t*0.6+e*0.25)%1);
+      var em=proj(cx+9,50+ep*26,cz-6);
+      ctx.fillStyle=hexA(col,(1-ep)*.7*(0.3+score*0.7));
+      ctx.beginPath();ctx.arc(em.x+Math.sin(t*2+e)*3,em.y,1.8*sc,0,7);ctx.fill();}
+    track(proj(cx,58,cz));
+  }else if(pid==="mental"){                   /* Observatory tower + signal rings */
+    var tw=drawBox(ctx,proj,cx,cz,9,9,5,40,col,lit);tw.t.forEach(track);
+    var dm=proj(cx,44,cz);
+    ctx.fillStyle=hexA(col,.3+(lit?.2:0));ctx.strokeStyle=hexA(col,lit?.9:.5);ctx.lineWidth=1.1;
+    ctx.beginPath();ctx.arc(dm.x,dm.y,10*sc,Math.PI,0);ctx.fill();ctx.stroke();
+    for(var r2=0;r2<3;r2++){var rp=((t*0.5+r2/3)%1);
+      ctx.strokeStyle=hexA(col,(1-rp)*.45*(0.3+score*0.7));ctx.lineWidth=1.3;
+      ctx.beginPath();ctx.ellipse(dm.x,dm.y-4*sc,(6+rp*26)*sc,(2.5+rp*10)*sc,0,0,7);ctx.stroke();}
+    track({x:dm.x,y:dm.y-24*sc});
+  }else if(pid==="emotional"){                /* Arch monument with a beating core */
+    var lp=drawBox(ctx,proj,cx-11,cz,4,4,5,34,col,lit);
+    var rp2=drawBox(ctx,proj,cx+11,cz,4,4,5,34,col,lit);
+    lp.t.forEach(track);rp2.t.forEach(track);
+    var lt=proj(cx-11,34,cz),rt=proj(cx+11,34,cz),ap=proj(cx,46,cz);
+    ctx.strokeStyle=hexA(col,lit?.9:.5);ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.moveTo(lt.x,lt.y);ctx.quadraticCurveTo(ap.x,ap.y-6*sc,rt.x,rt.y);ctx.stroke();
+    var core=proj(cx,24,cz),beat=1+0.18*Math.sin(t*4);
+    ctx.save();ctx.shadowColor=col;ctx.shadowBlur=lit?12:5;
+    ctx.fillStyle=hexA(col,.55+.3*Math.sin(t*4)*(0.3+score*0.7));
+    ctx.beginPath();ctx.arc(core.x,core.y,6*sc*beat,0,7);ctx.fill();ctx.restore();
+    track({x:ap.x,y:ap.y-10*sc});
+  }else if(pid==="intellectual"){             /* Library: colonnade + pediment */
+    var base=drawBox(ctx,proj,cx,cz,17,13,5,10,col,lit);
+    for(var c3=-2;c3<=2;c3++){var cb=drawBox(ctx,proj,cx+c3*7,cz-9,2,2,10,30,col,lit);cb.t.forEach(track);}
+    var rf=drawBox(ctx,proj,cx,cz,17,13,30,34,col,lit);rf.t.forEach(track);
+    var pl2=proj(cx-16,34,cz-11),pr=proj(cx+16,34,cz-11),pk=proj(cx,45,cz-11);
+    faceQuad(ctx,[pl2,pr,pk],hexA(col,.22+(lit?.16:0)),hexA(col,lit?.9:.5),1.1);
+    track(pk);base.b.forEach(track);
+    for(var d2=0;d2<3;d2++){var dp2=((t*0.35+d2/3)%1);
+      var dr=proj(cx-10+d2*10,45-dp2*40,cz-11);
+      ctx.fillStyle=hexA(col,(1-dp2)*.5*(0.3+score*0.7));ctx.fillRect(dr.x,dr.y,1.6*sc,4*sc);}
+  }else{                                      /* Beacon: obelisk + sweeping light */
+    var ob=drawBox(ctx,proj,cx,cz,7,7,5,46,col,lit);ob.t.forEach(track);
+    var tipB=proj(cx,46,cz), tip=proj(cx,60,cz);
+    ctx.beginPath();ctx.moveTo(tipB.x-7*sc,tipB.y);ctx.lineTo(tipB.x+7*sc,tipB.y);ctx.lineTo(tip.x,tip.y);
+    ctx.closePath();ctx.fillStyle=hexA(col,.28+(lit?.2:0));ctx.fill();
+    ctx.strokeStyle=hexA(col,lit?.9:.55);ctx.lineWidth=1.1;ctx.stroke();
+    var lg=proj(cx,58,cz),sweep=t*1.1;
+    ctx.save();ctx.globalCompositeOperation="lighter";
+    for(var b2=0;b2<2;b2++){var ang=sweep+b2*Math.PI;
+      var gr=ctx.createLinearGradient(lg.x,lg.y,lg.x+Math.cos(ang)*70*sc,lg.y+Math.sin(ang)*22*sc);
+      gr.addColorStop(0,hexA(col,.4*(0.3+score*0.7)));gr.addColorStop(1,hexA(col,0));
+      ctx.strokeStyle=gr;ctx.lineWidth=7*sc;
+      ctx.beginPath();ctx.moveTo(lg.x,lg.y);ctx.lineTo(lg.x+Math.cos(ang)*70*sc,lg.y+Math.sin(ang)*22*sc);ctx.stroke();}
+    ctx.restore();
+    ctx.save();ctx.shadowColor=col;ctx.shadowBlur=lit?14:6;
+    ctx.fillStyle=hexA(lit?"#FFF6D8":col,.9);ctx.beginPath();ctx.arc(lg.x,lg.y,3.4*sc,0,7);ctx.fill();ctx.restore();
+    track({x:lg.x,y:lg.y-12*sc});
+  }
+  var lbl=proj(cx,0,cz);
+  worldLabels.push({x:lbl.x,y:lbl.y+6,text:DISTRICTS[pid].name.toUpperCase(),col:col,lit:lit,s:sc});
+  worldLandmarks.push({pid:pid,minX:minX-10,maxX:maxX+10,minY:minY-6,maxY:lbl.y+18});
+}
 function renderWorldFrame(t){
   var cv=document.getElementById("world");if(!cv||!worldScores)return;
-  var w=cv.clientWidth||0;if(w<=0)return;var h=cv.clientHeight||230;
+  var w=cv.clientWidth||0;if(w<=0)return;var h=cv.clientHeight||370;
   var dpr=Math.min(window.devicePixelRatio||1,2.5);
   if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
   var ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
@@ -849,175 +959,206 @@ function renderWorldFrame(t){
   var byPid={};PILLARS.forEach(function(p,i){byPid[p.id]={score:worldScores[i],color:cs.getPropertyValue(p.cssv).trim()};});
   function fr(n){var v=Math.sin(n*127.1)*43758.5453;return v-Math.floor(v);}
 
-  /* --- the sky is a window into the world: it follows real time --- */
+  /* ---- sky follows the real clock ---- */
   var sky=skyPalette(), night=sky.phase==="night", duskish=sky.phase==="dusk"||sky.phase==="dawn";
-  var sg=ctx.createLinearGradient(0,0,0,h);
+  var sg=ctx.createLinearGradient(0,0,0,h*0.75);
   sg.addColorStop(0,sky.top);sg.addColorStop(1,sky.bot);
   ctx.fillStyle=sg;ctx.fillRect(0,0,w,h);
-
-  // sun / moon on an arc across the real day
-  if(sky.phase!=="night"){
+  if(!night){
     var dayP=Math.max(0,Math.min(1,(sky.hf-5)/15.5));
-    var sunX=w*(0.12+0.76*dayP), sunY=34+70*(1-Math.sin(Math.PI*dayP));
-    var sunG=ctx.createRadialGradient(sunX,sunY,3,sunX,sunY,80);
+    var sunX=w*(0.12+0.76*dayP), sunY=40+66*(1-Math.sin(Math.PI*dayP));
+    var sunG=ctx.createRadialGradient(sunX,sunY,3,sunX,sunY,90);
     sunG.addColorStop(0,hexA(gold,.5));sunG.addColorStop(1,hexA(gold,0));
-    ctx.fillStyle=sunG;ctx.fillRect(0,0,w,h);
+    ctx.fillStyle=sunG;ctx.fillRect(0,0,w,h*0.7);
     ctx.fillStyle=hexA("#FFE9B0",.95);ctx.beginPath();ctx.arc(sunX,sunY,8,0,7);ctx.fill();
   }else{
-    var mX=w*0.8,mY=38;
-    var mG=ctx.createRadialGradient(mX,mY,2,mX,mY,60);
-    mG.addColorStop(0,hexA("#CFE2FF",.35));mG.addColorStop(1,hexA("#CFE2FF",0));
-    ctx.fillStyle=mG;ctx.fillRect(0,0,w,h);
+    var mX=w*0.8,mY=44;
+    var mG=ctx.createRadialGradient(mX,mY,2,mX,mY,64);
+    mG.addColorStop(0,hexA("#CFE2FF",.32));mG.addColorStop(1,hexA("#CFE2FF",0));
+    ctx.fillStyle=mG;ctx.fillRect(0,0,w,h*0.7);
     ctx.fillStyle=hexA("#E8F1FF",.95);ctx.beginPath();ctx.arc(mX,mY,7,0,7);ctx.fill();
     ctx.fillStyle=sky.top;ctx.beginPath();ctx.arc(mX-4,mY-2,6,0,7);ctx.fill();
   }
-  // stars only after dark
   if(night||duskish){
-    for(var i=0;i<46;i++){
-      var sx=fr(i+1)*w, sy=fr(i+50)*(h*0.55), tw=0.3+0.45*Math.sin(t*1.8+i*1.7);
+    for(var i=0;i<40;i++){
+      var sx=fr(i+1)*w, sy=fr(i+50)*(h*0.42), tw=0.3+0.45*Math.sin(t*1.8+i*1.7);
       ctx.fillStyle=hexA("#CFE2FF",(night?1:.4)*tw*.85);
-      var sz=fr(i+90)>0.85?2:1.2;ctx.fillRect(sx,sy,sz,sz);
-    }
-    // shooting star
+      ctx.fillRect(sx,sy,fr(i+90)>0.85?2:1.2,fr(i+90)>0.85?2:1.2);}
     var ss=t%9;
     if(night&&ss<0.6){var p2=ss/0.6,so=fr(Math.floor(t/9))*w*0.7;
       ctx.strokeStyle=hexA("#FFFFFF",(1-p2)*.8);ctx.lineWidth=1.4;
-      ctx.beginPath();ctx.moveTo(so+p2*110,16+p2*44);ctx.lineTo(so+p2*110-24,16+p2*44-9);ctx.stroke();}
+      ctx.beginPath();ctx.moveTo(so+p2*110,16+p2*40);ctx.lineTo(so+p2*110-24,16+p2*40-9);ctx.stroke();}
   }
-  // aurora over the city when the streak burns 3+
   if((night||duskish)&&currentStreak(activeDaySet())>=3){
     for(var k=0;k<2;k++){
-      ctx.strokeStyle=hexA(k?"#8A66E8":accent,.14);ctx.lineWidth=7;
+      ctx.strokeStyle=hexA(k?"#8A66E8":accent,.13);ctx.lineWidth=8;
       ctx.beginPath();
-      for(var ax=0;ax<=w;ax+=10){var ay=20+k*13+Math.sin(ax*0.02+t*0.6+k*2)*8;ax?ctx.lineTo(ax,ay):ctx.moveTo(ax,ay);}
+      for(var ax=0;ax<=w;ax+=10){var ay=24+k*14+Math.sin(ax*0.02+t*0.6+k*2)*8;ax?ctx.lineTo(ax,ay):ctx.moveTo(ax,ay);}
       ctx.stroke();}
   }
-  // drifting motes
-  for(var m2=0;m2<12;m2++){
-    var mx=(fr(m2+11)*w+t*4*(m2%2?1:-1)); mx=((mx%w)+w)%w;
-    var my=fr(m2+31)*(h-90)+20+Math.sin(t+m2)*4;
-    ctx.fillStyle=hexA(accent,.10+.12*fr(m2+3));ctx.beginPath();ctx.arc(mx,my,1.4,0,7);ctx.fill();
-  }
-  // patrol drone
   var dc=t%13;
-  if(dc<2.2){var dp=dc/2.2,dxx=dp*w*1.15-w*0.07,dyy=46+6*Math.sin(t*3);
+  if(dc<2.2){var dp=dc/2.2,dxx=dp*w*1.15-w*0.07,dyy=58+6*Math.sin(t*3);
     ctx.strokeStyle=hexA(accent,.35);ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(dxx-14,dyy);ctx.lineTo(dxx-4,dyy);ctx.stroke();
     ctx.fillStyle=hexA(Math.sin(t*18)>0?"#FF5D5D":accent,.9);ctx.fillRect(dxx-2,dyy-1.5,4,3);}
 
-  /* --- synthwave floor --- */
-  var horizon=h-62, vpx=w/2;
-  var g=ctx.createLinearGradient(0,horizon,0,h);
-  g.addColorStop(0,hexA(accent,.30));g.addColorStop(1,hexA(accent,.04));
-  ctx.fillStyle=g;ctx.fillRect(0,horizon,w,h-horizon);
-  ctx.lineWidth=1;
-  for(var r=-6;r<=6;r++){
-    ctx.strokeStyle=hexA(accent,.22);
-    ctx.beginPath();ctx.moveTo(vpx,horizon);ctx.lineTo(vpx+r*w*0.15,h+10);ctx.stroke();
-  }
-  var scroll=REDUCED?0.4:(t*0.35)%1;
-  for(var li=0;li<7;li++){
-    var f=((li+scroll)/7), yy=horizon+(h-horizon)*f*f*1.9;if(yy>h)continue;
-    ctx.strokeStyle=hexA(accent,.32*(0.25+f));
-    ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(w,yy);ctx.stroke();
-  }
-  ctx.strokeStyle=hexA(accent,.5);
-  ctx.beginPath();ctx.moveTo(0,horizon);ctx.lineTo(w,horizon);ctx.stroke();
-
-  /* --- the Spire (rotating ziggurat) --- */
-  var theta=REDUCED?0.55:t*0.28;
+  /* ---- camera: slow orbit around the town ---- */
+  var theta=REDUCED?0.62:t*0.11;
   var cosT=Math.cos(theta),sinT=Math.sin(theta);
-  var camD=560, baseY=h-66;
+  var camD=560, f=520, camH=145, cy=h*0.30;
   function proj(x,y,z){
     var xr=x*cosT-z*sinT, zr=x*sinT+z*cosT;
-    var sc=camD/(camD+zr);
-    return {x:w/2+xr*sc, y:baseY-y*0.95*sc+zr*0.16*sc, z:zr};
+    var zp=zr+camD; if(zp<40)zp=40;
+    var sc=f/zp;
+    return {x:w/2+xr*sc, y:cy+(camH-y)*sc, z:zr, s:sc};
   }
-  var tn=5, tierH=27, halfBase=78, shrink=0.82;
-  function halfAt(fr2){return halfBase*(1-fr2*shrink);}
-  worldTiers=[];
-  var faces=[];
-  for(var i2=0;i2<tn;i2++){
-    var pid=TIER_ORDER[i2], dd=byPid[pid];
-    var yb=i2*tierH, yt2=yb+tierH;
-    var hb=halfAt(i2/tn), ht2=halfAt((i2+1)/tn);
-    var cbs=[[-hb,-hb],[hb,-hb],[hb,hb],[-hb,hb]];
-    var cts=[[-ht2,-ht2],[ht2,-ht2],[ht2,ht2],[-ht2,ht2]];
-    var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
-    for(var f2=0;f2<4;f2++){
-      var f3=(f2+1)%4;
-      var pb1=proj(cbs[f2][0],yb,cbs[f2][1]), pb2=proj(cbs[f3][0],yb,cbs[f3][1]);
-      var pt1=proj(cts[f2][0],yt2,cts[f2][1]), pt2=proj(cts[f3][0],yt2,cts[f3][1]);
-      var zAvg=(pb1.z+pb2.z+pt1.z+pt2.z)/4;
-      faces.push({z:zAvg,pts:[pb1,pb2,pt2,pt1],color:dd.color,score:dd.score.empty?0:dd.score.score,glow:dd.score.todayAll});
-      [pb1,pb2,pt1,pt2].forEach(function(pp){minX=Math.min(minX,pp.x);maxX=Math.max(maxX,pp.x);minY=Math.min(minY,pp.y);maxY=Math.max(maxY,pp.y);});
-    }
-    worldTiers.push({pid:pid,minX:minX,maxX:maxX,minY:minY,maxY:maxY});
-  }
-  faces.sort(function(a,b){return b.z-a.z;});
-  faces.forEach(function(fc){
-    var front=fc.z<0;
-    ctx.beginPath();ctx.moveTo(fc.pts[0].x,fc.pts[0].y);
-    for(var k2=1;k2<4;k2++)ctx.lineTo(fc.pts[k2].x,fc.pts[k2].y);
-    ctx.closePath();
-    ctx.fillStyle=hexA(fc.color,.10+fc.score*(front?.34:.15));
-    ctx.fill();
-    ctx.strokeStyle=hexA(fc.color,front?.9:.35);
-    ctx.lineWidth=front?1.4:1;
-    if(front&&fc.glow){ctx.save();ctx.shadowColor=fc.color;ctx.shadowBlur=10;ctx.stroke();ctx.restore();}
-    else ctx.stroke();
+  var RING=135, TIERS=5, TH=20, HALF=62;
+  function halfAt(fr2){return HALF*(1-fr2*0.80);}
+
+  /* ---- ground plane, plaza and roads ---- */
+  var gh=ctx.createLinearGradient(0,cy,0,h);
+  gh.addColorStop(0,hexA(accent,.05));gh.addColorStop(1,hexA(accent,.20));
+  ctx.fillStyle=gh;ctx.fillRect(0,cy,w,h-cy);
+  function ringPath(rad){ctx.beginPath();
+    for(var a=0;a<=32;a++){var an=a/32*Math.PI*2,p=proj(Math.cos(an)*rad,0,Math.sin(an)*rad);
+      a?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);}ctx.closePath();}
+  ringPath(RING+46);ctx.fillStyle=hexA(accent,.07);ctx.fill();
+  ringPath(96);ctx.fillStyle=hexA(accent,.10);ctx.fill();ctx.strokeStyle=hexA(accent,.35);ctx.lineWidth=1.2;ctx.stroke();
+  ringPath(RING+46);ctx.strokeStyle=hexA(accent,.22);ctx.lineWidth=1;ctx.stroke();
+  var angles=[];
+  for(var q=0;q<5;q++)angles.push(-Math.PI/2+q*(Math.PI*2/5));
+  angles.forEach(function(an,qi){
+    var pid=TIER_ORDER[qi],col=byPid[pid].color,sco=byPid[pid].score;
+    var wdt=0.10;
+    var a1=proj(Math.cos(an-wdt)*90,0,Math.sin(an-wdt)*90), a2=proj(Math.cos(an+wdt)*90,0,Math.sin(an+wdt)*90);
+    var b1=proj(Math.cos(an-wdt*0.55)*RING,0,Math.sin(an-wdt*0.55)*RING), b2=proj(Math.cos(an+wdt*0.55)*RING,0,Math.sin(an+wdt*0.55)*RING);
+    faceQuad(ctx,[a1,a2,b2,b1],hexA(col,.10+(sco.empty?0:sco.score*.16)),null);
   });
-  // lit windows: one light per protocol completed today in that sector
-  for(var wi=0;wi<tn;wi++){
-    var wpid=TIER_ORDER[wi];
-    var wn=S.habits.filter(function(hh){return hh.pillar===wpid&&hh.history[TODAY];}).length;
-    if(!wn)continue;wn=Math.min(wn,6);
-    var whb=halfAt(wi/tn),wht=halfAt((wi+1)/tn),wmid=(whb+wht)/2;
-    for(var wj=0;wj<wn;wj++){
-      var wx=((wj+1)/(wn+1)-0.5)*wmid*1.4;
-      var wp=proj(wx,wi*tierH+tierH*0.45,-wmid);
-      ctx.fillStyle=hexA("#FFE9A8",.75+.2*Math.sin(t*2.4+wj+wi));
-      ctx.fillRect(wp.x-1.5,wp.y-2,3,4);
+
+  /* ---- assemble the world, far to near ---- */
+  var items=[];
+  angles.forEach(function(an,qi){
+    var pid=TIER_ORDER[qi], d=byPid[pid];
+    var lx=Math.cos(an)*RING, lz=Math.sin(an)*RING;
+    var pr=proj(lx,0,lz);
+    items.push({z:pr.z,draw:function(){
+      drawLandmark(ctx,proj,pid,lx,lz,d.color,d.score.empty?0:d.score.score,d.score.todayAll,t);}});
+  });
+  items.push({z:0,draw:function(){drawPyramid();}});
+  worldLandmarks=[];worldTiers=[];worldLabels=[];
+  items.sort(function(a,b){return b.z-a.z;});
+
+  function drawPyramid(){
+    var faces=[];
+    for(var i2=0;i2<TIERS;i2++){
+      var pid=TIER_ORDER[i2], dd=byPid[pid];
+      var yb=i2*TH, yt2=yb+TH;
+      var hb=halfAt(i2/TIERS), ht2=halfAt((i2+1)/TIERS);
+      var cbs=[[-hb,-hb],[hb,-hb],[hb,hb],[-hb,hb]], cts=[[-ht2,-ht2],[ht2,-ht2],[ht2,ht2],[-ht2,ht2]];
+      var mnX=1e9,mxX=-1e9,mnY=1e9,mxY=-1e9;
+      for(var f2=0;f2<4;f2++){var f3=(f2+1)%4;
+        var pb1=proj(cbs[f2][0],yb,cbs[f2][1]), pb2=proj(cbs[f3][0],yb,cbs[f3][1]);
+        var pt1=proj(cts[f2][0],yt2,cts[f2][1]), pt2=proj(cts[f3][0],yt2,cts[f3][1]);
+        faces.push({z:(pb1.z+pb2.z+pt1.z+pt2.z)/4,pts:[pb1,pb2,pt2,pt1],color:dd.color,
+          score:dd.score.empty?0:dd.score.score,glow:dd.score.todayAll});
+        [pb1,pb2,pt1,pt2].forEach(function(pp){mnX=Math.min(mnX,pp.x);mxX=Math.max(mxX,pp.x);mnY=Math.min(mnY,pp.y);mxY=Math.max(mxY,pp.y);});}
+      worldTiers.push({pid:pid,minX:mnX,maxX:mxX,minY:mnY,maxY:mxY});
     }
+    faces.sort(function(a,b){return b.z-a.z;});
+    faces.forEach(function(fc){
+      var front=fc.z<0;
+      faceQuad(ctx,fc.pts,hexA(fc.color,.10+fc.score*(front?.34:.15)),null);
+      ctx.strokeStyle=hexA(fc.color,front?.9:.35);ctx.lineWidth=front?1.4:1;
+      if(front&&fc.glow){ctx.save();ctx.shadowColor=fc.color;ctx.shadowBlur=10;ctx.stroke();ctx.restore();}else ctx.stroke();
+    });
+    // lit windows per completed protocol
+    for(var wi=0;wi<TIERS;wi++){
+      var wpid=TIER_ORDER[wi];
+      var wn=Math.min(S.habits.filter(function(hh){return hh.pillar===wpid&&hh.history[TODAY];}).length,6);
+      if(!wn)continue;
+      var wmid=(halfAt(wi/TIERS)+halfAt((wi+1)/TIERS))/2;
+      for(var wj=0;wj<wn;wj++){
+        var wp=proj(((wj+1)/(wn+1)-0.5)*wmid*1.5,wi*TH+TH*0.45,-wmid);
+        ctx.fillStyle=hexA("#FFE9A8",.75+.2*Math.sin(t*2.4+wj+wi));
+        ctx.fillRect(wp.x-1.5*wp.s,wp.y-2*wp.s,3*wp.s,4*wp.s);}
+    }
+    // top platform
+    var capY=TIERS*TH, tH=halfAt(1);
+    faceQuad(ctx,[proj(-tH,capY,-tH),proj(tH,capY,-tH),proj(tH,capY,tH),proj(-tH,capY,tH)],
+      hexA(accent,.10),hexA(accent,.8),1.3);
+    /* ---- five flags, one per sector ---- */
+    var flags=[];
+    for(var fi=0;fi<5;fi++){
+      var fa=-Math.PI/2+fi*(Math.PI*2/5);
+      var rad=halfAt((fi+1)/TIERS)*0.94, fy=(fi+1)*TH;
+      var fx=Math.cos(fa)*rad, fz=Math.sin(fa)*rad;
+      var pid4=TIER_ORDER[fi], dd4=byPid[pid4];
+      flags.push({z:proj(fx,fy,fz).z,fx:fx,fz:fz,fy:fy,col:dd4.color,on:dd4.score.todayAll,i:fi});
+    }
+    flags.sort(function(a,b){return b.z-a.z;});
+    flags.forEach(function(fl){
+      var poleH=fl.on?23:16;
+      var bot=proj(fl.fx,fl.fy,fl.fz), top=proj(fl.fx,fl.fy+poleH,fl.fz), sc2=top.s;
+      ctx.strokeStyle=hexA("#DCE7FF",fl.on?.85:.4);ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.moveTo(bot.x,bot.y);ctx.lineTo(top.x,top.y);ctx.stroke();
+      var fw=14*sc2, fh=7.5*sc2, dir=fl.fx<0?-1:1, spd=fl.on?4.5:1.8;
+      ctx.beginPath();ctx.moveTo(top.x,top.y);
+      for(var u=0;u<=6;u++){var uu=u/6;ctx.lineTo(top.x+dir*uu*fw,top.y+Math.sin(uu*4.5+t*spd+fl.i)*1.6*sc2+uu*1.2*sc2);}
+      for(var u2=6;u2>=0;u2--){var uu2=u2/6;ctx.lineTo(top.x+dir*uu2*fw,top.y+fh+Math.sin(uu2*4.5+t*spd+fl.i)*1.6*sc2+uu2*1.2*sc2);}
+      ctx.closePath();
+      if(fl.on){ctx.save();ctx.shadowColor=fl.col;ctx.shadowBlur=8;ctx.fillStyle=hexA(fl.col,.92);ctx.fill();ctx.restore();}
+      else ctx.fillStyle=hexA(fl.col,.30),ctx.fill();
+      ctx.strokeStyle=hexA(fl.col,fl.on?.95:.5);ctx.lineWidth=.9;ctx.stroke();
+    });
+    // summit beacon
+    var apex=proj(0,capY,0);
+    var allDone=S.habits.length>0&&S.habits.every(function(hh){return hh.history[TODAY];});
+    var pulse=0.6+0.4*Math.sin(t*3);
+    if(allDone){
+      var beam=ctx.createLinearGradient(0,0,0,apex.y);
+      beam.addColorStop(0,hexA(gold,0));beam.addColorStop(1,hexA(gold,.45*pulse));
+      ctx.fillStyle=beam;ctx.fillRect(apex.x-7,0,14,apex.y);
+      ctx.save();ctx.shadowColor=gold;ctx.shadowBlur=16;
+      ctx.fillStyle=hexA(gold,.95);ctx.beginPath();ctx.arc(apex.x,apex.y-6,5,0,7);ctx.fill();ctx.restore();
+    }
+    /* ---- you: spawned in the plaza, climbing as sectors complete ---- */
+    var lvl=0;TIER_ORDER.forEach(function(p3){var s3=byPid[p3].score;if(!s3.empty&&s3.todayAll)lvl++;});
+    var av,ar;
+    if(lvl<=0){av=proj(0,0,-(96+18));ar=proj(0,0,-(96+18));}
+    else{var ah=halfAt(Math.min(lvl,TIERS)/TIERS);av=proj(0,Math.min(lvl,TIERS)*TH,-ah);ar=av;}
+    var asc=av.s;
+    var spawnAge=(Date.now()-worldSpawnT)/1000;
+    if(spawnAge<1.4){
+      var sp=1-spawnAge/1.4;
+      var bg=ctx.createLinearGradient(av.x,av.y-120*asc,av.x,av.y);
+      bg.addColorStop(0,hexA(accent,0));bg.addColorStop(1,hexA(accent,.5*sp));
+      ctx.fillStyle=bg;ctx.fillRect(av.x-9*asc,av.y-120*asc,18*asc,120*asc);
+      ctx.strokeStyle=hexA(accent,sp);ctx.lineWidth=2;
+      ctx.beginPath();ctx.ellipse(av.x,av.y,(10+40*(1-sp))*asc,(4+16*(1-sp))*asc,0,0,7);ctx.stroke();
+    }
+    ctx.fillStyle=hexA("#04070F",.35);
+    ctx.beginPath();ctx.ellipse(av.x,av.y+1,6*asc,2.4*asc,0,0,7);ctx.fill();
+    ctx.save();ctx.shadowColor=accent;ctx.shadowBlur=9;
+    ctx.fillStyle=hexA("#EAF6FF",.97);
+    ctx.beginPath();ctx.arc(av.x,av.y-11*asc,2.7*asc,0,7);ctx.fill();
+    ctx.fillRect(av.x-1.6*asc,av.y-8.5*asc,3.2*asc,8.5*asc);
+    ctx.restore();
+    ctx.strokeStyle=hexA(accent,.3+.3*pulse);ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(ar.x,ar.y,(8+3*pulse)*asc,(3+1.2*pulse)*asc,0,0,7);ctx.stroke();
   }
-  // top cap
-  var capY=tn*tierH, topHalf=halfAt(1);
-  var cap=[proj(-topHalf,capY,-topHalf),proj(topHalf,capY,-topHalf),proj(topHalf,capY,topHalf),proj(-topHalf,capY,topHalf)];
-  ctx.beginPath();ctx.moveTo(cap[0].x,cap[0].y);for(var c2=1;c2<4;c2++)ctx.lineTo(cap[c2].x,cap[c2].y);ctx.closePath();
-  ctx.strokeStyle=hexA(accent,.8);ctx.lineWidth=1.3;ctx.stroke();
-
-  // summit beacon
-  var apex=proj(0,capY,0);
-  var allDone=S.habits.length>0&&S.habits.every(function(hh){return hh.history[TODAY];});
-  var pulse=0.6+0.4*Math.sin(t*3);
-  if(allDone){
-    var beam=ctx.createLinearGradient(0,0,0,apex.y);
-    beam.addColorStop(0,hexA(gold,0));beam.addColorStop(1,hexA(gold,.5*pulse));
-    ctx.fillStyle=beam;ctx.fillRect(apex.x-7,0,14,apex.y);
-    ctx.save();ctx.shadowColor=gold;ctx.shadowBlur=16;
-    ctx.fillStyle=hexA(gold,.95);ctx.beginPath();ctx.arc(apex.x,apex.y-8,5,0,7);ctx.fill();ctx.restore();
-  }else{
-    ctx.strokeStyle=hexA("#CFE2FF",.35);ctx.beginPath();ctx.moveTo(apex.x,apex.y);ctx.lineTo(apex.x,apex.y-9);ctx.stroke();
-    ctx.fillStyle=hexA("#CFE2FF",.4+.25*pulse);ctx.beginPath();ctx.arc(apex.x,apex.y-11,3,0,7);ctx.fill();
-  }
-
-  /* --- you, the climber: rises one tier per sector completed today --- */
-  var lvl=0;TIER_ORDER.forEach(function(pid3){var s3=byPid[pid3].score;if(!s3.empty&&s3.todayAll)lvl++;});
-  var avHalf=halfAt(Math.min(lvl,tn)/tn);
-  var av=proj(0,Math.min(lvl,tn)*tierH,-avHalf);
-  ctx.save();ctx.shadowColor=accent;ctx.shadowBlur=8;
-  ctx.fillStyle=hexA("#EAF6FF",.95);
-  ctx.beginPath();ctx.arc(av.x,av.y-8,2.4,0,7);ctx.fill();          // head
-  ctx.fillRect(av.x-1.4,av.y-6,2.8,6);                              // body
-  ctx.restore();
-  ctx.strokeStyle=hexA(accent,.35+.3*pulse);ctx.lineWidth=1;
-  ctx.beginPath();ctx.arc(av.x,av.y-5,7+3*pulse,0,7);ctx.stroke();  // presence ring
-
-  // floating sector emblems
-  ctx.font="11px system-ui";ctx.textBaseline="middle";ctx.textAlign="left";
-  worldTiers.forEach(function(wt){
-    var midY=(wt.minY+wt.maxY)/2, lx=wt.maxX+8;
-    if(lx<w-24)ctx.fillText(DISTRICTS[wt.pid].emoji,lx,midY);
+  items.forEach(function(it){it.draw();});
+  // nameplates float above the town
+  ctx.font="700 8.5px "+cs.getPropertyValue("--fr");
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  worldLabels.forEach(function(L){
+    var tw2=ctx.measureText(L.text).width, pad=5;
+    ctx.fillStyle=hexA(sky.phase==="night"?"#04070F":"#0B1526",.42);
+    var rx=L.x-tw2/2-pad, ry=L.y-6, rw=tw2+pad*2, rh=13, rr=6;
+    ctx.beginPath();ctx.moveTo(rx+rr,ry);ctx.arcTo(rx+rw,ry,rx+rw,ry+rh,rr);
+    ctx.arcTo(rx+rw,ry+rh,rx,ry+rh,rr);ctx.arcTo(rx,ry+rh,rx,ry,rr);ctx.arcTo(rx,ry,rx+rw,ry,rr);
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle=hexA(L.lit?L.col:"#C6D6F0",L.lit?1:.75);
+    ctx.fillText(L.text,L.x,L.y+0.5);
   });
 }
 function hexA(h,a){h=h.replace("#","");if(h.length===3)h=h.split("").map(function(c){return c+c;}).join("");
@@ -1046,8 +1187,15 @@ function closeDistrict(){
 document.getElementById("dBack").addEventListener("click",closeDistrict);
 document.getElementById("world").addEventListener("click",function(e){
   var r=this.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  var best=null,bestD=1e9;
+  worldLandmarks.forEach(function(L){
+    if(x>=L.minX&&x<=L.maxX&&y>=L.minY&&y<=L.maxY){
+      var d=Math.hypot(x-(L.minX+L.maxX)/2,y-(L.minY+L.maxY)/2);
+      if(d<bestD){bestD=d;best=L.pid;}}
+  });
+  if(best){openDistrict(best);return;}
   for(var i=worldTiers.length-1;i>=0;i--){var t=worldTiers[i];
-    if(x>=t.minX-6&&x<=t.maxX+6&&y>=t.minY-4&&y<=t.maxY+4){openDistrict(t.pid);return;}}
+    if(x>=t.minX-4&&x<=t.maxX+4&&y>=t.minY-3&&y<=t.maxY+3){openDistrict(t.pid);return;}}
 });
 
 /* sector atmospheres: each place breathes */
@@ -1216,7 +1364,7 @@ function pillarFrac(pid){var hs=S.habits.filter(function(h){return h.pillar===pi
 
 function renderToday(){
   var now=new Date(),hr=now.getHours();
-  var g=hr<5?"Night watch, traveler":hr<8?"Dawn breaks over the Spire":hr<12?"Morning shift, traveler":hr<17?"The city hums, traveler":hr<21?"Dusk settles, traveler":"Night falls, traveler";
+  var g=hr<5?"Night watch, traveler":hr<8?"Dawn over the Spire":hr<12?"Morning shift, traveler":hr<17?"The city hums, traveler":hr<21?"Dusk settles, traveler":"Night falls, traveler";
   document.getElementById("greeting").textContent=g;
   document.getElementById("subdate").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
 
@@ -1229,7 +1377,7 @@ function renderToday(){
   document.getElementById("balancePct").textContent=grownPct+"%";
 
   var sub;
-  if(!tot)sub="The city is unbuilt. Install your first protocol in Grow.";
+  if(!tot)sub="The town is quiet. Install your first protocol in Grow.";
   else{var nonEmpty=PILLARS.map(function(p,i){return {p:p,s:scores[i]};}).filter(function(o){return !o.s.empty;});
     var weakest=nonEmpty.slice().sort(function(a,b){return a.s.score-b.s.score;})[0];
     var allToday=doneT===tot;
@@ -1237,7 +1385,7 @@ function renderToday(){
     else if(weakest&&!weakest.s.todayAll&&weakest.s.score<0.6){
       var dk=daysDark(weakest.p.id);
       sub=dk>=2?DISTRICTS[weakest.p.id].name+" has been dark for "+dk+" days.":DISTRICTS[weakest.p.id].name+" flickers — one visit would relight it.";
-    }else sub=(tot-doneT)+" protocol"+(tot-doneT>1?"s":"")+" left before the beacon lights.";}
+    }else sub=(tot-doneT)+" protocol"+(tot-doneT>1?"s":"")+" left before the beacon lights. Tap a building to travel.";}
   document.getElementById("gardenSub").textContent=sub;
 
   var chips=document.getElementById("dChips");chips.innerHTML="";
@@ -1800,7 +1948,7 @@ var current="today";
 function renderCurrent(){if(current==="today")renderToday();else if(current==="grow")renderGrow();else if(current==="track")renderTrack();else if(current==="journal")renderJournal();else renderInspire();
   if(openDistrictPid)renderDistrict(openDistrictPid);}
 var journalSeen=false;
-function show(v){current=v;
+function show(v){if(v==="today"&&current!=="today")worldSpawnT=Date.now();current=v;
   if(v==="journal"&&!journalSeen){journalSeen=true;jTab=new Date().getHours()>=17||new Date().getHours()<4?"evening":"morning";}
   document.querySelectorAll(".view").forEach(function(s){s.classList.toggle("on",s.id==="view-"+v);});
   document.querySelectorAll(".nav button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-v")===v);});
