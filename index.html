@@ -741,6 +741,54 @@
   .tv-actions .btn{flex:1;}
   .tv-actions .btn[disabled]{opacity:.45;}
 
+  /* focus dungeon */
+  .deep{position:fixed;inset:0;z-index:68;display:grid;place-items:center;overflow:hidden;
+    background:radial-gradient(ellipse at 50% 12%,#1B2438 0%,#0A0E1A 55%,#05070E 100%);
+    padding:26px;animation:fade .35s ease;}
+  .deep[hidden]{display:none;}
+  .deep-torch{position:absolute;left:50%;top:-40px;width:340px;height:340px;margin-left:-170px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,178,84,.30),rgba(255,178,84,0) 68%);
+    animation:torch 2.6s ease-in-out infinite;pointer-events:none;}
+  @keyframes torch{0%,100%{opacity:.75;transform:scale(1);}50%{opacity:1;transform:scale(1.07);}}
+  .deep-inner{position:relative;text-align:center;width:100%;max-width:320px;}
+  .deep-eyebrow{font-family:var(--fr);font-size:11.5px;font-weight:800;letter-spacing:.26em;text-transform:uppercase;
+    color:rgba(255,205,140,.8);}
+  .deep-floor{font-family:var(--fr);font-size:15px;font-weight:800;letter-spacing:.14em;color:#FFD9A0;margin-top:5px;}
+  .deep-clock{font-family:var(--fr);font-size:62px;font-weight:800;color:#F4EEE4;letter-spacing:-.03em;line-height:1;
+    margin-top:8px;text-shadow:0 0 26px rgba(255,178,84,.45);}
+  .deep-shaft{display:flex;flex-direction:column;gap:5px;margin:18px auto 0;width:100%;}
+  .deep-shaft .fl{height:11px;border-radius:4px;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,205,140,.16);position:relative;overflow:hidden;}
+  .deep-shaft .fl.cleared{background:linear-gradient(90deg,rgba(255,178,84,.75),rgba(255,120,60,.55));
+    border-color:rgba(255,205,140,.6);box-shadow:0 0 12px rgba(255,150,60,.4);}
+  .deep-shaft .fl.cur::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(255,205,140,.45),transparent);animation:dig 1.6s linear infinite;}
+  @keyframes dig{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
+  .deep-warn{font-size:12px;color:rgba(240,232,220,.55);margin-top:16px;line-height:1.45;}
+  .deep-actions{margin-top:16px;}
+  .deep-actions .btn{width:100%;}
+  .deep-end{position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+    background:rgba(5,7,14,.94);padding:30px;animation:fade .3s ease;}
+  .deep-end[hidden]{display:none;}
+  .de-ico{font-size:52px;}
+  .de-title{font-family:var(--fr);font-size:23px;font-weight:800;color:#F4EEE4;margin-top:8px;}
+  .de-sub{font-size:13.5px;color:rgba(240,232,220,.7);margin-top:7px;line-height:1.5;max-width:280px;}
+
+  .deep-card{margin-top:12px;padding:14px 15px;cursor:pointer;
+    border:1px solid color-mix(in srgb,var(--gold) 36%,var(--line));
+    background:linear-gradient(135deg,color-mix(in srgb,#FF9A4D 12%,var(--surface)),var(--surface));}
+  .deep-card .dc-top{display:flex;align-items:center;gap:12px;}
+  .deep-card .dc-ico{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:22px;
+    background:color-mix(in srgb,#FF9A4D 16%,var(--surface));flex-shrink:0;}
+  .deep-card .dc-main{flex:1;min-width:0;}
+  .deep-card .dc-eyebrow{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);}
+  .deep-card .dc-name{font-family:var(--fr);font-size:16.5px;font-weight:800;}
+  .deep-card .dc-line{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .dur-row{display:flex;gap:8px;margin-top:12px;}
+  .dur-row button{flex:1;padding:10px 4px;border-radius:12px;background:var(--surface-2);
+    font-family:var(--fr);font-size:13.5px;font-weight:800;color:var(--ink);transition:.14s;}
+  .dur-row button:active{transform:scale(.95);}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -811,6 +859,8 @@
       </div>
 
       <div id="streakMount"></div>
+
+      <div id="deepMount"></div>
 
       <div id="campMount"></div>
 
@@ -935,6 +985,24 @@
         <button class="btn btn-ghost" id="tvAbandon">Abandon</button>
         <button class="btn btn-primary" id="tvClaim" disabled>Claim</button>
       </div>
+    </div>
+  </div>
+
+  <div class="deep" id="deep" hidden>
+    <div class="deep-torch"></div>
+    <div class="deep-inner">
+      <div class="deep-eyebrow" id="deepEyebrow">Descending</div>
+      <div class="deep-floor" id="deepFloor">FLOOR 1</div>
+      <div class="deep-clock tn" id="deepClock">25:00</div>
+      <div class="deep-shaft" id="deepShaft"></div>
+      <div class="deep-warn" id="deepWarn">Set the phone down. Leave the app and the run collapses.</div>
+      <div class="deep-actions"><button class="btn btn-ghost" id="deepFlee">Flee the dungeon</button></div>
+    </div>
+    <div class="deep-end" id="deepEnd" hidden>
+      <div class="de-ico" id="deIco">💀</div>
+      <div class="de-title" id="deTitle">The run collapsed</div>
+      <div class="de-sub" id="deSub"></div>
+      <button class="btn btn-primary" id="deClose" style="margin-top:16px">Back to town</button>
     </div>
   </div>
 
@@ -1147,7 +1215,7 @@ var DEFAULT={
   journal:{}, playlists:[], settings:{faith:false}, journey:null,
   avatar:{name:"",skin:"#C98A5E",hair:"#2A1C14",hairStyle:"short",outfit:"#45D5EC",made:false,
     gear:{head:"none",body:"none",hand:"none",back:"none"}},
-  activeTimer:null, unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
+  activeTimer:null, deepRun:null, focus:{totalMin:0,runs:0,collapsed:0,best:0}, focusLog:[], unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
 };
 var S=load();
 if(!S.settings)S.settings={faith:false};
@@ -2244,6 +2312,101 @@ function renderSquare(){
     else toast(bad+" letter"+(bad>1?"s":"")+" off","✏️");
   });
 }
+/* ================= FOCUS DUNGEONS ================= */
+/* One rule: stay out of your phone. Leave the app and the run collapses. */
+var XP_FOCUS_MIN=6, DMG_FOCUS_MIN=4, FLOOR_MIN=5;
+var deepTick=null, wakeLock=null;
+function focusState(){if(!S.focus)S.focus={totalMin:0,runs:0,collapsed:0,best:0};return S.focus;}
+function focusXP(){return XP_FOCUS_MIN*focusState().totalMin;}
+function focusDamageThisWeek(){
+  var days=weekDayKeys(),m=0;
+  (S.focusLog||[]).forEach(function(r){if(days.indexOf(r.d)>=0)m+=r.m;});
+  return DMG_FOCUS_MIN*m;
+}
+function deepRun(){return S.deepRun||null;}
+function floorsOf(mins){return Math.max(1,Math.round(mins/FLOOR_MIN));}
+async function grabWakeLock(){
+  try{if("wakeLock" in navigator){wakeLock=await navigator.wakeLock.request("screen");}}catch(e){}
+}
+function dropWakeLock(){try{if(wakeLock){wakeLock.release();wakeLock=null;}}catch(e){}}
+function startDeep(mins){
+  S.deepRun={start:Date.now(),mins:mins};save();
+  document.getElementById("deep").hidden=false;
+  document.getElementById("deepEnd").hidden=true;
+  buildShaft(floorsOf(mins));
+  grabWakeLock();
+  audio();note(180,0,.5,"sine",.07);note(120,.12,.7,"sine",.05);
+  tickDeep();clearInterval(deepTick);deepTick=setInterval(tickDeep,500);
+}
+function buildShaft(n){
+  var sh=document.getElementById("deepShaft");sh.innerHTML="";
+  for(var i=0;i<n;i++){var d=document.createElement("div");d.className="fl";sh.appendChild(d);}
+}
+function tickDeep(){
+  var r=deepRun();if(!r)return;
+  var total=r.mins*60000, el=Date.now()-r.start, left=Math.max(0,total-el);
+  var secs=Math.ceil(left/1000);
+  document.getElementById("deepClock").textContent=pad2(Math.floor(secs/60))+":"+pad2(secs%60);
+  var n=floorsOf(r.mins), cleared=Math.min(n,Math.floor(el/(FLOOR_MIN*60000)));
+  document.getElementById("deepFloor").textContent="FLOOR "+Math.min(n,cleared+1)+" OF "+n;
+  var kids=document.getElementById("deepShaft").children;
+  for(var i=0;i<kids.length;i++){
+    kids[i].className="fl"+(i<cleared?" cleared":(i===cleared?" cur":""));}
+  if(left<=0)finishDeep(true);
+}
+function finishDeep(ok){
+  var r=deepRun();if(!r)return;
+  clearInterval(deepTick);deepTick=null;dropWakeLock();
+  var el=Date.now()-r.start, mins=Math.floor(el/60000), n=floorsOf(r.mins);
+  var f=focusState();
+  S.deepRun=null;
+  if(ok){
+    f.totalMin+=r.mins;f.runs++;f.best=Math.max(f.best,r.mins);
+    if(!S.focusLog)S.focusLog=[];
+    S.focusLog.push({d:TODAY,m:r.mins});
+    if(S.focusLog.length>400)S.focusLog.shift();
+    save();
+    document.getElementById("deIco").textContent="🏆";
+    document.getElementById("deTitle").textContent="Depth "+n+" cleared";
+    document.getElementById("deSub").textContent=r.mins+" minutes untouched · +"+(XP_FOCUS_MIN*r.mins)+
+      " XP · +"+(DMG_FOCUS_MIN*r.mins)+" boss damage";
+    chimeReward();if(navigator.vibrate)navigator.vibrate([25,60,30,60,60]);
+  }else{
+    f.collapsed++;save();
+    document.getElementById("deIco").textContent="💀";
+    document.getElementById("deTitle").textContent="The run collapsed";
+    document.getElementById("deSub").textContent="You reached floor "+Math.min(n,Math.floor(el/(FLOOR_MIN*60000))+1)+
+      " after "+mins+" min, then picked up your phone. Nothing is claimed.";
+    if(navigator.vibrate)navigator.vibrate([60,40,60]);
+    try{note(150,0,.6,"sawtooth",.05);note(90,.15,.8,"sawtooth",.05);}catch(e){}
+  }
+  document.getElementById("deepEnd").hidden=false;
+  renderCurrent();
+}
+/* the one rule */
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden&&deepRun())finishDeep(false);
+});
+window.addEventListener("blur",function(){
+  if(deepRun()&&document.hidden)finishDeep(false);
+});
+document.getElementById("deepFlee").addEventListener("click",function(){
+  if(confirm("Flee the dungeon? You lose everything from this run."))finishDeep(false);});
+document.getElementById("deClose").addEventListener("click",function(){
+  document.getElementById("deep").hidden=true;document.getElementById("deepEnd").hidden=true;});
+function renderDeepCard(){
+  var m=document.getElementById("deepMount");if(!m)return;
+  var f=focusState();
+  m.innerHTML='<div class="card deep-card" id="deepCard"><div class="dc-top">'+
+    '<div class="dc-ico">🕯️</div><div class="dc-main">'+
+    '<div class="dc-eyebrow">Focus dungeon</div><div class="dc-name">Descend</div>'+
+    '<div class="dc-line">'+(f.runs?f.totalMin+" min delved · "+f.runs+" cleared"+(f.collapsed?" · "+f.collapsed+" collapsed":"")
+      :"Put the phone down. Every 5 minutes clears a floor.")+'</div></div></div>'+
+    '<div class="dur-row">'+[10,25,45,60].map(function(mn){
+      return '<button data-min="'+mn+'">'+mn+'m</button>';}).join("")+'</div></div>';
+  m.querySelectorAll("[data-min]").forEach(function(b){
+    b.addEventListener("click",function(){startDeep(+b.getAttribute("data-min"));});});
+}
 /* ================= REAL GATES ================= */
 /* A quest can demand a clock that actually runs, a place you must
    physically stand in, and an hour of the day. None of it is a tap. */
@@ -2526,7 +2689,7 @@ function bossDamage(){
   if(S.habits.length)days.forEach(function(k){if(S.habits.every(function(h){return h.history[k];}))dmg+=100;});
   days.forEach(function(k){var j=S.journal[k];if(j){if(j.morning)dmg+=15;if(j.evening)dmg+=15;}});
   dmg+=difficultyDamage(days);
-  dmg+=40*puzzlesSolvedIn(days);
+  dmg+=40*puzzlesSolvedIn(days)+focusDamageThisWeek();
   return dmg;
 }
 function bossState(){var b=bossOfWeek(),d=bossDamage();
@@ -2569,7 +2732,7 @@ function sectorClearCount(){var n=0;
   });return n;}
 function totalXP(){
   return XP_HABIT*totalCompletions()+XP_SECTOR*sectorClearCount()+XP_JOURNAL*journalSessions()
-    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+difficultyXP()+XP_PUZZLE*puzzleSolvedCount()+campaignXP();
+    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+difficultyXP()+XP_PUZZLE*puzzleSolvedCount()+focusXP()+campaignXP();
 }
 function xpNeed(L){return 120+(L-1)*80;}
 function titleFor(L){return L>=25?"Ascendant":L>=18?"Vanguard":L>=14?"Champion":L>=10?"Warden":
@@ -2651,7 +2814,10 @@ var GEAR=[
  {id:"flame",slot:"hand",name:"Flame Greatsword",ico:"🔥",req:{t:"pillar",pid:"physical",n:30}},
  {id:"staff",slot:"hand",name:"Scholar's Staff",ico:"🪄",req:{t:"pillar",pid:"intellectual",n:10}},
  {id:"torch",slot:"hand",name:"Beacon Torch",ico:"🔦",req:{t:"pillar",pid:"spiritual",n:14}},
+ {id:"band",slot:"head",name:"Focus Band",ico:"🎯",req:{t:"focus",n:60}},
+ {id:"lantern",slot:"hand",name:"Deeplight Lantern",ico:"🏮",req:{t:"focus",n:600}},
  {id:"none",slot:"back",name:"None",ico:"—",free:true},
+ {id:"delver",slot:"back",name:"Delver's Cloak",ico:"🕯️",req:{t:"focus",n:240}},
  {id:"cape",slot:"back",name:"Traveler's Cape",ico:"🧣",req:{t:"pillar",pid:"mental",n:5}},
  {id:"ember",slot:"back",name:"Ember Aura",ico:"🌀",req:{t:"journal",n:7}},
  {id:"champ",slot:"back",name:"Champion's Cape",ico:"🏅",req:{t:"journey",n:10}},
@@ -2665,6 +2831,7 @@ function reqProgress(r){
   if(r.t==="journal")return {cur:currentStreak(journalDaySet()),need:r.n,label:r.n+"-day journal streak"};
   if(r.t==="journey")return {cur:journeyDaysDone(),need:r.n,label:r.n+" journey days"};
   if(r.t==="perfect")return {cur:perfectDayCount(),need:r.n,label:r.n+" perfect days"};
+  if(r.t==="focus")return {cur:focusState().totalMin,need:r.n,label:r.n+" min in the dungeon"};
   return {cur:0,need:1,label:""};
 }
 function gearOwned(g){return g.free||S.unlockedGear.indexOf(gearKey(g))>=0;}
@@ -3074,8 +3241,10 @@ function renderDistrict(pid){
   }else if(pid==="mental"){
     ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">🎧 Focus frequency</b>'+
       '<p class="mini-note" style="margin-top:6px">Tune in. Ambient signal for deep work.</p>'+
-      '<button class="quick-add" id="dxFocus" style="margin-top:10px">'+(focusOn?"Cut the signal":"Engage the signal")+'</button></div>';
+      '<button class="quick-add" id="dxFocus" style="margin-top:10px">'+(focusOn?"Cut the signal":"Engage the signal")+'</button></div>'+
+      '<button class="quick-add" id="dxDeep" style="margin-top:12px;background:#B4642A">🕯️ Descend into the Deep</button>';
     ex.querySelector("#dxFocus").addEventListener("click",function(){toggleFocus();renderDistrict(pid);});
+    ex.querySelector("#dxDeep").addEventListener("click",function(){closeDistrict();startDeep(25);});
   }else if(pid==="emotional"){
     ex.innerHTML='<div class="card pad"><b style="font-family:var(--fr)">📔 Pulse log</b>'+
       '<p class="mini-note" style="margin-top:6px">Record your state. Morning boot, evening shutdown.</p>'+
@@ -3173,6 +3342,7 @@ function renderToday(){
     '<div class="sc"><div class="scv"><span class="tn">'+maxConsec(actSet)+'</span></div><div class="sck">Longest</div></div>'+
     '<div class="sc"><div class="scv"><span class="tn">'+currentStreak(journalDaySet())+'</span></div><div class="sck">Journaling</div></div></div>';
 
+  renderDeepCard();
   checkCampaign();renderCampaign();
   checkBoss();renderBoss();
   renderJourneyCard();
