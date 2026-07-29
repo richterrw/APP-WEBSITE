@@ -789,6 +789,53 @@
     font-family:var(--fr);font-size:13.5px;font-weight:800;color:var(--ink);transition:.14s;}
   .dur-row button:active{transform:scale(.95);}
 
+  /* the day cycle */
+  .day-card{margin-top:12px;padding:0;overflow:hidden;}
+  .day-band{display:flex;align-items:center;gap:11px;padding:13px 15px;
+    background:linear-gradient(120deg,color-mix(in srgb,var(--phc,var(--accent)) 20%,var(--surface)),var(--surface));}
+  .day-ico{width:44px;height:44px;flex-shrink:0;border-radius:13px;display:grid;place-items:center;font-size:22px;
+    background:color-mix(in srgb,var(--phc,var(--accent)) 20%,var(--surface));}
+  .day-main{flex:1;min-width:0;}
+  .day-eyebrow{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--phc,var(--accent-ink));}
+  .day-title{font-family:var(--fr);font-size:16.5px;font-weight:800;}
+  .day-sub{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .day-go{font-family:var(--fr);font-size:12px;font-weight:800;padding:8px 13px;border-radius:999px;
+    background:var(--phc,var(--accent));color:#04131C;white-space:nowrap;}
+  .day-go.ghost{background:var(--surface-2);color:var(--muted);}
+  .day-arc{display:flex;gap:2px;padding:0 15px 13px;}
+  .day-arc i{flex:1;height:5px;border-radius:3px;background:var(--surface-2);}
+  .day-arc i.on{background:var(--phc,var(--accent));}
+  .day-arc i.miss{background:color-mix(in srgb,var(--danger) 55%,var(--surface-2));}
+  .buffs{display:flex;gap:7px;flex-wrap:wrap;padding:0 15px 13px;}
+  .buff{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;
+    padding:4px 9px;border-radius:999px;background:var(--accent-tint);color:var(--accent-ink);}
+  .buff.bad{background:color-mix(in srgb,var(--danger) 16%,transparent);color:var(--danger);}
+  .mainq{display:flex;align-items:center;gap:11px;padding:12px 15px;border-top:1px solid var(--line);}
+  .mainq .mq-star{font-size:17px;}
+  .mainq .mq-body{flex:1;min-width:0;}
+  .mainq .mq-body b{display:block;font-family:var(--fr);font-size:14px;font-weight:700;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mainq .mq-body span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:700;}
+  .mainq.done .mq-body b{color:var(--muted);text-decoration:line-through;}
+  .mq-check{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--gold);flex-shrink:0;
+    display:grid;place-items:center;background:var(--surface);}
+  .mainq.done .mq-check{background:var(--gold);border-color:var(--gold);}
+  .mq-check svg{width:17px;height:17px;stroke:#fff;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0;}
+  .mainq.done .mq-check svg{opacity:1;}
+
+  .rite-head{text-align:center;margin-bottom:6px;}
+  .rite-head .rh-ico{font-size:34px;}
+  .rite-head h3{font-family:var(--fr);font-size:20px;font-weight:800;margin-top:4px;}
+  .rite-head p{font-size:13px;color:var(--ink-2);margin-top:5px;line-height:1.5;}
+  .rite-word{font-family:var(--fr);font-size:26px;font-weight:800;letter-spacing:.32em;text-align:center;
+    color:var(--accent-ink);margin:14px 0 4px;}
+  .perfect-row{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+  .pf{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);}
+  .pf .pfb{width:17px;height:17px;border-radius:5px;border:2px solid var(--line);display:grid;place-items:center;
+    font-size:10px;font-weight:800;color:#fff;flex-shrink:0;}
+  .pf.ok .pfb{background:var(--up);border-color:var(--up);}
+  .pf.ok{color:var(--muted);}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -859,6 +906,8 @@
       </div>
 
       <div id="streakMount"></div>
+
+      <div id="dayMount"></div>
 
       <div id="deepMount"></div>
 
@@ -1004,6 +1053,11 @@
       <div class="de-sub" id="deSub"></div>
       <button class="btn btn-primary" id="deClose" style="margin-top:16px">Back to town</button>
     </div>
+  </div>
+
+  <div class="sheet" id="riteSheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <div id="riteBody"></div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -1215,7 +1269,7 @@ var DEFAULT={
   journal:{}, playlists:[], settings:{faith:false}, journey:null,
   avatar:{name:"",skin:"#C98A5E",hair:"#2A1C14",hairStyle:"short",outfit:"#45D5EC",made:false,
     gear:{head:"none",body:"none",hand:"none",back:"none"}},
-  activeTimer:null, deepRun:null, focus:{totalMin:0,runs:0,collapsed:0,best:0}, focusLog:[], unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
+  dayCfg:null, days:{}, buffBonus:0, activeTimer:null, deepRun:null, focus:{totalMin:0,runs:0,collapsed:0,best:0}, focusLog:[], unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
 };
 var S=load();
 if(!S.settings)S.settings={faith:false};
@@ -2312,6 +2366,225 @@ function renderSquare(){
     else toast(bad+" letter"+(bad>1?"s":"")+" off","✏️");
   });
 }
+/* ================= THE DAY CYCLE ================= */
+/* Wake to sleep: rise inside your window, name the one thing that
+   matters, seal the day at dusk, and hold the curfew overnight. */
+var XP_DAWN=60, XP_MAIN=120, XP_DUSK=60, XP_NIGHT=80, XP_PERFECT_DAY=200;
+var WAKE_WORDS=["RESOLVE","ASCEND","FORGE","STEADY","BEGIN","CLIMB","ENDURE","SHARPEN"];
+function dayCfg(){
+  if(!S.dayCfg)S.dayCfg={wake:"06:30",grace:45,curfew:"22:30",duskFrom:"20:00"};
+  return S.dayCfg;
+}
+function day(k){k=k||TODAY;if(!S.days)S.days={};if(!S.days[k])S.days[k]={};return S.days[k];}
+function minsOf(hm){var p=(hm||"0:00").split(":");return (+p[0])*60+(+p[1]);}
+function nowMins(){var d=new Date();return d.getHours()*60+d.getMinutes();}
+function dawnWindow(){var c=dayCfg(),w=minsOf(c.wake);return {from:w-20,to:w+(+c.grace||45)};}
+function dawnState(){
+  var d=day(),win=dawnWindow(),n=nowMins();
+  if(d.dawn)return d.dawn.onTime?"kept":"late";
+  if(n<win.from)return "early";
+  if(n<=win.to)return "open";
+  return "missed";
+}
+function duskState(){
+  var d=day(),c=dayCfg();
+  if(d.dusk)return "kept";
+  return nowMins()>=minsOf(c.duskFrom)?"open":"early";
+}
+function nightState(){
+  var c=dayCfg(),n=nowMins(),d=day();
+  if(d.nightBroken)return "broken";
+  if(d.nightHeld)return "kept";
+  return n>=minsOf(c.curfew)||n<minsOf(dayCfg().wake)-20?"active":"idle";
+}
+function mainQuest(){return day().main||null;}
+function phase(){
+  var n=nowMins(),c=dayCfg();
+  if(n>=minsOf(c.curfew)||n<dawnWindow().from)return "night";
+  if(n<=dawnWindow().to)return "dawn";
+  if(n>=minsOf(c.duskFrom))return "dusk";
+  return "day";
+}
+function buffs(){
+  var out=[],d=day();
+  if(d.dawn&&d.dawn.onTime)out.push({t:"Early Riser +20% XP",good:true});
+  else if(dawnState()==="missed"&&!d.dawn)out.push({t:"Weary −10% XP",good:false});
+  if(d.night&&d.night.held)out.push({t:"Rested +10% XP",good:true});
+  if(d.main&&d.main.done)out.push({t:"Focused +15% XP",good:true});
+  return out;
+}
+function dayMultiplier(){
+  var m=1,d=day();
+  if(d.dawn&&d.dawn.onTime)m+=0.20; else if(dawnState()==="missed"&&!d.dawn)m-=0.10;
+  if(d.night&&d.night.held)m+=0.10;
+  if(d.main&&d.main.done)m+=0.15;
+  return Math.max(0.5,m);
+}
+function perfectChecks(k){
+  var d=day(k||TODAY),hs=S.habits;
+  return [
+    {t:"Rose inside your window",ok:!!(d.dawn&&d.dawn.onTime)},
+    {t:"Main quest completed",ok:!!(d.main&&d.main.done)},
+    {t:"Every quest cleared",ok:hs.length>0&&hs.every(function(h){return h.history[k||TODAY];})},
+    {t:"Day sealed at dusk",ok:!!d.dusk},
+    {t:"Curfew held",ok:!!(d.night&&d.night.held)}
+  ];
+}
+function isPerfectDay(k){return perfectChecks(k).every(function(c){return c.ok;});}
+function perfectDays(){var n=0;for(var k in (S.days||{}))if(S.days[k].perfect)n++;return n;}
+function dayCycleXP(){
+  var x=0;
+  for(var k in (S.days||{})){var d=S.days[k];
+    if(d.dawn&&d.dawn.onTime)x+=XP_DAWN;
+    if(d.main&&d.main.done)x+=XP_MAIN;
+    if(d.dusk)x+=XP_DUSK;
+    if(d.night&&d.night.held)x+=XP_NIGHT;
+    if(d.perfect)x+=XP_PERFECT_DAY;}
+  return x;
+}
+function sealPerfect(){
+  var d=day();
+  if(!d.perfect&&isPerfectDay()){d.perfect=true;save();
+    setTimeout(function(){toast("A Perfect Day. Rare air.","⭐");chimeReward();
+      if(navigator.vibrate)navigator.vibrate([30,60,30,60,80]);},900);}
+}
+/* ---- night watch: the curfew runs while you sleep ---- */
+function noteAppOpen(){
+  var c=dayCfg(),n=nowMins(),d=day();
+  var inCurfew=n>=minsOf(c.curfew)||n<dawnWindow().from;
+  if(inCurfew&&d.night&&d.night.armed&&!d.night.held){
+    d.night.broken=true;d.nightBroken=true;save();
+  }
+}
+function armNight(){var d=day();d.night={armed:true,at:Date.now()};save();
+  toast("Night Watch armed — don't open the app until dawn","🌑");}
+function resolveNight(){
+  var d=day(), y=(function(){var x=new Date();x.setDate(x.getDate()-1);return keyOf(x);})();
+  var yd=S.days&&S.days[y];
+  if(yd&&yd.night&&yd.night.armed&&!yd.night.resolved){
+    yd.night.resolved=true;
+    yd.night.held=!yd.night.broken;
+    if(yd.night.held){day(y).night.held=true;
+      setTimeout(function(){toast("Night Watch held — you wake rested","🌙");chimeDone();},1400);}
+    save();
+  }
+}
+/* ---- rites ---- */
+var riteSheet=document.getElementById("riteSheet");
+function openRite(kind){
+  var m=document.getElementById("riteBody"), d=day();
+  if(kind==="dawn"){
+    var word=WAKE_WORDS[dayOfYear()%WAKE_WORDS.length];
+    var st=dawnState();
+    m.innerHTML='<div class="rite-head"><div class="rh-ico">🌅</div><h3>Dawn Rite</h3>'+
+      '<p>'+(st==="open"?"You are inside your window. Type the word to rise.":
+             st==="early"?"Too early — the window opens at "+pad2(Math.floor(dawnWindow().from/60))+":"+pad2(dawnWindow().from%60)+".":
+             "The window has closed. You can still rise, but the day starts Weary.")+'</p></div>'+
+      '<div class="rite-word">'+word+'</div>'+
+      '<input class="tin" id="riteWord" placeholder="Type it exactly" autocomplete="off" autocapitalize="characters" />'+
+      '<p class="mini-note" style="text-align:center;margin-top:8px">Typing it is the proof you are actually awake.</p>'+
+      '<div class="actions"><button class="btn btn-ghost" id="riteCancel">Not yet</button>'+
+      '<button class="btn btn-primary" id="riteGo">Rise</button></div>';
+    document.getElementById("riteGo").addEventListener("click",function(){
+      var v=(document.getElementById("riteWord").value||"").trim().toUpperCase();
+      if(v!==word){toast("That's not the word","✋");return;}
+      var onTime=dawnState()==="open"||dawnState()==="early";
+      day().dawn={at:Date.now(),onTime:onTime};save();closeSheets();
+      chimeReward();toast(onTime?"Risen on time — Early Riser":"Risen late — the day starts Weary",onTime?"🌅":"😵");
+      setTimeout(function(){openRite("main");},700);
+      renderCurrent();
+    });
+    document.getElementById("riteCancel").addEventListener("click",closeSheets);
+  }else if(kind==="main"){
+    m.innerHTML='<div class="rite-head"><div class="rh-ico">⭐</div><h3>The Main Quest</h3>'+
+      '<p>Name the <b>one thing</b> that would make today a success. Not five. One.</p></div>'+
+      '<input class="tin" id="mainText" maxlength="60" placeholder="e.g. Finish the proposal draft" autocomplete="off" />'+
+      '<p class="mini-note" style="text-align:center;margin-top:8px">Worth '+XP_MAIN+' XP — more than every other quest combined.</p>'+
+      '<div class="actions"><button class="btn btn-ghost" id="riteCancel">Skip</button>'+
+      '<button class="btn btn-primary" id="riteGo">Set it</button></div>';
+    document.getElementById("riteGo").addEventListener("click",function(){
+      var v=(document.getElementById("mainText").value||"").trim();
+      if(!v){toast("Name the one thing","✋");return;}
+      day().main={text:v,done:false,at:Date.now()};save();closeSheets();
+      toast("Main quest set","⭐");chimeDone();renderCurrent();
+    });
+    document.getElementById("riteCancel").addEventListener("click",closeSheets);
+  }else{
+    var checks=perfectChecks(), doneN=checks.filter(function(c){return c.ok;}).length;
+    m.innerHTML='<div class="rite-head"><div class="rh-ico">🌙</div><h3>Dusk Rite</h3>'+
+      '<p>Seal the day. What stands, stands.</p></div>'+
+      '<div class="perfect-row">'+checks.map(function(c){
+        return '<div class="pf'+(c.ok?" ok":"")+'"><span class="pfb">'+(c.ok?"✓":"")+'</span>'+esc(c.t)+'</div>';}).join("")+'</div>'+
+      '<div class="flabel">Tomorrow\'s one thing</div>'+
+      '<input class="tin" id="tmwText" maxlength="60" placeholder="Decide it now, not in the morning" autocomplete="off" />'+
+      '<p class="mini-note" style="text-align:center;margin-top:10px">'+doneN+' of 5 marks of a Perfect Day.</p>'+
+      '<div class="actions"><button class="btn btn-ghost" id="riteCancel">Later</button>'+
+      '<button class="btn btn-primary" id="riteGo">Seal the day</button></div>';
+    document.getElementById("riteGo").addEventListener("click",function(){
+      var tm=(document.getElementById("tmwText").value||"").trim();
+      day().dusk={at:Date.now()};
+      if(tm){var tk=(function(){var x=new Date();x.setDate(x.getDate()+1);return keyOf(x);})();
+        day(tk).main={text:tm,done:false,at:Date.now()};}
+      armNight();save();closeSheets();chimeReward();toast("Day sealed","🌙");
+      sealPerfect();renderCurrent();
+    });
+    document.getElementById("riteCancel").addEventListener("click",closeSheets);
+  }
+  openSheet(riteSheet);
+}
+/* ---- the banner ---- */
+function renderDayCard(){
+  var m=document.getElementById("dayMount");if(!m)return;
+  var ph=phase(), d=day(), mq=mainQuest();
+  var conf={dawn:{ico:"🌅",eye:"Dawn",c:"#E8A44E"},day:{ico:"☀️",eye:"The day",c:"#3FB6C9"},
+    dusk:{ico:"🌆",eye:"Dusk",c:"#C4739B"},night:{ico:"🌑",eye:"Night watch",c:"#7C6FD0"}}[ph];
+  var title,sub,act=null,actLabel="";
+  if(ph==="dawn"||(!d.dawn&&ph==="day")){
+    var ds=dawnState();
+    if(ds==="kept"){title="Risen";sub="Early Riser is active. Spend it well.";}
+    else if(ds==="late"){title="Risen late";sub="Weary today. Tomorrow, earlier.";}
+    else{title=ds==="missed"?"The window closed":"Rise";
+      sub=ds==="missed"?"Rise anyway — the day still counts, just harder.":"Your window: "+dayCfg().wake+" (+"+dayCfg().grace+" min)";
+      act="dawn";actLabel="Rise";}
+  }else if(ph==="night"){
+    var ns=nightState();
+    title=ns==="broken"?"Watch broken":ns==="kept"?"Watch held":"Night Watch";
+    sub=ns==="broken"?"You opened the app after curfew. No reward at dawn."
+      :ns==="kept"?"You held it. Rested tomorrow."
+      :d.dusk?"Armed. Put it down until morning.":"Seal the day to arm the watch.";
+    if(!d.dusk){act="dusk";actLabel="Seal";}
+  }else if(ph==="dusk"&&!d.dusk){
+    title="Seal the day";sub="Five marks decide a Perfect Day.";act="dusk";actLabel="Dusk Rite";
+  }else{
+    title=d.dusk?"Day sealed":"The day is yours";
+    sub=mq?(mq.done?"Main quest done. Everything else is profit.":"Main quest still standing."):"No main quest named yet.";
+    if(!mq){act="main";actLabel="Name it";}
+  }
+  var arcs=["dawn","day","dusk","night"].map(function(p){
+    var on=(p==="dawn"&&d.dawn)||(p==="day"&&d.main)||(p==="dusk"&&d.dusk)||(p==="night"&&d.night&&d.night.held);
+    var miss=(p==="dawn"&&d.dawn&&!d.dawn.onTime)||(p==="night"&&d.nightBroken);
+    return '<i class="'+(miss?"miss":(on?"on":""))+'"></i>';}).join("");
+  var bf=buffs().map(function(b){return '<span class="buff'+(b.good?"":" bad")+'">'+esc(b.t)+'</span>';}).join("");
+  var html='<div class="card day-card" style="--phc:'+conf.c+'">'+
+    '<div class="day-band"><div class="day-ico">'+conf.ico+'</div><div class="day-main">'+
+    '<div class="day-eyebrow">'+conf.eye+' · '+Math.round(dayMultiplier()*100)+'% XP</div>'+
+    '<div class="day-title">'+esc(title)+'</div><div class="day-sub">'+esc(sub)+'</div></div>'+
+    (act?'<button class="day-go" data-rite="'+act+'">'+actLabel+'</button>':'')+'</div>'+
+    '<div class="day-arc">'+arcs+'</div>'+(bf?'<div class="buffs">'+bf+'</div>':'');
+  if(mq)html+='<div class="mainq'+(mq.done?" done":"")+'"><span class="mq-star">⭐</span>'+
+    '<div class="mq-body"><span>Main quest · '+XP_MAIN+' XP</span><b>'+esc(mq.text)+'</b></div>'+
+    '<button class="mq-check" id="mqCheck"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></button></div>';
+  m.innerHTML=html+'</div>';
+  var gb=m.querySelector("[data-rite]");
+  if(gb)gb.addEventListener("click",function(){openRite(gb.getAttribute("data-rite"));});
+  var mc=document.getElementById("mqCheck");
+  if(mc)mc.addEventListener("click",function(){
+    var q=mainQuest();if(!q)return;
+    q.done=!q.done;save();
+    if(q.done){chimeReward();floatXP(mc,XP_MAIN,0);toast("Main quest complete","⭐");
+      if(navigator.vibrate)navigator.vibrate([20,60,30]);}
+    sealPerfect();renderCurrent();});
+}
 /* ================= FOCUS DUNGEONS ================= */
 /* One rule: stay out of your phone. Leave the app and the run collapses. */
 var XP_FOCUS_MIN=6, DMG_FOCUS_MIN=4, FLOOR_MIN=5;
@@ -2362,6 +2635,8 @@ function finishDeep(ok){
   S.deepRun=null;
   if(ok){
     f.totalMin+=r.mins;f.runs++;f.best=Math.max(f.best,r.mins);
+    var db=Math.round(XP_FOCUS_MIN*r.mins*(dayMultiplier()-1));
+    if(db)S.buffBonus=(S.buffBonus||0)+db;
     if(!S.focusLog)S.focusLog=[];
     S.focusLog.push({d:TODAY,m:r.mins});
     if(S.focusLog.length>400)S.focusLog.shift();
@@ -2386,6 +2661,7 @@ function finishDeep(ok){
 /* the one rule */
 document.addEventListener("visibilitychange",function(){
   if(document.hidden&&deepRun())finishDeep(false);
+  if(!document.hidden){noteAppOpen();resolveNight();}
 });
 window.addEventListener("blur",function(){
   if(deepRun()&&document.hidden)finishDeep(false);
@@ -2732,7 +3008,7 @@ function sectorClearCount(){var n=0;
   });return n;}
 function totalXP(){
   return XP_HABIT*totalCompletions()+XP_SECTOR*sectorClearCount()+XP_JOURNAL*journalSessions()
-    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+difficultyXP()+XP_PUZZLE*puzzleSolvedCount()+focusXP()+campaignXP();
+    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+difficultyXP()+XP_PUZZLE*puzzleSolvedCount()+focusXP()+dayCycleXP()+campaignXP();
 }
 function xpNeed(L){return 120+(L-1)*80;}
 function titleFor(L){return L>=25?"Ascendant":L>=18?"Vanguard":L>=14?"Champion":L>=10?"Warden":
@@ -2830,7 +3106,7 @@ function reqProgress(r){
   if(r.t==="days")return {cur:currentStreak(activeDaySet()),need:r.n,label:r.n+"-day streak"};
   if(r.t==="journal")return {cur:currentStreak(journalDaySet()),need:r.n,label:r.n+"-day journal streak"};
   if(r.t==="journey")return {cur:journeyDaysDone(),need:r.n,label:r.n+" journey days"};
-  if(r.t==="perfect")return {cur:perfectDayCount(),need:r.n,label:r.n+" perfect days"};
+  if(r.t==="perfect")return {cur:perfectDayCount()+perfectDays(),need:r.n,label:r.n+" perfect days"};
   if(r.t==="focus")return {cur:focusState().totalMin,need:r.n,label:r.n+" min in the dungeon"};
   return {cur:0,need:1,label:""};
 }
@@ -3342,6 +3618,7 @@ function renderToday(){
     '<div class="sc"><div class="scv"><span class="tn">'+maxConsec(actSet)+'</span></div><div class="sck">Longest</div></div>'+
     '<div class="sc"><div class="scv"><span class="tn">'+currentStreak(journalDaySet())+'</span></div><div class="sck">Journaling</div></div></div>';
 
+  renderDayCard();
   renderDeepCard();
   checkCampaign();renderCampaign();
   checkBoss();renderBoss();
@@ -3404,7 +3681,10 @@ function completeHabit(id,li,verified){
   if(!was){if(li){li.classList.add("just");setTimeout(function(){li.classList.remove("just");},460);}
     if(navigator.vibrate)navigator.vibrate(12);chimeDone();
     var anchor=li?li.querySelector(".check"):null;
+    var mult=dayMultiplier(), bonus=Math.round(habitReward(h)*(mult-1));
+    if(bonus){S.buffBonus=(S.buffBonus||0)+bonus;save();}
     floatXP(anchor,XP_HABIT,0);
+    if(bonus>0)floatXP(anchor,bonus,180);
     if(verified){floatXP(anchor,XP_VERIFY,260);toast("Proof accepted — quest verified","📷");}
     var sect=S.habits.filter(function(x){return x.pillar===h.pillar;});
     if(sect.length&&sect.every(function(x){return x.history[TODAY];}))floatXP(anchor,XP_SECTOR,520);
@@ -3908,6 +4188,7 @@ function closeSheets(){scrim.classList.remove("open");habitSheet.classList.remov
   var as=document.getElementById("acctSheet");if(as)as.classList.remove("open");
   var avs=document.getElementById("avSheet");if(avs)avs.classList.remove("open");stopAvPreview();
   var pfs=document.getElementById("proofSheet");if(pfs)pfs.classList.remove("open");
+  var rs=document.getElementById("riteSheet");if(rs)rs.classList.remove("open");
   document.getElementById("hName").blur();}
 scrim.addEventListener("click",closeSheets);
 
@@ -4082,6 +4363,7 @@ initCloud();
 var _grz;window.addEventListener("resize",function(){clearTimeout(_grz);_grz=setTimeout(function(){if(current==="today")drawWorld(scoresNow());},160);});
 
 /* ============ GO ============ */
+resolveNight();noteAppOpen();
 if(activeTimer())setTimeout(openTimerVeil,600);
 paintMeChip();
 show("today");
