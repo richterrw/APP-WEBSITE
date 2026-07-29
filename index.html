@@ -1889,8 +1889,8 @@ function step3D(t){
     player.x+=wdx*MOVE_SPEED*dt; player.z+=wdz*MOVE_SPEED*dt;
     player.walk+=dt*9.5; if(wdx>0.05)player.face=1;else if(wdx<-0.05)player.face=-1;
   }else player.walk=0;
-  player.x=Math.max(-290,Math.min(290,player.x));
-  player.z=Math.max(-330,Math.min(400,player.z));
+  player.x=Math.max(-395,Math.min(395,player.x));
+  player.z=Math.max(-400,Math.min(378,player.z));
   SOLIDS.forEach(function(sd){
     var dx2=player.x-sd.x,dz2=player.z-sd.z,d3=Math.hypot(dx2,dz2);
     if(d3<sd.r&&d3>0.01){player.x=sd.x+dx2/d3*sd.r;player.z=sd.z+dz2/d3*sd.r;}});
