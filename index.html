@@ -702,6 +702,45 @@
     color:#8FE9F8;margin-bottom:3px;}
   .dlg-text{font-size:13px;line-height:1.45;color:#E9F1FF;}
 
+  /* difficulty gates */
+  .req-row{width:100%;display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:14px;
+    background:var(--surface-2);margin-top:9px;text-align:left;border:1.5px solid transparent;}
+  .req-row.on{background:var(--accent-tint);border-color:var(--accent);}
+  .rq-ico{font-size:18px;}
+  .rq-body{flex:1;min-width:0;}
+  .rq-body b{display:block;font-family:var(--fr);font-size:13.5px;font-weight:700;}
+  .rq-body span{font-size:11px;color:var(--muted);line-height:1.3;display:block;}
+  .rq-num{width:56px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:7px;
+    text-align:center;font-family:var(--fr);font-size:15px;font-weight:800;color:var(--ink);outline:none;}
+  .rq-unit{font-size:11px;color:var(--muted);font-weight:700;}
+  .rq-time{width:74px;background:var(--surface);border:1.5px solid var(--line);border-radius:9px;padding:6px 4px;
+    font-size:12px;color:var(--ink);outline:none;font-family:var(--fr);}
+  .rq-act{font-family:var(--fr);font-size:12px;font-weight:800;color:var(--accent-ink);
+    padding:6px 11px;border-radius:999px;background:var(--surface);white-space:nowrap;}
+  .gate-tag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:5px;
+    color:var(--p-mental);background:color-mix(in srgb,var(--p-mental) 15%,transparent);}
+
+  /* timer */
+  .timer-veil{position:fixed;inset:0;z-index:64;display:grid;place-items:center;
+    background:radial-gradient(circle at 50% 40%,rgba(20,50,80,.5),rgba(4,8,18,.94));
+    padding:24px;animation:fade .3s ease;}
+  .timer-veil[hidden]{display:none;}
+  .tv-inner{text-align:center;position:relative;width:100%;max-width:320px;}
+  .tv-ico{font-size:30px;}
+  .tv-name{font-family:var(--fr);font-size:17px;font-weight:800;color:#E9F1FF;margin-top:4px;}
+  .tv-ring{position:relative;width:190px;height:190px;margin:10px auto 4px;}
+  .tv-ring svg{width:190px;height:190px;transform:rotate(-90deg);}
+  .tv-bg{fill:none;stroke:rgba(150,200,255,.16);stroke-width:7;}
+  .tv-fg{fill:none;stroke:#45D5EC;stroke-width:7;stroke-linecap:round;
+    stroke-dasharray:339.3;stroke-dashoffset:339.3;transition:stroke-dashoffset .9s linear;
+    filter:drop-shadow(0 0 8px rgba(69,213,236,.8));}
+  .tv-clock{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);margin-top:70px;
+    font-family:var(--fr);font-size:44px;font-weight:800;color:#EAF7FF;letter-spacing:-.02em;}
+  .tv-note{font-size:12px;color:rgba(233,241,255,.6);margin-top:10px;line-height:1.4;}
+  .tv-actions{display:flex;gap:10px;margin-top:18px;}
+  .tv-actions .btn{flex:1;}
+  .tv-actions .btn[disabled]{opacity:.45;}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -884,6 +923,21 @@
     <div class="actions" id="proofActions"></div>
   </div>
 
+  <div class="timer-veil" id="timerVeil" hidden>
+    <div class="tv-inner">
+      <div class="tv-ico" id="tvIco">⏱️</div>
+      <div class="tv-name" id="tvName"></div>
+      <div class="tv-clock tn" id="tvClock">00:00</div>
+      <div class="tv-ring"><svg viewBox="0 0 120 120"><circle class="tv-bg" cx="60" cy="60" r="54"></circle>
+        <circle class="tv-fg" id="tvArc" cx="60" cy="60" r="54"></circle></svg></div>
+      <div class="tv-note" id="tvNote">Leave the app if you like — the clock keeps running.</div>
+      <div class="tv-actions">
+        <button class="btn btn-ghost" id="tvAbandon">Abandon</button>
+        <button class="btn btn-primary" id="tvClaim" disabled>Claim</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <!-- auth gate -->
@@ -927,12 +981,29 @@
       <button class="btn btn-ghost" id="hRemindClear" type="button" style="height:48px">Clear</button>
     </div>
     <p class="mini-note" id="remindNote">Nudges you at this time while Flourish is open in your browser.</p>
-    <div class="flabel">Difficulty</div>
+    <div class="flabel">Difficulty <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted)">— gates you can't tap past</span></div>
     <button class="switch-row" id="hVerify" type="button" aria-pressed="false">
       <span class="sw-ico">📷</span>
-      <span class="sw-body"><b>Require photo proof</b><span>You must photograph the evidence to claim this quest</span></span>
+      <span class="sw-body"><b>Photo proof</b><span>Photograph the evidence to claim it · +10 XP</span></span>
       <span class="sw-track"><i></i></span>
     </button>
+    <div class="req-row">
+      <span class="rq-ico">⏱️</span>
+      <span class="rq-body"><b>Timer</b><span>Must run this long before you can claim · +10 XP</span></span>
+      <input class="rq-num tn" id="hTimer" type="number" min="0" max="240" step="5" inputmode="numeric" placeholder="0" />
+      <span class="rq-unit">min</span>
+    </div>
+    <button class="req-row tap" id="hPlace" type="button">
+      <span class="rq-ico">📍</span>
+      <span class="rq-body"><b>Be there</b><span id="hPlaceSub">Pin a place — your phone must be within 150 m · +15 XP</span></span>
+      <span class="rq-act" id="hPlaceAct">Pin</span>
+    </button>
+    <div class="req-row">
+      <span class="rq-ico">🕐</span>
+      <span class="rq-body"><b>Time window</b><span>Only claimable between these hours · +5 XP</span></span>
+      <input class="rq-time" id="hWinFrom" type="time" />
+      <input class="rq-time" id="hWinTo" type="time" />
+    </div>
     <div class="actions">
       <button class="btn btn-ghost" id="hCancel">Cancel</button>
       <button class="btn btn-primary" id="hSave">Add habit</button>
@@ -1076,7 +1147,7 @@ var DEFAULT={
   journal:{}, playlists:[], settings:{faith:false}, journey:null,
   avatar:{name:"",skin:"#C98A5E",hair:"#2A1C14",hairStyle:"short",outfit:"#45D5EC",made:false,
     gear:{head:"none",body:"none",hand:"none",back:"none"}},
-  unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
+  activeTimer:null, unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
 };
 var S=load();
 if(!S.settings)S.settings={faith:false};
@@ -2173,6 +2244,121 @@ function renderSquare(){
     else toast(bad+" letter"+(bad>1?"s":"")+" off","✏️");
   });
 }
+/* ================= REAL GATES ================= */
+/* A quest can demand a clock that actually runs, a place you must
+   physically stand in, and an hour of the day. None of it is a tap. */
+function reqOf(h){
+  var r=h.req||{};
+  return {photo:!!(r.photo||h.verify), timer:+r.timer||0, place:r.place||null, window:r.window||null};
+}
+function habitBonus(h){var r=reqOf(h);
+  return (r.photo?10:0)+(r.timer?10:0)+(r.place?15:0)+(r.window?5:0);}
+function habitReward(h){return XP_HABIT+habitBonus(h);}
+function difficultyXP(){var x=0;S.habits.forEach(function(h){x+=Object.keys(h.history).length*habitBonus(h);});return x;}
+function difficultyDamage(days){var d=0;
+  S.habits.forEach(function(h){var bn=habitBonus(h);if(!bn)return;
+    days.forEach(function(k){if(h.history[k])d+=bn;});});return d;}
+function gateTags(h){
+  var r=reqOf(h),out="";
+  if(r.timer)out+='<span class="gate-tag">⏱ '+r.timer+'m</span>';
+  if(r.place)out+='<span class="gate-tag">📍 '+esc((r.place.label||"place").slice(0,10))+'</span>';
+  if(r.window)out+='<span class="gate-tag">🕐 '+r.window.from+'</span>';
+  return out;
+}
+function hhmm(d){return pad2(d.getHours())+":"+pad2(d.getMinutes());}
+function inWindow(r){
+  if(!r.window)return true;
+  var now=hhmm(new Date()), a=r.window.from, b=r.window.to;
+  return a<=b ? (now>=a&&now<=b) : (now>=a||now<=b);   // windows may cross midnight
+}
+function distMeters(a,b){
+  var R=6371000,toR=Math.PI/180;
+  var dLat=(b.lat-a.lat)*toR, dLon=(b.lng-a.lng)*toR;
+  var s1=Math.sin(dLat/2),s2=Math.sin(dLon/2);
+  var q=s1*s1+Math.cos(a.lat*toR)*Math.cos(b.lat*toR)*s2*s2;
+  return 2*R*Math.asin(Math.min(1,Math.sqrt(q)));
+}
+function humanDist(m){return m<1000?Math.round(m)+" m":(m/1000).toFixed(1)+" km";}
+function getPosition(cb){
+  if(!navigator.geolocation){cb(null,"This device can't check location");return;}
+  navigator.geolocation.getCurrentPosition(
+    function(p){cb({lat:p.coords.latitude,lng:p.coords.longitude});},
+    function(e){cb(null,e.code===1?"Location permission denied":"Couldn't get a location fix");},
+    {enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+/* ---- the timer that must actually run ---- */
+var tvTick=null;
+function activeTimer(){return S.activeTimer||null;}
+function startTimer(h){
+  var r=reqOf(h);
+  S.activeTimer={id:h.id,name:h.name,emoji:h.emoji,start:Date.now(),mins:r.timer};save();
+  openTimerVeil();
+  toast("Clock running — "+r.timer+" minutes","⏱️");
+}
+function timerLeft(){
+  var a=activeTimer();if(!a)return 0;
+  return Math.max(0,a.mins*60000-(Date.now()-a.start));
+}
+function openTimerVeil(){
+  var a=activeTimer();if(!a)return;
+  document.getElementById("tvIco").textContent=a.emoji||"⏱️";
+  document.getElementById("tvName").textContent=a.name;
+  document.getElementById("timerVeil").hidden=false;
+  tickTimer();clearInterval(tvTick);tvTick=setInterval(tickTimer,500);
+}
+function closeTimerVeil(){document.getElementById("timerVeil").hidden=true;clearInterval(tvTick);tvTick=null;}
+function tickTimer(){
+  var a=activeTimer();if(!a){closeTimerVeil();return;}
+  var left=timerLeft(), total=a.mins*60000;
+  var secs=Math.ceil(left/1000);
+  document.getElementById("tvClock").textContent=pad2(Math.floor(secs/60))+":"+pad2(secs%60);
+  document.getElementById("tvArc").style.strokeDashoffset=String(339.3*(left/total));
+  var claim=document.getElementById("tvClaim");
+  if(left<=0){
+    claim.disabled=false;claim.textContent="Claim reward";
+    document.getElementById("tvNote").textContent="Time served. The quest is yours to claim.";
+    if(!a.rang){a.rang=true;save();chimeReward();if(navigator.vibrate)navigator.vibrate([25,60,30]);}
+  }
+}
+document.getElementById("tvAbandon").addEventListener("click",function(){
+  S.activeTimer=null;save();closeTimerVeil();toast("Run abandoned — nothing claimed","🚪");});
+document.getElementById("tvClaim").addEventListener("click",function(){
+  var a=activeTimer();if(!a||timerLeft()>0)return;
+  var h=S.habits.find(function(x){return x.id===a.id;});
+  S.activeTimer=null;save();closeTimerVeil();
+  if(!h)return;
+  var li=document.querySelector('#todayHabits .habit');
+  if(reqOf(h).photo)requestProof(h,null);else completeHabit(h.id,null,false);
+});
+/* ---- the gate keeper ---- */
+function attemptQuest(h,li){
+  var r=reqOf(h);
+  if(!inWindow(r)){
+    toast("Only between "+r.window.from+" and "+r.window.to,"🕐");
+    if(navigator.vibrate)navigator.vibrate([40,40,40]);return;
+  }
+  var a=activeTimer();
+  if(a&&a.id===h.id){openTimerVeil();return;}
+  if(a&&a.id!==h.id){toast("Finish or abandon your current run first","⏱️");openTimerVeil();return;}
+  function afterPlace(){
+    if(r.timer){startTimer(h);return;}
+    if(r.photo){requestProof(h,li);return;}
+    completeHabit(h.id,li,false);
+  }
+  if(r.place){
+    toast("Checking where you are…","📍");
+    getPosition(function(pos,err){
+      if(!pos){toast(err,"⚠️");return;}
+      var d=distMeters(pos,r.place);
+      if(d>Math.max(150,r.place.radius||150)){
+        toast("You're "+humanDist(d)+" from "+(r.place.label||"the place"),"📍");
+        if(navigator.vibrate)navigator.vibrate([40,40,40]);return;}
+      toast("You're here ✓","📍");afterPlace();
+    });
+    return;
+  }
+  afterPlace();
+}
 /* ================= PROOF OF WORK ================= */
 /* Thumbnails live in their own local store and never ride along with cloud
    sync (only the fact of verification does), so syncing stays fast. */
@@ -2339,7 +2525,7 @@ function bossDamage(){
     if(hs.length)days.forEach(function(k){if(hs.every(function(h){return h.history[k];}))dmg+=25;});});
   if(S.habits.length)days.forEach(function(k){if(S.habits.every(function(h){return h.history[k];}))dmg+=100;});
   days.forEach(function(k){var j=S.journal[k];if(j){if(j.morning)dmg+=15;if(j.evening)dmg+=15;}});
-  for(var pk in (S.proofs||{})){if(days.indexOf(pk.split("|")[1])>=0)dmg+=15;}
+  dmg+=difficultyDamage(days);
   dmg+=40*puzzlesSolvedIn(days);
   return dmg;
 }
@@ -2383,7 +2569,7 @@ function sectorClearCount(){var n=0;
   });return n;}
 function totalXP(){
   return XP_HABIT*totalCompletions()+XP_SECTOR*sectorClearCount()+XP_JOURNAL*journalSessions()
-    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+XP_VERIFY*verifiedCount()+XP_PUZZLE*puzzleSolvedCount()+campaignXP();
+    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+difficultyXP()+XP_PUZZLE*puzzleSolvedCount()+campaignXP();
 }
 function xpNeed(L){return 120+(L-1)*80;}
 function titleFor(L){return L>=25?"Ascendant":L>=18?"Vanguard":L>=14?"Champion":L>=10?"Warden":
@@ -3014,14 +3200,15 @@ function habitRow(h,showTag){
     clock='<span class="clockbadge'+(due?" due":"")+'"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2"/></svg>'+h.remindAt+'</span>';}
   edit.innerHTML='<div class="h-emoji">'+h.emoji+'</div><div class="h-body"><div class="h-name">'+esc(h.name)+'</div>'+
     '<div class="h-meta"><span class="streak'+(st>0?" on":"")+'">'+flame()+'<span class="tn">'+(st>0?st+"d":"—")+'</span></span>'+
-    clock+(h.history[TODAY]?'':'<span class="xp-tag">+'+(h.verify?XP_HABIT+XP_VERIFY:XP_HABIT)+'</span>')+
-    (h.verify?(h.history[TODAY]&&(S.proofs||{})[proofKey(h.id)]?'<span class="cam-badge" data-proof="'+proofKey(h.id)+'">📷 Verified</span>':'<span class="cam-req">📷 Proof</span>'):'')+
+    clock+(h.history[TODAY]?'':'<span class="xp-tag">+'+habitReward(h)+'</span>')+
+    (reqOf(h).photo?(h.history[TODAY]&&(S.proofs||{})[proofKey(h.id)]?'<span class="cam-badge" data-proof="'+proofKey(h.id)+'">📷 Verified</span>':'<span class="cam-req">📷</span>'):'')+
+    (h.history[TODAY]?'':gateTags(h))+
     (showTag?'<span class="pill-tag">'+p.name+'</span>':'')+'</div></div>';
   edit.addEventListener("click",function(ev){
     var pb=ev.target.closest?ev.target.closest("[data-proof]"):null;
     if(pb){ev.stopPropagation();openProofSheet("view",pb.getAttribute("data-proof"));return;}
     openHabit(h.id);});
-  var ck=document.createElement("button");ck.className="check"+(h.verify&&!h.history[TODAY]?" needcam":"");ck.setAttribute("aria-pressed",h.history[TODAY]?"true":"false");
+  var ck=document.createElement("button");ck.className="check"+(reqOf(h).photo&&!h.history[TODAY]?" needcam":"");ck.setAttribute("aria-pressed",h.history[TODAY]?"true":"false");
   ck.setAttribute("aria-label",(h.history[TODAY]?"Mark not done: ":"Mark done: ")+h.name);
   ck.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>';
   ck.addEventListener("click",function(){toggleHabit(h.id,li);});
@@ -3032,7 +3219,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;
 
 function toggleHabit(id,li){
   var h=S.habits.find(function(x){return x.id===id;});if(!h)return;
-  if(h.verify&&!h.history[TODAY]){requestProof(h,li);return;}
+  if(!h.history[TODAY]){attemptQuest(h,li);return;}
   completeHabit(id,li,false);
 }
 function completeHabit(id,li,verified){
@@ -3448,21 +3635,49 @@ function openHabit(id,presetPillar){
   editingId=id||null;var del=document.getElementById("hDelete"),nm=document.getElementById("hName"),rm=document.getElementById("hRemind");
   if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});document.getElementById("hsTitle").textContent="Edit habit";
     document.getElementById("hSave").textContent="Save";nm.value=h.name;draft.emoji=h.emoji;draft.pillar=h.pillar;rm.value=h.remindAt||"";del.style.display="block";
-    document.getElementById("hVerify").setAttribute("aria-pressed",h.verify?"true":"false");}
+    var rq=reqOf(h);
+    document.getElementById("hVerify").setAttribute("aria-pressed",rq.photo?"true":"false");
+    document.getElementById("hTimer").value=rq.timer||"";
+    placeDraft=rq.place;syncPlaceUI();
+    document.getElementById("hWinFrom").value=rq.window?rq.window.from:"";
+    document.getElementById("hWinTo").value=rq.window?rq.window.to:"";}
   else{document.getElementById("hsTitle").textContent="New habit";document.getElementById("hSave").textContent="Add habit";
     nm.value="";draft.emoji=EMOJIS[0];draft.pillar=presetPillar||"physical";rm.value="";del.style.display="none";
-    document.getElementById("hVerify").setAttribute("aria-pressed","false");}
+    document.getElementById("hVerify").setAttribute("aria-pressed","false");
+    document.getElementById("hTimer").value="";placeDraft=null;syncPlaceUI();
+    document.getElementById("hWinFrom").value="";document.getElementById("hWinTo").value="";}
   nm.style.borderColor="";syncHabitPickers();openSheet(habitSheet);setTimeout(function(){if(!editingId)nm.focus();},340);
 }
 document.getElementById("hRemindClear").addEventListener("click",function(){document.getElementById("hRemind").value="";});
+var placeDraft=null;
+function syncPlaceUI(){
+  var row=document.getElementById("hPlace"),sub=document.getElementById("hPlaceSub"),act=document.getElementById("hPlaceAct");
+  if(placeDraft){row.classList.add("on");
+    sub.textContent="Pinned"+(placeDraft.label?": "+placeDraft.label:"")+" — you must be within 150 m";act.textContent="Clear";}
+  else{row.classList.remove("on");
+    sub.textContent="Pin a place — your phone must be within 150 m · +15 XP";act.textContent="Pin";}
+}
+document.getElementById("hPlace").addEventListener("click",function(){
+  if(placeDraft){placeDraft=null;syncPlaceUI();return;}
+  toast("Finding you…","📍");
+  getPosition(function(pos,err){
+    if(!pos){toast(err,"⚠️");return;}
+    var label=(prompt("Name this place (e.g. The Gym)")||"").trim().slice(0,18);
+    placeDraft={lat:pos.lat,lng:pos.lng,label:label||"Here",radius:150};
+    syncPlaceUI();toast("Place pinned","📍");
+  });
+});
 document.getElementById("hVerify").addEventListener("click",function(){
   var on=this.getAttribute("aria-pressed")==="true";this.setAttribute("aria-pressed",on?"false":"true");});
 document.getElementById("hSave").addEventListener("click",function(){
   var nm=document.getElementById("hName"),name=nm.value.trim(),remindAt=document.getElementById("hRemind").value||"";
   var wantVerify=document.getElementById("hVerify").getAttribute("aria-pressed")==="true";
+  var wf=document.getElementById("hWinFrom").value, wt=document.getElementById("hWinTo").value;
+  var newReq={photo:wantVerify,timer:Math.max(0,Math.min(240,+document.getElementById("hTimer").value||0)),
+    place:placeDraft,window:(wf&&wt)?{from:wf,to:wt}:null};
   if(!name){nm.focus();nm.style.borderColor="var(--danger)";return;}
-  if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});h.name=name;h.emoji=draft.emoji;h.pillar=draft.pillar;h.remindAt=remindAt;h.verify=wantVerify;}
-  else S.habits.push({id:uid(),name:name,emoji:draft.emoji,pillar:draft.pillar,remindAt:remindAt,verify:wantVerify,history:{}});
+  if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});h.name=name;h.emoji=draft.emoji;h.pillar=draft.pillar;h.remindAt=remindAt;h.verify=wantVerify;h.req=newReq;}
+  else S.habits.push({id:uid(),name:name,emoji:draft.emoji,pillar:draft.pillar,remindAt:remindAt,verify:wantVerify,req:newReq,history:{}});
   if(remindAt)requestNotify();
   save();closeSheets();renderCurrent();
 });
@@ -3697,6 +3912,7 @@ initCloud();
 var _grz;window.addEventListener("resize",function(){clearTimeout(_grz);_grz=setTimeout(function(){if(current==="today")drawWorld(scoresNow());},160);});
 
 /* ============ GO ============ */
+if(activeTimer())setTimeout(openTimerVeil,600);
 paintMeChip();
 show("today");
 if(!av().made)setTimeout(function(){if(!av().made&&!document.getElementById("authGate").hidden===false)openAvatar();},900);
