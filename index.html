@@ -51,6 +51,11 @@
   }
 
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;
+    -webkit-touch-callout:none;}
+  input,textarea,select,.jarea,.tin,.inspire-card .body,.inspire-card .attr,.expand p,
+  .fbcard,.jny-teach,.jny-act p,.boss-line,.clue{-webkit-user-select:text;user-select:text;
+    -webkit-touch-callout:default;}
   html,body{height:100%;}
   body{background:var(--paper);color:var(--ink);font-family:var(--fb);line-height:1.45;
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overscroll-behavior-y:none;}
@@ -534,9 +539,10 @@
     user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;
     -webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;}
   .dpad{position:absolute;left:14px;bottom:14px;width:104px;height:104px;touch-action:none;}
-  .dpad .dp{position:absolute;width:36px;height:36px;display:grid;place-items:center;font-size:11px;
-    color:rgba(233,241,255,.9);background:rgba(8,16,30,.55);border:1px solid rgba(150,200,255,.28);
+  .dpad .dp{position:absolute;width:36px;height:36px;display:grid;place-items:center;
+    background:rgba(8,16,30,.55);border:1px solid rgba(150,200,255,.28);
     backdrop-filter:blur(6px);transition:background .1s,transform .1s;}
+  .dpad .dp svg{width:15px;height:15px;fill:rgba(233,241,255,.92);pointer-events:none;}
   .dpad .dp:active,.dpad .dp.on{background:rgba(69,213,236,.5);transform:scale(.92);}
   .dpad .up{left:34px;top:0;border-radius:10px 10px 4px 4px;}
   .dpad .down{left:34px;bottom:0;border-radius:4px 4px 10px 10px;}
@@ -545,10 +551,11 @@
   .dp-hub{position:absolute;left:34px;top:34px;width:36px;height:36px;border-radius:9px;
     background:rgba(8,16,30,.4);border:1px solid rgba(150,200,255,.16);}
   .abtn{position:absolute;right:16px;bottom:26px;width:62px;height:62px;border-radius:50%;
-    font-family:var(--fr);font-size:19px;font-weight:800;color:#04131C;
+    display:grid;place-items:center;
     background:radial-gradient(circle at 35% 30%,#8FE9F8,#2FB6CE);
     border:2px solid rgba(233,241,255,.5);box-shadow:0 6px 20px -6px rgba(69,213,236,.8);
     transition:transform .1s;touch-action:none;}
+  .abtn svg{width:26px;height:26px;fill:#04131C;pointer-events:none;}
   .abtn:active{transform:scale(.9);}
   .abtn.dim{opacity:.4;box-shadow:none;}
   .enter-prompt{position:absolute;left:50%;bottom:124px;transform:translateX(-50%);
@@ -709,13 +716,13 @@
         <div class="ws-xp"><i id="hudBar"></i></div>
         <div class="enter-prompt" id="enterPrompt" hidden></div>
         <div class="dpad" id="dpad">
-          <button class="dp up" data-d="up" aria-label="Up">▲</button>
-          <button class="dp left" data-d="left" aria-label="Left">◀</button>
-          <button class="dp right" data-d="right" aria-label="Right">▶</button>
-          <button class="dp down" data-d="down" aria-label="Down">▼</button>
+          <button class="dp up" data-d="up" aria-label="Move up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7l6 10H6z"/></svg></button>
+          <button class="dp left" data-d="left" aria-label="Move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12l10-6v12z"/></svg></button>
+          <button class="dp right" data-d="right" aria-label="Move right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 12L7 18V6z"/></svg></button>
+          <button class="dp down" data-d="down" aria-label="Move down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17L6 7h12z"/></svg></button>
           <span class="dp-hub"></span>
         </div>
-        <button class="abtn" id="aBtn" aria-label="Action">A</button>
+        <button class="abtn" id="aBtn" aria-label="Action"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l5.5 15h-3l-1.1-3.2H10.6L9.5 19h-3zm0 4.9l-1.1 3.4h2.2z"/></svg></button>
       </div>
       <div class="garden-sub" id="gardenSub">Move with the pad. Walk up to a building to enter.</div>
       <div class="d-chips" id="dChips"></div>
@@ -1687,8 +1694,8 @@ function renderWorldFrame(t){
       ctx.font="700 9px "+cs.getPropertyValue("--fr");ctx.textAlign="center";ctx.textBaseline="bottom";
       ctx.fillStyle="rgba(4,8,18,.55)";
       var tw3=ctx.measureText(a.name).width;
-      ctx.fillRect(pos.x-tw3/2-5,pos.y-18*u-14,tw3+10,13);
-      ctx.fillStyle=hexA("#EAF3FF",.95);ctx.fillText(a.name,pos.x,pos.y-18*u-3);
+      ctx.fillRect(pos.x-tw3/2-5,pos.y-23*u-14,tw3+10,13);
+      ctx.fillStyle=hexA("#EAF3FF",.95);ctx.fillText(a.name,pos.x,pos.y-23*u-3);
     }
   }
   items.forEach(function(it){it.draw();});
@@ -2071,6 +2078,8 @@ function setHeld(d,on){held[d]=on;
       btn.addEventListener(ev,function(e){e.preventDefault();setHeld(d,false);});});
     btn.addEventListener("contextmenu",function(e){e.preventDefault();});
   });
+  document.addEventListener("selectstart",function(e){
+    if(e.target.closest&&e.target.closest(".dpad,.abtn,.world-stage"))e.preventDefault();});
   var stage=document.querySelector(".world-stage");
   if(stage){
     stage.addEventListener("selectstart",function(e){e.preventDefault();});
