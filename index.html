@@ -575,6 +575,29 @@
   .boss-nums{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:var(--muted);margin-top:6px;}
   .boss-nums b{color:var(--ink);}
 
+  /* proof */
+  .switch-row{width:100%;display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:14px;
+    background:var(--surface-2);text-align:left;border:1.5px solid transparent;transition:.15s;}
+  .switch-row[aria-pressed="true"]{background:var(--accent-tint);border-color:var(--accent);}
+  .switch-row .sw-ico{font-size:19px;}
+  .switch-row .sw-body{flex:1;min-width:0;}
+  .switch-row .sw-body b{display:block;font-family:var(--fr);font-size:14px;font-weight:700;}
+  .switch-row .sw-body span{font-size:11.5px;color:var(--muted);line-height:1.35;display:block;}
+  .sw-track{width:40px;height:23px;border-radius:999px;background:var(--surface-3);position:relative;flex-shrink:0;transition:.18s;}
+  .sw-track i{position:absolute;top:2.5px;left:2.5px;width:18px;height:18px;border-radius:50%;background:var(--surface);
+    box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.18s cubic-bezier(.34,1.56,.64,1);}
+  .switch-row[aria-pressed="true"] .sw-track{background:var(--accent);}
+  .switch-row[aria-pressed="true"] .sw-track i{transform:translateX(17px);}
+  .proof-frame{border-radius:16px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line);
+    display:grid;place-items:center;min-height:190px;}
+  .proof-frame img{width:100%;display:block;max-height:44vh;object-fit:contain;}
+  .cam-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;letter-spacing:.02em;
+    padding:2px 6px;border-radius:5px;color:var(--up);background:color-mix(in srgb,var(--up) 15%,transparent);}
+  .cam-req{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:800;
+    padding:2px 6px;border-radius:5px;color:var(--muted);background:var(--surface-2);}
+  .check.needcam::after{content:"📷";position:absolute;font-size:13px;opacity:.9;}
+  .habit.done .check.needcam::after{content:"";}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -728,6 +751,15 @@
     <div class="lu-lv" id="luLv">2</div><div class="lu-title" id="luTitle">Seeker</div>
   </div></div>
 
+  <input type="file" id="camIn" accept="image/*" capture="environment" hidden />
+  <div class="sheet" id="proofSheet" role="dialog" aria-modal="true">
+    <div class="grab"></div>
+    <h3 id="proofTitle">Prove it</h3>
+    <p class="mini-note" id="proofNote" style="text-align:center;margin:0 8px 12px"></p>
+    <div class="proof-frame"><img id="proofImg" alt="Proof photo" /></div>
+    <div class="actions" id="proofActions"></div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <!-- auth gate -->
@@ -771,6 +803,12 @@
       <button class="btn btn-ghost" id="hRemindClear" type="button" style="height:48px">Clear</button>
     </div>
     <p class="mini-note" id="remindNote">Nudges you at this time while Flourish is open in your browser.</p>
+    <div class="flabel">Difficulty</div>
+    <button class="switch-row" id="hVerify" type="button" aria-pressed="false">
+      <span class="sw-ico">📷</span>
+      <span class="sw-body"><b>Require photo proof</b><span>You must photograph the evidence to claim this quest</span></span>
+      <span class="sw-track"><i></i></span>
+    </button>
     <div class="actions">
       <button class="btn btn-ghost" id="hCancel">Cancel</button>
       <button class="btn btn-primary" id="hSave">Add habit</button>
@@ -914,7 +952,7 @@ var DEFAULT={
   journal:{}, playlists:[], settings:{faith:false}, journey:null,
   avatar:{name:"",skin:"#C98A5E",hair:"#2A1C14",hairStyle:"short",outfit:"#45D5EC",made:false,
     gear:{head:"none",body:"none",hand:"none",back:"none"}},
-  unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null
+  unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}
 };
 var S=load();
 if(!S.settings)S.settings={faith:false};
@@ -1481,6 +1519,88 @@ document.getElementById("world").addEventListener("click",function(e){
     if(x>=t.minX-4&&x<=t.maxX+4&&y>=t.minY-3&&y<=t.maxY+3){openDistrict(t.pid);return;}}
 });
 
+/* ================= PROOF OF WORK ================= */
+/* Thumbnails live in their own local store and never ride along with cloud
+   sync (only the fact of verification does), so syncing stays fast. */
+var PK="flourish.proofs.v1";
+function proofKey(id,day){return id+"|"+(day||TODAY);}
+function loadProofs(){try{return JSON.parse(localStorage.getItem(PK)||"{}");}catch(e){return {};}}
+function saveProofs(o){
+  try{localStorage.setItem(PK,JSON.stringify(o));return true;}
+  catch(e){
+    var keys=Object.keys(o).sort();               // drop oldest until it fits
+    for(var i=0;i<keys.length&&i<40;i++){delete o[keys[i]];
+      try{localStorage.setItem(PK,JSON.stringify(o));return true;}catch(e2){}}
+    return false;
+  }
+}
+function pruneProofs(o){
+  var c=new Date();c.setDate(c.getDate()-14);var cut=keyOf(c);
+  Object.keys(o).forEach(function(k){var d=k.split("|")[1];if(d&&d<cut)delete o[k];});
+  return o;
+}
+function getProof(id,day){return loadProofs()[proofKey(id,day)]||null;}
+function verifiedCount(){var n=0;for(var k in (S.proofs||{}))n++;return n;}
+function verifiedToday(){var n=0;for(var k in (S.proofs||{}))if(k.split("|")[1]===TODAY)n++;return n;}
+function fileToThumb(file,cb){
+  var url=URL.createObjectURL(file), img=new Image();
+  img.onload=function(){
+    var max=340,sc=Math.min(1,max/Math.max(img.width,img.height));
+    var w=Math.max(1,Math.round(img.width*sc)),h=Math.max(1,Math.round(img.height*sc));
+    var c=document.createElement("canvas");c.width=w;c.height=h;
+    var x=c.getContext("2d");x.drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(url);
+    try{cb(c.toDataURL("image/jpeg",0.55));}catch(e){cb(null);}
+  };
+  img.onerror=function(){URL.revokeObjectURL(url);cb(null);};
+  img.src=url;
+}
+var proofSheet=document.getElementById("proofSheet"), pendingProof=null, proofRow=null;
+function requestProof(h,li){
+  pendingProof={id:h.id,name:h.name,emoji:h.emoji};proofRow=li;
+  var inp=document.getElementById("camIn");inp.value="";inp.click();
+}
+document.getElementById("camIn").addEventListener("change",function(e){
+  var f=e.target.files&&e.target.files[0];if(!f||!pendingProof)return;
+  fileToThumb(f,function(data){
+    if(!data){toast("Couldn't read that photo","⚠️");return;}
+    pendingProof.data=data;openProofSheet("confirm");
+  });
+});
+function openProofSheet(mode,viewKey){
+  var img=document.getElementById("proofImg"),acts=document.getElementById("proofActions");
+  acts.innerHTML="";
+  if(mode==="confirm"){
+    document.getElementById("proofTitle").textContent="Prove it";
+    document.getElementById("proofNote").textContent="Evidence for “"+pendingProof.name+"”. Confirm to claim the quest.";
+    img.src=pendingProof.data;
+    acts.innerHTML='<button class="btn btn-ghost" id="pfRetake">Retake</button><button class="btn btn-primary" id="pfOk">Confirm proof</button>';
+    document.getElementById("pfRetake").addEventListener("click",function(){document.getElementById("camIn").click();});
+    document.getElementById("pfOk").addEventListener("click",confirmProof);
+  }else{
+    var meta=(S.proofs||{})[viewKey]||{};
+    document.getElementById("proofTitle").textContent="Verified";
+    document.getElementById("proofNote").textContent=(meta.name||"Quest")+" · "+
+      (meta.ts?new Date(meta.ts).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"");
+    var store=loadProofs();
+    img.src=store[viewKey]||"";
+    acts.innerHTML='<button class="btn btn-ghost" id="pfClose" style="flex:1">Close</button>';
+    document.getElementById("pfClose").addEventListener("click",closeSheets);
+  }
+  openSheet(proofSheet);
+}
+function confirmProof(){
+  if(!pendingProof)return;
+  var k=proofKey(pendingProof.id);
+  var store=pruneProofs(loadProofs());store[k]=pendingProof.data;
+  var ok=saveProofs(store);
+  if(!S.proofs)S.proofs={};
+  S.proofs[k]={ts:Date.now(),name:pendingProof.name};
+  closeSheets();
+  completeHabit(pendingProof.id,proofRow,true);
+  if(!ok)toast("Photo storage is full — proof recorded without the image","⚠️");
+  pendingProof=null;proofRow=null;
+}
 /* ================= MOVEMENT ================= */
 var player={x:0,z:-118,walk:0,face:1};
 var held={up:false,down:false,left:false,right:false};
@@ -1543,6 +1663,7 @@ function bossDamage(){
     if(hs.length)days.forEach(function(k){if(hs.every(function(h){return h.history[k];}))dmg+=25;});});
   if(S.habits.length)days.forEach(function(k){if(S.habits.every(function(h){return h.history[k];}))dmg+=100;});
   days.forEach(function(k){var j=S.journal[k];if(j){if(j.morning)dmg+=15;if(j.evening)dmg+=15;}});
+  for(var pk in (S.proofs||{})){if(days.indexOf(pk.split("|")[1])>=0)dmg+=15;}
   return dmg;
 }
 function bossState(){var b=bossOfWeek(),d=bossDamage();
@@ -1572,7 +1693,7 @@ function renderBoss(){
     '<span><b class="tn">'+st.left+'</b> HP left</span></div>')+'</div>';
 }
 /* ================= PROGRESSION ================= */
-var XP_HABIT=15, XP_SECTOR=25, XP_JOURNAL=20, XP_JOURNEY=30, XP_PERFECT=100;
+var XP_HABIT=15, XP_SECTOR=25, XP_JOURNAL=20, XP_JOURNEY=30, XP_PERFECT=100, XP_VERIFY=10;
 function pillarCompletions(pid){var n=0;S.habits.filter(function(h){return h.pillar===pid;})
   .forEach(function(h){n+=Object.keys(h.history).length;});return n;}
 function totalCompletions(){var n=0;S.habits.forEach(function(h){n+=Object.keys(h.history).length;});return n;}
@@ -1585,7 +1706,7 @@ function sectorClearCount(){var n=0;
   });return n;}
 function totalXP(){
   return XP_HABIT*totalCompletions()+XP_SECTOR*sectorClearCount()+XP_JOURNAL*journalSessions()
-    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon();
+    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+XP_VERIFY*verifiedCount();
 }
 function xpNeed(L){return 120+(L-1)*80;}
 function titleFor(L){return L>=25?"Ascendant":L>=18?"Vanguard":L>=14?"Champion":L>=10?"Warden":
@@ -2213,10 +2334,14 @@ function habitRow(h,showTag){
     clock='<span class="clockbadge'+(due?" due":"")+'"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2"/></svg>'+h.remindAt+'</span>';}
   edit.innerHTML='<div class="h-emoji">'+h.emoji+'</div><div class="h-body"><div class="h-name">'+esc(h.name)+'</div>'+
     '<div class="h-meta"><span class="streak'+(st>0?" on":"")+'">'+flame()+'<span class="tn">'+(st>0?st+"d":"—")+'</span></span>'+
-    clock+(h.history[TODAY]?'':'<span class="xp-tag">+'+XP_HABIT+'</span>')+
+    clock+(h.history[TODAY]?'':'<span class="xp-tag">+'+(h.verify?XP_HABIT+XP_VERIFY:XP_HABIT)+'</span>')+
+    (h.verify?(h.history[TODAY]&&(S.proofs||{})[proofKey(h.id)]?'<span class="cam-badge" data-proof="'+proofKey(h.id)+'">📷 Verified</span>':'<span class="cam-req">📷 Proof</span>'):'')+
     (showTag?'<span class="pill-tag">'+p.name+'</span>':'')+'</div></div>';
-  edit.addEventListener("click",function(){openHabit(h.id);});
-  var ck=document.createElement("button");ck.className="check";ck.setAttribute("aria-pressed",h.history[TODAY]?"true":"false");
+  edit.addEventListener("click",function(ev){
+    var pb=ev.target.closest?ev.target.closest("[data-proof]"):null;
+    if(pb){ev.stopPropagation();openProofSheet("view",pb.getAttribute("data-proof"));return;}
+    openHabit(h.id);});
+  var ck=document.createElement("button");ck.className="check"+(h.verify&&!h.history[TODAY]?" needcam":"");ck.setAttribute("aria-pressed",h.history[TODAY]?"true":"false");
   ck.setAttribute("aria-label",(h.history[TODAY]?"Mark not done: ":"Mark done: ")+h.name);
   ck.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>';
   ck.addEventListener("click",function(){toggleHabit(h.id,li);});
@@ -2227,14 +2352,23 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;
 
 function toggleHabit(id,li){
   var h=S.habits.find(function(x){return x.id===id;});if(!h)return;
+  if(h.verify&&!h.history[TODAY]){requestProof(h,li);return;}
+  completeHabit(id,li,false);
+}
+function completeHabit(id,li,verified){
+  var h=S.habits.find(function(x){return x.id===id;});if(!h)return;
   var was=!!h.history[TODAY];
   var before=S.habits.filter(function(x){return x.history[TODAY];}).length;
-  if(was)delete h.history[TODAY];else h.history[TODAY]=true;
+  if(was){delete h.history[TODAY];
+    var pk=proofKey(id);
+    if(S.proofs&&S.proofs[pk]){delete S.proofs[pk];var st=loadProofs();delete st[pk];saveProofs(st);}
+  }else h.history[TODAY]=true;
   save();
   if(!was){if(li){li.classList.add("just");setTimeout(function(){li.classList.remove("just");},460);}
     if(navigator.vibrate)navigator.vibrate(12);chimeDone();
     var anchor=li?li.querySelector(".check"):null;
     floatXP(anchor,XP_HABIT,0);
+    if(verified){floatXP(anchor,XP_VERIFY,260);toast("Proof accepted — quest verified","📷");}
     var sect=S.habits.filter(function(x){return x.pillar===h.pillar;});
     if(sect.length&&sect.every(function(x){return x.history[TODAY];}))floatXP(anchor,XP_SECTOR,520);
     var after=before+1;
@@ -2625,17 +2759,22 @@ function syncHabitPickers(){[].forEach.call(hEmojis.children,function(c){c.class
 function openHabit(id,presetPillar){
   editingId=id||null;var del=document.getElementById("hDelete"),nm=document.getElementById("hName"),rm=document.getElementById("hRemind");
   if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});document.getElementById("hsTitle").textContent="Edit habit";
-    document.getElementById("hSave").textContent="Save";nm.value=h.name;draft.emoji=h.emoji;draft.pillar=h.pillar;rm.value=h.remindAt||"";del.style.display="block";}
+    document.getElementById("hSave").textContent="Save";nm.value=h.name;draft.emoji=h.emoji;draft.pillar=h.pillar;rm.value=h.remindAt||"";del.style.display="block";
+    document.getElementById("hVerify").setAttribute("aria-pressed",h.verify?"true":"false");}
   else{document.getElementById("hsTitle").textContent="New habit";document.getElementById("hSave").textContent="Add habit";
-    nm.value="";draft.emoji=EMOJIS[0];draft.pillar=presetPillar||"physical";rm.value="";del.style.display="none";}
+    nm.value="";draft.emoji=EMOJIS[0];draft.pillar=presetPillar||"physical";rm.value="";del.style.display="none";
+    document.getElementById("hVerify").setAttribute("aria-pressed","false");}
   nm.style.borderColor="";syncHabitPickers();openSheet(habitSheet);setTimeout(function(){if(!editingId)nm.focus();},340);
 }
 document.getElementById("hRemindClear").addEventListener("click",function(){document.getElementById("hRemind").value="";});
+document.getElementById("hVerify").addEventListener("click",function(){
+  var on=this.getAttribute("aria-pressed")==="true";this.setAttribute("aria-pressed",on?"false":"true");});
 document.getElementById("hSave").addEventListener("click",function(){
   var nm=document.getElementById("hName"),name=nm.value.trim(),remindAt=document.getElementById("hRemind").value||"";
+  var wantVerify=document.getElementById("hVerify").getAttribute("aria-pressed")==="true";
   if(!name){nm.focus();nm.style.borderColor="var(--danger)";return;}
-  if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});h.name=name;h.emoji=draft.emoji;h.pillar=draft.pillar;h.remindAt=remindAt;}
-  else S.habits.push({id:uid(),name:name,emoji:draft.emoji,pillar:draft.pillar,remindAt:remindAt,history:{}});
+  if(editingId){var h=S.habits.find(function(x){return x.id===editingId;});h.name=name;h.emoji=draft.emoji;h.pillar=draft.pillar;h.remindAt=remindAt;h.verify=wantVerify;}
+  else S.habits.push({id:uid(),name:name,emoji:draft.emoji,pillar:draft.pillar,remindAt:remindAt,verify:wantVerify,history:{}});
   if(remindAt)requestNotify();
   save();closeSheets();renderCurrent();
 });
@@ -2695,6 +2834,7 @@ function closeSheets(){scrim.classList.remove("open");habitSheet.classList.remov
   var js=document.getElementById("journeySheet");if(js)js.classList.remove("open");
   var as=document.getElementById("acctSheet");if(as)as.classList.remove("open");
   var avs=document.getElementById("avSheet");if(avs)avs.classList.remove("open");stopAvPreview();
+  var pfs=document.getElementById("proofSheet");if(pfs)pfs.classList.remove("open");
   document.getElementById("hName").blur();}
 scrim.addEventListener("click",closeSheets);
 
