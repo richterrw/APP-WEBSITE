@@ -668,6 +668,40 @@
   .clue{display:flex;gap:9px;font-size:13px;color:var(--ink-2);}
   .clue b{color:var(--accent-ink);font-family:var(--fr);font-weight:800;flex-shrink:0;}
 
+  /* campaign */
+  .camp-card{margin-top:12px;padding:14px 15px;border:1px solid color-mix(in srgb,var(--gold) 42%,var(--line));
+    background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 11%,var(--surface)),var(--surface));}
+  .camp-card.done{border-color:var(--accent);}
+  .camp-top{display:flex;align-items:center;gap:12px;}
+  .camp-ico{width:44px;height:44px;flex-shrink:0;border-radius:13px;display:grid;place-items:center;font-size:22px;
+    background:color-mix(in srgb,var(--gold) 18%,var(--surface));}
+  .camp-main{flex:1;min-width:0;}
+  .camp-eyebrow{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);}
+  .camp-name{font-family:var(--fr);font-size:17px;font-weight:800;letter-spacing:-.01em;}
+  .camp-line{font-size:11.5px;color:var(--muted);font-style:italic;margin-top:1px;}
+  .camp-objs{display:flex;flex-direction:column;gap:9px;margin-top:13px;}
+  .camp-obj{display:grid;grid-template-columns:18px 1fr auto;grid-template-rows:auto auto;gap:2px 9px;align-items:center;}
+  .co-box{width:17px;height:17px;border-radius:5px;border:2px solid var(--line);display:grid;place-items:center;
+    font-size:10px;font-weight:800;color:#fff;grid-row:1;}
+  .camp-obj.ok .co-box{background:var(--up);border-color:var(--up);}
+  .co-t{font-size:13px;color:var(--ink-2);grid-row:1;}
+  .camp-obj.ok .co-t{color:var(--muted);text-decoration:line-through;}
+  .co-n{font-size:11px;font-weight:700;color:var(--muted);grid-row:1;}
+  .co-bar{grid-column:2/4;grid-row:2;height:4px;border-radius:3px;background:var(--surface-2);overflow:hidden;}
+  .co-bar i{display:block;height:100%;border-radius:3px;background:var(--gold);}
+  .camp-obj.ok .co-bar i{background:var(--up);}
+  .camp-reward{margin-top:12px;font-size:11.5px;font-weight:700;color:var(--accent-ink);text-align:center;
+    padding:8px;border-radius:10px;background:var(--accent-tint);}
+
+  /* dialogue */
+  .dialog{position:absolute;left:12px;right:12px;bottom:96px;padding:11px 14px;border-radius:14px;
+    background:rgba(6,12,24,.86);backdrop-filter:blur(10px);border:1px solid rgba(150,200,255,.36);
+    animation:promptIn .22s cubic-bezier(.22,1,.36,1);pointer-events:none;z-index:3;}
+  .dialog[hidden]{display:none;}
+  .dlg-name{font-family:var(--fr);font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:#8FE9F8;margin-bottom:3px;}
+  .dlg-text{font-size:13px;line-height:1.45;color:#E9F1FF;}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -715,6 +749,10 @@
           <span class="me-sub">LV <b id="hudLv">1</b> · <span id="hudTitle">Wanderer</span></span></span></button>
         <div class="ws-xp"><i id="hudBar"></i></div>
         <div class="enter-prompt" id="enterPrompt" hidden></div>
+        <div class="dialog" id="dialog" hidden>
+          <div class="dlg-name" id="dlgName"></div>
+          <div class="dlg-text" id="dlgText"></div>
+        </div>
         <div class="dpad" id="dpad">
           <button class="dp up" data-d="up" aria-label="Move up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7l6 10H6z"/></svg></button>
           <button class="dp left" data-d="left" aria-label="Move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12l10-6v12z"/></svg></button>
@@ -734,6 +772,8 @@
       </div>
 
       <div id="streakMount"></div>
+
+      <div id="campMount"></div>
 
       <div id="bossMount"></div>
 
@@ -1314,14 +1354,68 @@ function drawFountain(ctx,proj,cosT,sinT,x,z,t,fogc,fog,night,accent){
     ctx.beginPath();ctx.arc(jx,jy,1.5*top.s,0,7);ctx.fill();}
   glowHalo(ctx,top.x,top.y,26*top.s,night?"#8FE9F8":"#DFF6FF",night?.35:.18);
 }
-/* ---- townsfolk ---- */
-var FOLK=[
- {x:-120,z:170,r:60,sp:.22,ph:0,a:{skin:"#E0B48C",hair:"#3A2A1C",hairStyle:"short",outfit:"#C05A3E",gear:{head:"none",body:"none",hand:"none",back:"none"}}},
- {x:130,z:20,r:70,sp:.17,ph:2,a:{skin:"#C98A5E",hair:"#5B3A21",hairStyle:"long",outfit:"#3F8C5C",gear:{head:"none",body:"none",hand:"none",back:"none"}}},
- {x:-60,z:-120,r:55,sp:.26,ph:4,a:{skin:"#F2D2B6",hair:"#A96B2C",hairStyle:"curly",outfit:"#4A6FBF",gear:{head:"none",body:"none",hand:"none",back:"none"}}},
- {x:60,z:230,r:48,sp:.20,ph:1,a:{skin:"#9C6239",hair:"#2A1C14",hairStyle:"buzz",outfit:"#B8842B",gear:{head:"cap",body:"none",hand:"none",back:"none"}}}
+/* ---- agents: named townsfolk with routines and opinions ---- */
+var AGENTS=[
+ {id:"bran",name:"Bran the Smith",pid:"physical",home:{x:-168,z:-95},
+  a:{skin:"#9C6239",hair:"#2A1C14",hairStyle:"buzz",outfit:"#C05A3E",gear:{head:"none",body:"vest",hand:"none",back:"none"}}},
+ {id:"sera",name:"Sera the Watcher",pid:"mental",home:{x:168,z:-95},
+  a:{skin:"#E0B48C",hair:"#3A2A1C",hairStyle:"long",outfit:"#2E8FA8",gear:{head:"none",body:"none",hand:"none",back:"cape"}}},
+ {id:"mira",name:"Mira of the Hearth",pid:"emotional",home:{x:-168,z:55},
+  a:{skin:"#C98A5E",hair:"#A96B2C",hairStyle:"curly",outfit:"#CE5285",gear:{head:"none",body:"none",hand:"none",back:"none"}}},
+ {id:"tomas",name:"Old Tomas",pid:"intellectual",home:{x:168,z:55},
+  a:{skin:"#F2D2B6",hair:"#D8C58A",hairStyle:"short",outfit:"#C0871A",gear:{head:"circlet",body:"none",hand:"staff",back:"none"}}},
+ {id:"elowen",name:"Sister Elowen",pid:"spiritual",home:{x:0,z:-240},
+  a:{skin:"#E0B48C",hair:"#5B3A21",hairStyle:"long",outfit:"#7659C6",gear:{head:"hood",body:"none",hand:"none",back:"none"}}}
 ];
-function folkPos(f,t){return {x:f.x+Math.cos(t*f.sp+f.ph)*f.r, z:f.z+Math.sin(t*f.sp*1.3+f.ph)*f.r*0.55};}
+var agentPos={};
+function agentTarget(ag,hf){
+  if(hf>=17&&hf<21)return {x:ag.home.x*0.16+ (ag.id.charCodeAt(0)%5-2)*22, z:70+(ag.id.charCodeAt(1)%4)*16}; // evening: the fountain
+  if(hf>=21||hf<6)return {x:ag.home.x*0.86,z:ag.home.z+52};                                                    // night: near home
+  return {x:ag.home.x+ (ag.id.charCodeAt(0)%3-1)*26, z:ag.home.z+56};                                          // day: outside their hall
+}
+function updateAgents(dt,t){
+  var hf=new Date().getHours()+new Date().getMinutes()/60;
+  AGENTS.forEach(function(ag,i){
+    var p=agentPos[ag.id]||(agentPos[ag.id]={x:ag.home.x,z:ag.home.z+56,walk:0,face:1});
+    var tg=agentTarget(ag,hf);
+    tg={x:tg.x+Math.cos(t*0.16+i*1.7)*20, z:tg.z+Math.sin(t*0.21+i*2.3)*16};
+    var dx=tg.x-p.x, dz=tg.z-p.z, d=Math.hypot(dx,dz);
+    if(d>3){var sp=Math.min(34*dt,d);p.x+=dx/d*sp;p.z+=dz/d*sp;p.walk+=dt*7;
+      if(dx>0.3)p.face=1;else if(dx<-0.3)p.face=-1;}
+    else p.walk=0;
+  });
+}
+function agentLine(ag){
+  var pid=ag.pid, st=pillarStreak(pid), dark=daysDark(pid), lvl=levelInfo(), bs=bossState();
+  var ch=currentChapter();
+  var lines=[];
+  if(dark>=3)lines.push("The "+DISTRICTS[pid].name+" has been dark "+dark+" days. It only takes one visit to relight it.");
+  else if(st>=7)lines.push(st+" days running in the "+DISTRICTS[pid].name+". The whole street has noticed, "+(av().name||"traveler")+".");
+  else if(st>=3)lines.push("Three days is where it starts to hold. Keep the "+DISTRICTS[pid].name+" burning.");
+  if(!bs.won&&bs.dmg>bs.b.hp*0.6)lines.push(bs.b.name+" is wounded — "+bs.left+" left. Finish it before the week turns.");
+  else if(!bs.won)lines.push(bs.b.name+" still watches from beyond the wall. Every quest is a blow.");
+  if(ch){var next=ch.obj.filter(function(o){return o.f()<o.g;})[0];
+    if(next)lines.push("Chapter "+ch.n+", "+ch.name+". You still need: "+next.t.toLowerCase()+".");}
+  if(lvl.level>=10)lines.push("Level "+lvl.level+" already. They'll be calling you "+lvl.title+" in the songs.");
+  var flavor={
+   bran:["Iron doesn't care how you feel. It only answers the hammer.","Rest is part of the forging. Don't crack your own blade."],
+   sera:["Quiet the noise and the signal is obvious.","I watched the sky all night. Nothing changed. That's the lesson."],
+   mira:["Sit by the fire a while. Naming the hard thing makes it smaller.","You're allowed a bad day. You're not allowed to stay there."],
+   tomas:["Ten pages a day is a library in a year. I've done the arithmetic.","Come by the Hall — today's puzzle is a wicked one."],
+   elowen:["The Beacon burns whether you look at it or not. But look anyway.","Stillness isn't nothing. It's where the rest is built."]
+  }[ag.id];
+  lines.push(flavor[Math.floor((dayOfYear()+ag.id.length)%flavor.length)]);
+  return lines[Math.floor(Math.random()*Math.min(2,lines.length))]||lines[0];
+}
+var talkTimer=null;
+function talkTo(id){
+  var ag=AGENTS.find(function(a){return a.id===id;});if(!ag)return;
+  var box=document.getElementById("dialog");
+  document.getElementById("dlgName").textContent=ag.name;
+  document.getElementById("dlgText").textContent=agentLine(ag);
+  box.hidden=false;audio();note(430,0,.16,"sine",.05);note(560,.09,.18,"sine",.04);
+  clearTimeout(talkTimer);talkTimer=setTimeout(function(){box.hidden=true;},7000);
+}
 function drawLandmark(ctx,proj,cosT,sinT,target,col,score,lit,t,fogc,fog){
   var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
   function track(p){minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);}
@@ -1551,6 +1645,9 @@ function renderWorldFrame(t){
   var nearT=null,nd=1e9;
   TOWN.forEach(function(b2){var d2=Math.hypot(player.x-b2.x,player.z-b2.z);
     if(d2<78&&d2<nd){nd=d2;nearT=b2.kind==="arcade"?"arcade":b2.pid;}});
+  AGENTS.forEach(function(ag){var p3=agentPos[ag.id];if(!p3)return;
+    var d3=Math.hypot(player.x-p3.x,player.z-p3.z);
+    if(d3<52&&d3<nd){nd=d3;nearT="npc:"+ag.id;}});
   setPrompt(nearT);
 
   /* ---------- THE SPIRE, far to the north ---------- */
@@ -1658,14 +1755,25 @@ function renderWorldFrame(t){
   });
   var fpz=proj(0,0,65);
   items.push({z:fpz.z,draw:function(){drawFountain(ctx,proj,cosY,sinY,0,65,t,fogc,fogOf(fpz.d),night,accent);}});
-  FOLK.forEach(function(fk){
-    var fp=folkPos(fk,t), fd=proj(fp.x,0,fp.z);
+  updateAgents(dt,t);
+  AGENTS.forEach(function(ag){
+    var p=agentPos[ag.id];if(!p)return;
+    var fd=proj(p.x,0,p.z);
     items.push({z:fd.z,draw:function(){
-      var fu=1.45*fd.s;
-      ctx.fillStyle="rgba(4,8,16,.34)";
-      ctx.save();ctx.translate(fd.x+11*fd.s,fd.y+1);ctx.scale(1,.3);
-      ctx.beginPath();ctx.arc(0,0,9*fd.s,0,7);ctx.fill();ctx.restore();
-      drawAvatarFigure(ctx,fd.x,fd.y,fu,fk.a,null,t,t*5+fk.ph);}});
+      var fu=1.6*fd.s;
+      ctx.fillStyle="rgba(4,8,16,.36)";
+      ctx.save();ctx.translate(fd.x+12*fd.s,fd.y+1);ctx.scale(1,.3);
+      ctx.beginPath();ctx.arc(0,0,10*fd.s,0,7);ctx.fill();ctx.restore();
+      ctx.save();
+      if(p.face<0){ctx.translate(fd.x*2,0);ctx.scale(-1,1);}
+      drawAvatarFigure(ctx,fd.x,fd.y,fu,ag.a,null,t,p.walk);
+      ctx.restore();
+      if(fd.d<680){
+        ctx.font="700 8px "+cs.getPropertyValue("--fr");ctx.textAlign="center";ctx.textBaseline="bottom";
+        var nm=ag.name.split(" ")[0], tw4=ctx.measureText(nm).width;
+        ctx.fillStyle="rgba(4,8,18,.5)";ctx.fillRect(fd.x-tw4/2-4,fd.y-21*fu-12,tw4+8,12);
+        ctx.fillStyle=hexA("#CFE0F5",.9);ctx.fillText(nm,fd.x,fd.y-21*fu-2);
+      }}});
   });
   items.push({z:proj(player.x,0,player.z).z-1,draw:drawPlayer});
   items.sort(function(a,b){return b.z-a.z;});
@@ -1704,7 +1812,7 @@ function renderWorldFrame(t){
     var dp3=proj(d4.x,0,d4.z), a3=1-d4.t/0.75;
     ctx.fillStyle=hexA("#CBBFA8",a3*0.35);
     ctx.beginPath();ctx.ellipse(dp3.x,dp3.y-d4.t*8*dp3.s,(4+d4.t*11)*dp3.s,(1.6+d4.t*4)*dp3.s,0,0,7);ctx.fill();});
-  if(nearPid){
+  if(nearPid&&nearPid.indexOf("npc:")!==0){
     var nb=null;TOWN.forEach(function(b3){if((b3.kind==="arcade"?"arcade":b3.pid)===nearPid)nb=b3;});
     if(nb){var ncol=nb.kind==="arcade"?ARCADE_PLACE.color:byPid[nb.pid].color;
       var nc=proj(nb.x,0,nb.z), nr=Math.abs(proj(nb.x+40,0,nb.z).x-nc.x);
@@ -1786,6 +1894,95 @@ document.getElementById("world").addEventListener("click",function(e){
   if(best){if(best==="arcade")openArcade();else openDistrict(best);}
 });
 
+/* ================= THE CAMPAIGN ================= */
+function bestSectorsInADay(){
+  var days={},best=0;
+  S.habits.forEach(function(h){for(var k in h.history)days[k]=1;});
+  for(var d in days){var n=0;
+    PILLARS.forEach(function(p){var hs=S.habits.filter(function(h){return h.pillar===p.id;});
+      if(hs.length&&hs.every(function(h){return h.history[d];}))n++;});
+    best=Math.max(best,n);}
+  return best;
+}
+function bestStreakEver(){return Math.max(currentStreak(activeDaySet()),maxConsec(activeDaySet()));}
+var CHAPTERS=[
+ {n:1,name:"First Light",line:"The town sleeps. Wake it.",obj:[
+   {t:"Complete 5 quests",f:function(){return totalCompletions();},g:5},
+   {t:"Light 2 sectors in one day",f:bestSectorsInADay,g:2},
+   {t:"Write a journal entry",f:function(){return journalSessions();},g:1}],
+  xp:150,unlock:"body:vest",title:null},
+ {n:2,name:"The Vigil",line:"Anyone can begin. Few return.",obj:[
+   {t:"Hold a 3-day streak",f:bestStreakEver,g:3},
+   {t:"Complete 20 quests",f:function(){return totalCompletions();},g:20},
+   {t:"Solve a puzzle",f:function(){return puzzleSolvedCount();},g:1}],
+  xp:250,unlock:"back:cape",title:null},
+ {n:3,name:"Proof",line:"Words are cheap. Show the town.",obj:[
+   {t:"Verify 5 quests with photos",f:function(){return verifiedCount();},g:5},
+   {t:"Hold a 7-day streak",f:bestStreakEver,g:7},
+   {t:"Clear every sector in one day",f:function(){return perfectDayCount();},g:1}],
+  xp:350,unlock:"body:mail",title:null},
+ {n:4,name:"The Hunt",line:"Something waits beyond the walls.",obj:[
+   {t:"Slay a weekly boss",f:function(){return bossesWon();},g:1},
+   {t:"Solve 5 puzzles",f:function(){return puzzleSolvedCount();},g:5},
+   {t:"Reach level 8",f:function(){return levelInfo().level;},g:8}],
+  xp:500,unlock:"head:helm",title:null},
+ {n:5,name:"The Long Road",line:"The middle is where most turn back.",obj:[
+   {t:"Hold a 14-day streak",f:bestStreakEver,g:14},
+   {t:"Walk 10 journey days",f:function(){return journeyDaysDone();},g:10},
+   {t:"Complete 50 quests",f:function(){return totalCompletions();},g:50}],
+  xp:700,unlock:"back:champ",title:null},
+ {n:6,name:"Ascension",line:"Climb until the beacon is beneath you.",obj:[
+   {t:"Hold a 30-day streak",f:bestStreakEver,g:30},
+   {t:"Reach level 20",f:function(){return levelInfo().level;},g:20},
+   {t:"Earn 3 perfect days",f:function(){return perfectDayCount();},g:3}],
+  xp:1000,unlock:"head:crown",title:"Ascendant"}
+];
+function campaign(){if(!S.campaign)S.campaign={done:[],init:false};if(!S.campaign.done)S.campaign.done=[];return S.campaign;}
+function chapterDone(ch){return ch.obj.every(function(o){return o.f()>=o.g;});}
+function currentChapter(){
+  var c=campaign();
+  for(var i=0;i<CHAPTERS.length;i++)if(c.done.indexOf(CHAPTERS[i].n)<0)return CHAPTERS[i];
+  return null;
+}
+function checkCampaign(){
+  var c=campaign(),fresh=[];
+  CHAPTERS.forEach(function(ch){
+    if(c.done.indexOf(ch.n)>=0)return;
+    if(c.done.indexOf(ch.n-1)<0&&ch.n>1)return;      // in order
+    if(chapterDone(ch)){c.done.push(ch.n);fresh.push(ch);}
+  });
+  if(!fresh.length)return;
+  if(!c.init){c.init=true;save();return;}
+  save();
+  fresh.forEach(function(ch,i){setTimeout(function(){
+    if(ch.unlock&&S.unlockedGear.indexOf(ch.unlock)<0)S.unlockedGear.push(ch.unlock);
+    if(ch.title){S.campaign.title=ch.title;}
+    save();
+    toast("Chapter "+ch.n+" complete: "+ch.name,"📜");chimeReward();
+    if(navigator.vibrate)navigator.vibrate([25,60,30,60,50]);
+  },i*1600);});
+}
+function campaignXP(){var c=campaign(),x=0;
+  CHAPTERS.forEach(function(ch){if(c.done.indexOf(ch.n)>=0)x+=ch.xp;});return x;}
+function renderCampaign(){
+  var m=document.getElementById("campMount");if(!m)return;
+  var ch=currentChapter(), c=campaign();
+  if(!ch){m.innerHTML='<div class="card camp-card done"><div class="camp-top"><div class="camp-ico">👑</div>'+
+    '<div class="camp-main"><div class="camp-eyebrow">Campaign complete</div>'+
+    '<div class="camp-name">Ascendant</div><div class="camp-line">Every chapter closed. The town is yours.</div>'+
+    '</div></div></div>';return;}
+  var doneN=ch.obj.filter(function(o){return o.f()>=o.g;}).length;
+  var objs=ch.obj.map(function(o){
+    var cur=Math.min(o.f(),o.g), ok=cur>=o.g;
+    return '<div class="camp-obj'+(ok?" ok":"")+'"><span class="co-box">'+(ok?"✓":"")+'</span>'+
+      '<span class="co-t">'+esc(o.t)+'</span><span class="co-n tn">'+cur+'/'+o.g+'</span>'+
+      '<span class="co-bar"><i style="width:'+Math.round(cur/o.g*100)+'%"></i></span></div>';}).join("");
+  m.innerHTML='<div class="card camp-card"><div class="camp-top"><div class="camp-ico">📜</div>'+
+    '<div class="camp-main"><div class="camp-eyebrow">Chapter '+ch.n+' of '+CHAPTERS.length+' · '+doneN+'/'+ch.obj.length+'</div>'+
+    '<div class="camp-name">'+esc(ch.name)+'</div><div class="camp-line">'+esc(ch.line)+'</div></div></div>'+
+    '<div class="camp-objs">'+objs+'</div>'+
+    '<div class="camp-reward">Reward · '+ch.xp+' XP'+(ch.unlock?" + gear":"")+'</div></div>';
+}
 /* ================= THE PUZZLE HALL ================= */
 var XP_PUZZLE=40;
 var WORDS=["CRANE","SLATE","BRAVE","TOWER","FLINT","GRACE","MIGHT","QUEST","VIGOR","HONOR",
@@ -2097,12 +2294,19 @@ function setHeld(d,on){held[d]=on;
   document.getElementById("aBtn").addEventListener("click",function(){
     if(nearPid)enterNear();else toast("Walk up to a building first","🚶");});
 })();
-function enterNear(){if(nearPid==="arcade")openArcade();else if(nearPid)openDistrict(nearPid);}
+function enterNear(){
+  if(!nearPid)return;
+  if(nearPid.indexOf("npc:")===0){talkTo(nearPid.slice(4));return;}
+  if(nearPid==="arcade")openArcade();else openDistrict(nearPid);}
 function setPrompt(pid){
   if(pid===nearPid)return;
   nearPid=pid;
+  var dlg=document.getElementById("dialog");if(dlg&&!dlg.hidden)dlg.hidden=true;
   var el=document.getElementById("enterPrompt"),ab=document.getElementById("aBtn");
-  if(pid){el.textContent="Enter "+(pid==="arcade"?"the Puzzle Hall":DISTRICTS[pid].name);el.hidden=false;ab.classList.remove("dim");}
+  if(pid&&pid.indexOf("npc:")===0){
+    var ag=AGENTS.find(function(a){return a.id===pid.slice(4);});
+    el.textContent="Talk to "+(ag?ag.name:"them");el.hidden=false;ab.classList.remove("dim");}
+  else if(pid){el.textContent="Enter "+(pid==="arcade"?"the Puzzle Hall":DISTRICTS[pid].name);el.hidden=false;ab.classList.remove("dim");}
   else{el.hidden=true;ab.classList.add("dim");}
 }
 
@@ -2179,7 +2383,7 @@ function sectorClearCount(){var n=0;
   });return n;}
 function totalXP(){
   return XP_HABIT*totalCompletions()+XP_SECTOR*sectorClearCount()+XP_JOURNAL*journalSessions()
-    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+XP_VERIFY*verifiedCount()+XP_PUZZLE*puzzleSolvedCount();
+    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+XP_VERIFY*verifiedCount()+XP_PUZZLE*puzzleSolvedCount()+campaignXP();
 }
 function xpNeed(L){return 120+(L-1)*80;}
 function titleFor(L){return L>=25?"Ascendant":L>=18?"Vanguard":L>=14?"Champion":L>=10?"Warden":
@@ -2783,6 +2987,7 @@ function renderToday(){
     '<div class="sc"><div class="scv"><span class="tn">'+maxConsec(actSet)+'</span></div><div class="sck">Longest</div></div>'+
     '<div class="sc"><div class="scv"><span class="tn">'+currentStreak(journalDaySet())+'</span></div><div class="sck">Journaling</div></div></div>';
 
+  checkCampaign();renderCampaign();
   checkBoss();renderBoss();
   renderJourneyCard();
 
