@@ -1209,6 +1209,7 @@ window.FLOURISH_CLOUD = {
 };
 </script>
 <script src="supabase.js"></script>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
 <script type="module" src="world3d.js"></script>
 <script>
 (function(){
@@ -1873,6 +1874,7 @@ window.addEventListener("world3d-ready",function(){if(current==="today")try3D();
 function skyFor3D(){
   var sk=skyPalette(), night=sk.phase==="night";
   return {top:sk.top,bottom:sk.bot,fog:mixHex(sk.bot,"#C7D6E8",night?.15:.45),
+    dim:(sk.phase==="dusk"||sk.phase==="dawn"),
     sun:night?"#8FA8D8":(sk.phase==="dusk"||sk.phase==="dawn")?"#FFB877":"#FFE6BD",night:night};
 }
 function step3D(t){
