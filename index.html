@@ -598,6 +598,66 @@
   .check.needcam::after{content:"📷";position:absolute;font-size:13px;opacity:.9;}
   .habit.done .check.needcam::after{content:"";}
 
+  /* puzzle hall */
+  .arcade{position:fixed;inset:0;z-index:38;background:var(--paper);overflow-y:auto;animation:d-in .3s cubic-bezier(.22,1,.36,1);}
+  .arcade[hidden]{display:none;}
+  .ar-top{padding:max(14px,env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--p-intellectual) 26%,var(--paper)),var(--paper));}
+  .ar-head{text-align:center;margin:10px 0 14px;}
+  .ar-ico{font-size:32px;}
+  .ar-head h2{font-family:var(--fr);font-size:21px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-top:2px;}
+  .ar-sub{font-size:12.5px;color:var(--ink-2);margin-top:2px;}
+  .ar-seg{max-width:420px;margin:0 auto;}
+  .ar-body{max-width:420px;margin:0 auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom));}
+  .g-status{text-align:center;font-family:var(--fr);font-size:13.5px;font-weight:700;margin-bottom:12px;color:var(--ink-2);}
+  .g-status.win{color:var(--up);} .g-status.lose{color:var(--danger);}
+  .g-reward{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:11px;
+    border-radius:14px;background:var(--accent-tint);color:var(--accent-ink);font-family:var(--fr);font-weight:800;font-size:13.5px;}
+
+  /* wordle */
+  .wd-grid{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;max-width:290px;margin:0 auto 16px;}
+  .wd-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+  .wd-cell{aspect-ratio:1;border-radius:9px;border:2px solid var(--line);display:grid;place-items:center;
+    font-family:var(--fr);font-size:21px;font-weight:800;text-transform:uppercase;background:var(--surface);}
+  .wd-cell.filled{border-color:var(--muted);}
+  .wd-cell.hit{background:var(--up);border-color:var(--up);color:#fff;}
+  .wd-cell.near{background:var(--gold);border-color:var(--gold);color:#fff;}
+  .wd-cell.miss{background:var(--surface-3);border-color:var(--surface-3);color:var(--muted);}
+  .wd-row.shake{animation:shakeX .35s;}
+  @keyframes shakeX{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+  .kb{display:flex;flex-direction:column;gap:6px;}
+  .kb-row{display:flex;gap:5px;justify-content:center;}
+  .kb button{flex:1;min-width:0;height:44px;border-radius:8px;background:var(--surface-2);font-family:var(--fr);
+    font-size:13px;font-weight:700;text-transform:uppercase;}
+  .kb button.wide{flex:1.6;font-size:11px;}
+  .kb button:active{transform:scale(.94);}
+  .kb button.hit{background:var(--up);color:#fff;} .kb button.near{background:var(--gold);color:#fff;}
+  .kb button.miss{background:var(--surface-3);color:var(--muted);}
+
+  /* chess */
+  .cb{display:grid;grid-template-columns:repeat(8,1fr);max-width:340px;margin:0 auto 14px;
+    border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);}
+  .cb div{aspect-ratio:1;display:grid;place-items:center;font-size:26px;line-height:1;cursor:pointer;user-select:none;}
+  .cb .lt{background:#EAE0CB;} .cb .dk{background:#9C7A55;}
+  .cb .sel{box-shadow:inset 0 0 0 3px var(--accent);}
+  .cb .wp{color:#FFFDF7;text-shadow:0 1px 2px rgba(0,0,0,.55);}
+  .cb .bp{color:#1A1712;}
+  .cb.wrong{animation:shakeX .35s;}
+  .c-clue{text-align:center;font-size:13px;color:var(--ink-2);margin-bottom:12px;}
+  .c-clue b{color:var(--ink);font-family:var(--fr);}
+
+  /* word square */
+  .sq{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-width:270px;margin:0 auto 16px;}
+  .sq input{aspect-ratio:1;width:100%;border:2px solid var(--line);border-radius:8px;background:var(--surface);
+    text-align:center;font-family:var(--fr);font-size:20px;font-weight:800;text-transform:uppercase;color:var(--ink);
+    outline:none;padding:0;}
+  .sq input:focus{border-color:var(--accent);}
+  .sq input.ok{background:var(--up);border-color:var(--up);color:#fff;}
+  .sq input.bad{border-color:var(--danger);}
+  .clues{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;}
+  .clue{display:flex;gap:9px;font-size:13px;color:var(--ink-2);}
+  .clue b{color:var(--accent-ink);font-family:var(--fr);font-weight:800;flex-shrink:0;}
+
   /* auth gate */
   .auth-gate{position:fixed;inset:0;z-index:55;background:var(--paper);display:flex;align-items:center;justify-content:center;
     padding:24px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;}
@@ -750,6 +810,20 @@
     <div class="lu-burst"></div><div class="lu-cap">Level up</div>
     <div class="lu-lv" id="luLv">2</div><div class="lu-title" id="luTitle">Seeker</div>
   </div></div>
+
+  <div class="arcade" id="arcade" hidden>
+    <div class="ar-top">
+      <button class="d-back" id="arBack" style="position:static">‹ Back</button>
+      <div class="ar-head"><span class="ar-ico">🎲</span><h2>The Puzzle Hall</h2>
+        <p class="ar-sub">Sharpen the mind. One run of each per day.</p></div>
+      <div class="seg ar-seg" id="arSeg">
+        <button data-g="wordle" class="on">Word</button>
+        <button data-g="chess">Chess</button>
+        <button data-g="square">Square</button>
+      </div>
+    </div>
+    <div class="ar-body" id="arBody"></div>
+  </div>
 
   <input type="file" id="camIn" accept="image/*" capture="environment" hidden />
   <div class="sheet" id="proofSheet" role="dialog" aria-modal="true">
@@ -952,7 +1026,7 @@ var DEFAULT={
   journal:{}, playlists:[], settings:{faith:false}, journey:null,
   avatar:{name:"",skin:"#C98A5E",hair:"#2A1C14",hairStyle:"short",outfit:"#45D5EC",made:false,
     gear:{head:"none",body:"none",hand:"none",back:"none"}},
-  unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}
+  unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
 };
 var S=load();
 if(!S.settings)S.settings={faith:false};
@@ -1519,6 +1593,196 @@ document.getElementById("world").addEventListener("click",function(e){
     if(x>=t.minX-4&&x<=t.maxX+4&&y>=t.minY-3&&y<=t.maxY+3){openDistrict(t.pid);return;}}
 });
 
+/* ================= THE PUZZLE HALL ================= */
+var XP_PUZZLE=40;
+var WORDS=["CRANE","SLATE","BRAVE","TOWER","FLINT","GRACE","MIGHT","QUEST","VIGOR","HONOR",
+"SPARK","TRUST","RIVER","STONE","FLAME","NOBLE","SWORD","GUARD","PRIDE","CLIMB",
+"FOCUS","HABIT","DRIVE","SHINE","STEEL","WORTH","LEARN","BUILD","REACH","PROVE",
+"CALM","","","","",""].filter(function(w){return w.length===5;});
+var CHESS=[
+ {t:"Back-rank mate",b:{"g8":"k","f7":"p","g7":"p","h7":"p","a1":"R","g1":"K"},sol:"a1a8"},
+ {t:"Smothered mate",b:{"h8":"k","g8":"r","g7":"p","h7":"p","g5":"N","g1":"K"},sol:"g5f7"},
+ {t:"Bishop backs the queen",b:{"h8":"k","h7":"p","g4":"Q","b2":"B","g1":"K"},sol:"g4g7"},
+ {t:"Box him in",b:{"a8":"k","b6":"K","a1":"R"},sol:"a1a8"},
+ {t:"Anastasia's mate",b:{"h7":"k","g7":"p","e7":"N","h1":"R","g1":"K"},sol:"h1h5"},
+ {t:"Arabian mate",b:{"h8":"k","f6":"N","a7":"R","g1":"K"},sol:"a7h7"}
+];
+var SQUARES=[
+ {w:["HEART","EMBER","ABUSE","RESIN","TREND"],
+  c:["Organ that keeps time","Glowing coal in the ash","To mistreat","Sticky sap of a pine","The way things are moving"]},
+ {w:["SHARP","HONOR","ANGLE","ROLES","PRESS"],
+  c:["Keen-edged","What a knight keeps","Corner measure","Parts actors play","Push hard, or the news"]}
+];
+var PIECE={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",
+           k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};
+function games(){if(!S.games)S.games={wordle:{},chess:{},square:{}};
+  ["wordle","chess","square"].forEach(function(k){if(!S.games[k])S.games[k]={};});return S.games;}
+function puzzleSolvedCount(){var g=games(),n=0;
+  ["wordle","chess","square"].forEach(function(k){for(var d in g[k])if(g[k][d].solved)n++;});return n;}
+function puzzlesSolvedIn(days){var g=games(),n=0;
+  ["wordle","chess","square"].forEach(function(k){days.forEach(function(d){if(g[k][d]&&g[k][d].solved)n++;});});return n;}
+function awardPuzzle(kind,extra){
+  var g=games();g[kind][TODAY]=Object.assign({solved:true,ts:Date.now()},extra||{});save();
+  chimeReward();if(navigator.vibrate)navigator.vibrate([15,50,25]);
+  toast("Puzzle solved · +"+XP_PUZZLE+" XP","🎲");renderArcade();
+}
+/* ---- shell ---- */
+var arcadeTab="wordle";
+function openArcade(){document.getElementById("arcade").hidden=false;window.scrollTo(0,0);renderArcade();}
+function closeArcade(){document.getElementById("arcade").hidden=true;renderCurrent();}
+document.getElementById("arBack").addEventListener("click",closeArcade);
+document.getElementById("arSeg").querySelectorAll("button").forEach(function(b){
+  b.addEventListener("click",function(){arcadeTab=b.getAttribute("data-g");
+    document.getElementById("arSeg").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);});
+    renderArcade();});});
+function renderArcade(){
+  if(document.getElementById("arcade").hidden)return;
+  if(arcadeTab==="wordle")renderWordle();
+  else if(arcadeTab==="chess")renderChess();
+  else renderSquare();
+}
+/* ---- 1. WORD ---- */
+var wdState=null;
+function wordleWord(){return WORDS[dayOfYear()%WORDS.length];}
+function loadWordle(){
+  var st=games().wordle[TODAY];
+  wdState=st&&st.guesses?{guesses:st.guesses.slice(),cur:"",done:!!st.done,won:!!st.solved}
+    :{guesses:[],cur:"",done:false,won:false};
+}
+function saveWordle(){
+  var g=games();g.wordle[TODAY]=Object.assign(g.wordle[TODAY]||{},
+    {guesses:wdState.guesses,done:wdState.done,solved:wdState.won});save();
+}
+function scoreGuess(guess,answer){
+  var res=["miss","miss","miss","miss","miss"],pool=answer.split("");
+  for(var i=0;i<5;i++)if(guess[i]===answer[i]){res[i]="hit";pool[i]=null;}
+  for(var j=0;j<5;j++){if(res[j]==="hit")continue;
+    var k=pool.indexOf(guess[j]);if(k>=0){res[j]="near";pool[k]=null;}}
+  return res;
+}
+function renderWordle(){
+  if(!wdState)loadWordle();
+  var ans=wordleWord(), m=document.getElementById("arBody"), rows="";
+  for(var r=0;r<6;r++){
+    var g=wdState.guesses[r], isCur=(r===wdState.guesses.length&&!wdState.done);
+    var txt=g||(isCur?wdState.cur:""), sc=g?scoreGuess(g,ans):null;
+    rows+='<div class="wd-row" data-row="'+r+'">';
+    for(var c=0;c<5;c++){
+      var ch=txt[c]||"";
+      rows+='<div class="wd-cell '+(sc?sc[c]:(ch?"filled":""))+'">'+ch+'</div>';}
+    rows+='</div>';
+  }
+  var letters={};
+  wdState.guesses.forEach(function(g){var sc=scoreGuess(g,ans);
+    for(var i=0;i<5;i++){var L=g[i],cur=letters[L];
+      if(sc[i]==="hit"||cur==null||(sc[i]==="near"&&cur==="miss"))letters[L]=sc[i];}});
+  var kbRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"], kb="";
+  kbRows.forEach(function(row,ri){
+    kb+='<div class="kb-row">';
+    if(ri===2)kb+='<button class="wide" data-k="ENTER">Enter</button>';
+    row.split("").forEach(function(L){kb+='<button class="'+(letters[L]||"")+'" data-k="'+L+'">'+L+'</button>';});
+    if(ri===2)kb+='<button class="wide" data-k="DEL">Del</button>';
+    kb+='</div>';});
+  var status=wdState.done?(wdState.won?'<div class="g-status win">Solved in '+wdState.guesses.length+' — the word was '+ans+'</div>'
+      :'<div class="g-status lose">Out of guesses — the word was '+ans+'</div>')
+    :'<div class="g-status">Guess the five-letter word · '+(6-wdState.guesses.length)+' tries left</div>';
+  m.innerHTML=status+'<div class="wd-grid">'+rows+'</div>'+
+    (wdState.done?(wdState.won?'<div class="g-reward">🎲 +'+XP_PUZZLE+' XP claimed today</div>':'<div class="g-reward">Come back tomorrow for a new word</div>')
+      :'<div class="kb">'+kb+'</div>');
+  if(!wdState.done)m.querySelectorAll(".kb button").forEach(function(b){
+    b.addEventListener("click",function(){wordleKey(b.getAttribute("data-k"));});});
+}
+function wordleKey(k){
+  if(wdState.done)return;
+  if(k==="DEL"){wdState.cur=wdState.cur.slice(0,-1);renderWordle();return;}
+  if(k==="ENTER"){
+    if(wdState.cur.length<5){shakeRow();return;}
+    var ans=wordleWord();
+    wdState.guesses.push(wdState.cur);
+    if(wdState.cur===ans){wdState.won=true;wdState.done=true;wdState.cur="";saveWordle();awardPuzzle("wordle",{guesses:wdState.guesses,done:true});return;}
+    wdState.cur="";
+    if(wdState.guesses.length>=6){wdState.done=true;}
+    saveWordle();renderWordle();return;}
+  if(wdState.cur.length<5&&/^[A-Z]$/.test(k)){wdState.cur+=k;renderWordle();}
+}
+function shakeRow(){
+  var r=document.querySelector('.wd-row[data-row="'+wdState.guesses.length+'"]');
+  if(r){r.classList.add("shake");setTimeout(function(){r.classList.remove("shake");},380);}
+}
+/* ---- 2. CHESS ---- */
+var cbSel=null, cbTries=0, cbShow=false;
+function chessPuzzle(){return CHESS[dayOfYear()%CHESS.length];}
+function sqName(c,r){return "abcdefgh"[c]+(8-r);}
+function renderChess(){
+  var pz=chessPuzzle(), st=games().chess[TODAY], solved=!!(st&&st.solved);
+  var board=Object.assign({},pz.b);
+  if(solved||cbShow){var f=pz.sol.slice(0,2),t2=pz.sol.slice(2);board[t2]=board[f];delete board[f];}
+  var m=document.getElementById("arBody"),cells="";
+  for(var r=0;r<8;r++)for(var c=0;c<8;c++){
+    var nm=sqName(c,r),pc=board[nm];
+    var isW=pc&&pc===pc.toUpperCase();
+    cells+='<div class="'+(((r+c)%2)?"dk":"lt")+(cbSel===nm?" sel":"")+(pc?(isW?" wp":" bp"):"")+
+      '" data-sq="'+nm+'">'+(pc?PIECE[pc]:"")+'</div>';}
+  var status=solved?'<div class="g-status win">Checkmate! Solved.</div>'
+    :cbShow?'<div class="g-status">The move was '+pz.sol.slice(0,2)+"–"+pz.sol.slice(2)+'</div>'
+    :'<div class="g-status">White to play · mate in 1</div>';
+  m.innerHTML=status+'<div class="c-clue"><b>'+esc(pz.t)+'</b> — tap a white piece, then its target square.</div>'+
+    '<div class="cb" id="cbGrid">'+cells+'</div>'+
+    (solved?'<div class="g-reward">🎲 +'+XP_PUZZLE+' XP claimed today</div>'
+      :(cbTries>=3&&!cbShow?'<button class="quick-add" id="cbShow">Show the solution</button>':''));
+  if(!solved&&!cbShow)m.querySelectorAll("#cbGrid div").forEach(function(d){
+    d.addEventListener("click",function(){chessTap(d.getAttribute("data-sq"),board);});});
+  var sb=document.getElementById("cbShow");
+  if(sb)sb.addEventListener("click",function(){cbShow=true;renderChess();});
+}
+function chessTap(nm,board){
+  var pz=chessPuzzle(), pc=board[nm];
+  if(!cbSel){ if(pc&&pc===pc.toUpperCase()){cbSel=nm;renderChess();} return; }
+  if(cbSel===nm){cbSel=null;renderChess();return;}
+  var mv=cbSel+nm;
+  if(mv===pz.sol){cbSel=null;awardPuzzle("chess",{tries:cbTries+1});return;}
+  cbTries++;cbSel=null;renderChess();
+  var g=document.getElementById("cbGrid");
+  if(g){g.classList.add("wrong");setTimeout(function(){g.classList.remove("wrong");},380);}
+  toast("Not the move — look again","♟️");
+}
+/* ---- 3. WORD SQUARE ---- */
+function squarePuzzle(){return SQUARES[dayOfYear()%SQUARES.length];}
+function renderSquare(){
+  var pz=squarePuzzle(), st=games().square[TODAY], solved=!!(st&&st.solved);
+  var m=document.getElementById("arBody"),grid="";
+  for(var r=0;r<5;r++)for(var c=0;c<5;c++){
+    var v=solved?pz.w[r][c]:"";
+    grid+='<input class="'+(solved?"ok":"")+'" maxlength="1" data-r="'+r+'" data-c="'+c+'" value="'+v+'" '+
+      (solved?'readonly ':'')+'inputmode="text" autocomplete="off" autocapitalize="characters" />';}
+  var clues="";
+  pz.c.forEach(function(cl,i){clues+='<div class="clue"><b>'+(i+1)+'</b><span>'+esc(cl)+'</span></div>';});
+  m.innerHTML=(solved?'<div class="g-status win">Solved — every row and column is a word.</div>'
+      :'<div class="g-status">Fill the grid so each row <em>and</em> each column spells its word.</div>')+
+    '<div class="sq" id="sqGrid">'+grid+'</div>'+
+    '<div class="clues">'+clues+'</div>'+
+    (solved?'<div class="g-reward">🎲 +'+XP_PUZZLE+' XP claimed today</div>'
+      :'<button class="quick-add" id="sqCheck">Check my answer</button>');
+  if(solved)return;
+  var inputs=[].slice.call(m.querySelectorAll("#sqGrid input"));
+  inputs.forEach(function(inp,i){
+    inp.addEventListener("input",function(){
+      inp.value=(inp.value||"").toUpperCase().replace(/[^A-Z]/g,"");
+      inp.classList.remove("bad");
+      if(inp.value&&inputs[i+1])inputs[i+1].focus();});
+    inp.addEventListener("keydown",function(e){
+      if(e.key==="Backspace"&&!inp.value&&inputs[i-1]){inputs[i-1].focus();e.preventDefault();}});
+  });
+  document.getElementById("sqCheck").addEventListener("click",function(){
+    var bad=0;
+    inputs.forEach(function(inp){
+      var r=+inp.getAttribute("data-r"),c=+inp.getAttribute("data-c");
+      var ok=(inp.value||"")===pz.w[r][c];
+      inp.classList.toggle("bad",!ok);if(!ok)bad++;});
+    if(bad===0)awardPuzzle("square");
+    else toast(bad+" letter"+(bad>1?"s":"")+" off","✏️");
+  });
+}
 /* ================= PROOF OF WORK ================= */
 /* Thumbnails live in their own local store and never ride along with cloud
    sync (only the fact of verification does), so syncing stays fast. */
@@ -1664,6 +1928,7 @@ function bossDamage(){
   if(S.habits.length)days.forEach(function(k){if(S.habits.every(function(h){return h.history[k];}))dmg+=100;});
   days.forEach(function(k){var j=S.journal[k];if(j){if(j.morning)dmg+=15;if(j.evening)dmg+=15;}});
   for(var pk in (S.proofs||{})){if(days.indexOf(pk.split("|")[1])>=0)dmg+=15;}
+  dmg+=40*puzzlesSolvedIn(days);
   return dmg;
 }
 function bossState(){var b=bossOfWeek(),d=bossDamage();
@@ -1706,7 +1971,7 @@ function sectorClearCount(){var n=0;
   });return n;}
 function totalXP(){
   return XP_HABIT*totalCompletions()+XP_SECTOR*sectorClearCount()+XP_JOURNAL*journalSessions()
-    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+XP_VERIFY*verifiedCount();
+    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+XP_VERIFY*verifiedCount()+XP_PUZZLE*puzzleSolvedCount();
 }
 function xpNeed(L){return 120+(L-1)*80;}
 function titleFor(L){return L>=25?"Ascendant":L>=18?"Vanguard":L>=14?"Champion":L>=10?"Warden":
@@ -2229,7 +2494,9 @@ function renderDistrict(pid){
     ex.innerHTML='<div class="card inspire-card quote"><div class="badge">✦ Decrypted from the Archive today</div>'+
       '<div class="body">“'+esc(q.t)+'”</div><div class="attr">— <b>'+esc(q.a)+'</b></div>'+
       '<div class="expand open"><div class="inner"><div class="lbl">What it means</div><p>'+esc(q.b)+'</p></div></div></div>'+
-      '<div class="actions" style="margin-top:12px"><button class="btn btn-ghost" id="dxFin">💰 Credit ledger</button><button class="btn btn-ghost" id="dxCar">💼 Mission board</button></div>';
+      '<button class="quick-add" id="dxArcade" style="margin-top:12px">🎲 Enter the Puzzle Hall</button>'+
+      '<div class="actions" style="margin-top:10px"><button class="btn btn-ghost" id="dxFin">💰 Credit ledger</button><button class="btn btn-ghost" id="dxCar">💼 Mission board</button></div>';
+    ex.querySelector("#dxArcade").addEventListener("click",function(){closeDistrict();openArcade();});
     ex.querySelector("#dxFin").addEventListener("click",function(){closeDistrict();trackTab="finance";show("track");});
     ex.querySelector("#dxCar").addEventListener("click",function(){closeDistrict();trackTab="career";show("track");});
   }
@@ -2501,8 +2768,15 @@ function renderCareer(m){
 /* ============ RENDER: INSPIRE ============ */
 function renderInspire(){
   var m=document.getElementById("inspireMount");
+  var g=games(), done=["wordle","chess","square"].filter(function(k){return g[k][TODAY]&&g[k][TODAY].solved;}).length;
   var qi=dayOfYear()%QUOTES.length, vi=dayOfYear()%VERSES.length, q=QUOTES[qi], v=VERSES[vi];
-  var html='<div class="card inspire-card quote"><div class="badge">✦ Motivation for today</div>'+
+  var html='<div class="card jny-card" id="arcadeOpen" role="button" tabindex="0" style="margin-bottom:14px">'+
+    '<div class="jc-top"><div class="jc-ico">🎲</div><div class="jc-main">'+
+    '<div class="jc-name">The Puzzle Hall</div>'+
+    '<div class="jc-sub">'+(done===3?"All three solved today ✓":done+" of 3 solved today · word, chess, square")+'</div>'+
+    '</div><div class="jc-go">›</div></div>'+
+    '<div class="jny-bar"><i style="width:'+Math.round(done/3*100)+'%"></i></div></div>'+
+    '<div class="card inspire-card quote"><div class="badge">✦ Motivation for today</div>'+
     '<div class="body">“'+esc(q.t)+'”</div><div class="attr">— <b>'+esc(q.a)+'</b></div>'+
     '<div class="expand open"><div class="inner"><div class="lbl">What it means</div><p>'+esc(q.b)+'</p></div></div></div>';
   if(S.settings.faith){
@@ -2520,6 +2794,7 @@ function renderInspire(){
     '<span class="mt-body"><b>Faith mode</b><span>Adds a daily Bible verse with a reflection</span></span>'+
     '<span class="mt-state">'+(S.settings.faith?"On":"Off")+'</span></button>';
   m.innerHTML=html;
+  var ao=document.getElementById("arcadeOpen");if(ao)ao.addEventListener("click",openArcade);
   document.getElementById("faithToggle").addEventListener("click",function(){
     S.settings.faith=!S.settings.faith;save();
     toast(S.settings.faith?"Faith mode on — daily verses added":"Faith mode off","🕊️");
