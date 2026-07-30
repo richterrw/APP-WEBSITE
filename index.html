@@ -232,7 +232,7 @@
   .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mix(in srgb,var(--paper) 88%,transparent);
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);
     padding:8px 10px calc(8px + env(safe-area-inset-bottom));}
-  .nav .row{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);}
+  .nav .row{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);}
   .nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;color:var(--muted);font-size:10.5px;font-weight:650;}
   .nav button svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round;}
   .nav button.on{color:var(--accent-ink);}
@@ -492,6 +492,79 @@
     background:rgba(6,12,24,.6);border:1px solid rgba(180,210,255,.22);overflow:hidden;}
   .ws-xp i{display:block;height:100%;width:0;border-radius:3px;
     background:linear-gradient(90deg,#45D5EC,#8FE9F8);box-shadow:0 0 10px rgba(69,213,236,.8);transition:width .5s cubic-bezier(.22,1,.36,1);}
+  /* ---- combat HUD ---- */
+  .hpwrap{position:absolute;top:12px;right:14px;width:152px;pointer-events:none;z-index:4;}
+  .hpbar{position:relative;height:16px;border-radius:8px;background:rgba(6,12,24,.66);
+    border:1px solid rgba(255,140,120,.34);overflow:hidden;}
+  .hpbar i{display:block;height:100%;width:100%;border-radius:8px;
+    background:linear-gradient(90deg,#B62A18,#F2603E);box-shadow:0 0 12px rgba(242,96,62,.55);transition:width .16s linear;}
+  .hpbar span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fr);
+    font-size:9.5px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);letter-spacing:.03em;}
+  .hud-chips{display:flex;gap:6px;margin-top:6px;justify-content:flex-end;flex-wrap:wrap;}
+  .hchip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;
+    background:rgba(6,12,24,.58);border:1px solid rgba(180,210,255,.2);backdrop-filter:blur(6px);
+    font-family:var(--fr);font-size:10px;font-weight:700;color:rgba(233,241,255,.92);}
+  .hchip b{color:#FFD66E;}
+  button.hchip{pointer-events:auto;transition:transform .12s;}
+  button.hchip:active{transform:scale(.9);}
+  .bossbar{position:absolute;left:50%;top:12px;transform:translateX(-50%);width:72%;pointer-events:none;text-align:center;z-index:5;}
+  .bossbar[hidden]{display:none;}
+  .bossbar span{display:block;font-family:var(--fr);font-size:11px;font-weight:800;letter-spacing:.1em;
+    text-transform:uppercase;color:#FFD3C4;text-shadow:0 2px 10px rgba(0,0,0,.85);margin-bottom:4px;}
+  .bossbar .bb{height:9px;border-radius:6px;background:rgba(6,12,24,.72);border:1px solid rgba(255,110,80,.5);overflow:hidden;}
+  .bossbar .bb i{display:block;height:100%;background:linear-gradient(90deg,#8E1C10,#FF5E33);
+    box-shadow:0 0 14px rgba(255,94,51,.7);transition:width .2s linear;}
+  .fxlayer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:6;}
+  .wfx{position:absolute;transform:translate(-50%,-50%);font-family:var(--fr);font-weight:800;
+    font-size:14px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.9);white-space:nowrap;
+    animation:wfxRise .95s cubic-bezier(.22,1,.36,1) forwards;}
+  .wfx.dmg{color:#FFE3B0;} .wfx.crit{color:#FF8A4C;font-size:20px;}
+  .wfx.hurt{color:#FF5E5E;font-size:17px;} .wfx.xp{color:#8FE9F8;font-size:12px;}
+  .wfx.gold{color:#FFD268;font-size:12px;} .wfx.item{color:#B6FF7A;font-size:12px;}
+  .wfx.relic{color:#CFFF9E;font-size:14px;} .wfx.heal{color:#7DF2A8;font-size:16px;}
+  @keyframes wfxRise{0%{opacity:0;transform:translate(-50%,4px) scale(.7);}
+    18%{opacity:1;transform:translate(-50%,-8px) scale(1.1);}
+    100%{opacity:0;transform:translate(-50%,-46px) scale(1);}}
+  .hurtvig{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:5;
+    background:radial-gradient(ellipse at center,transparent 40%,rgba(186,22,22,.66) 100%);}
+  .hurtvig.on{animation:vigFlash .45s ease-out;}
+  @keyframes vigFlash{0%{opacity:1;}100%{opacity:0;}}
+  .atkbtn{position:absolute;right:16px;bottom:20px;width:78px;height:78px;border-radius:50%;z-index:4;
+    background:linear-gradient(180deg,#F2603E,#B62A18);border:1px solid rgba(255,196,176,.5);
+    box-shadow:0 10px 26px rgba(160,36,20,.5);display:grid;place-items:center;transition:transform .1s,opacity .1s;}
+  .atkbtn svg{width:36px;height:36px;fill:#fff;pointer-events:none;}
+  .atkbtn:active{transform:scale(.88);}
+  .atkbtn.cool{opacity:.42;}
+  .downed{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:7;
+    background:rgba(8,3,6,.66);font-family:var(--fr);font-size:24px;font-weight:800;letter-spacing:.22em;
+    color:#FF6B5A;text-transform:uppercase;text-shadow:0 3px 22px rgba(0,0,0,.95);}
+  .downed[hidden]{display:none;}
+  /* ---- quest + bestiary cards ---- */
+  .qrow{display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:15px;
+    background:var(--surface-2);border:1px solid var(--line);margin-bottom:9px;}
+  .qrow .qi{width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:grid;place-items:center;
+    font-size:17px;background:var(--surface);}
+  .qrow .qb{flex:1;min-width:0;}
+  .qrow .qb b{display:block;font-family:var(--fr);font-size:13.5px;font-weight:700;}
+  .qrow .qb p{font-size:11.5px;color:var(--muted);margin:3px 0 6px;line-height:1.45;}
+  .qbar{height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden;}
+  .qbar i{display:block;height:100%;background:var(--gold);border-radius:3px;transition:width .4s;}
+  .qmeta{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--muted);margin-top:4px;}
+  .qmeta b{color:var(--gold);}
+  .qrow.ready{border-color:var(--gold);box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent);}
+  .bcard{display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:15px;
+    background:var(--surface-2);border:1px solid var(--line);margin-bottom:9px;}
+  .bcard.unknown{opacity:.5;}
+  .bcard .bi{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;
+    font-size:19px;background:var(--surface);}
+  .bcard b{font-family:var(--fr);font-size:13.5px;}
+  .bcard p{font-size:11.5px;color:var(--muted);margin:3px 0 5px;line-height:1.45;}
+  .bstats{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;font-weight:700;color:var(--muted);}
+  .bstats span b{color:var(--fg);font-family:var(--fr);}
+  .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 4px;}
+  .hstat{padding:11px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line);}
+  .hstat .hk{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .hstat .hv{font-family:var(--fr);font-size:20px;font-weight:800;margin-top:2px;}
   .xp-tag{font-size:9.5px;font-weight:800;letter-spacing:.03em;color:var(--gold);
     background:color-mix(in srgb,var(--gold) 16%,transparent);padding:2px 6px;border-radius:5px;}
 
@@ -550,12 +623,12 @@
   .dpad .right{right:0;top:34px;border-radius:4px 10px 10px 4px;}
   .dp-hub{position:absolute;left:34px;top:34px;width:36px;height:36px;border-radius:9px;
     background:rgba(8,16,30,.4);border:1px solid rgba(150,200,255,.16);}
-  .abtn{position:absolute;right:16px;bottom:26px;width:62px;height:62px;border-radius:50%;
+  .abtn{position:absolute;right:104px;bottom:78px;width:54px;height:54px;border-radius:50%;
     display:grid;place-items:center;
     background:radial-gradient(circle at 35% 30%,#8FE9F8,#2FB6CE);
     border:2px solid rgba(233,241,255,.5);box-shadow:0 6px 20px -6px rgba(69,213,236,.8);
     transition:transform .1s;touch-action:none;}
-  .abtn svg{width:26px;height:26px;fill:#04131C;pointer-events:none;}
+  .abtn svg{width:22px;height:22px;fill:#04131C;pointer-events:none;}
   .abtn:active{transform:scale(.9);}
   .abtn.dim{opacity:.4;box-shadow:none;}
   .enter-prompt{position:absolute;left:50%;bottom:124px;transform:translateX(-50%);
@@ -696,8 +769,11 @@
   /* dialogue */
   .dialog{position:absolute;left:12px;right:12px;bottom:96px;padding:11px 14px;border-radius:14px;
     background:rgba(6,12,24,.86);backdrop-filter:blur(10px);border:1px solid rgba(150,200,255,.36);
-    animation:promptIn .22s cubic-bezier(.22,1,.36,1);pointer-events:none;z-index:3;}
+    animation:promptIn .22s cubic-bezier(.22,1,.36,1);pointer-events:none;z-index:8;}
   .dialog[hidden]{display:none;}
+  .dlg-foot{margin-top:10px;pointer-events:auto;}
+  .dlg-foot[hidden]{display:none;}
+  .dlg-foot .btn{width:100%;height:42px;font-size:13.5px;}
   .dlg-name{font-family:var(--fr);font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
     color:#8FE9F8;margin-bottom:3px;}
   .dlg-text{font-size:13px;line-height:1.45;color:#E9F1FF;}
@@ -870,23 +946,35 @@
       </div>
     </header>
 
-    <!-- ============ TODAY ============ -->
+    <!-- ============ THE WORLD ============ -->
     <section class="view on" id="view-today">
       <div class="world-stage">
         <canvas id="world"></canvas>
-        <div class="ws-top">
-          <span class="ws-title">The Spire</span>
-          <span class="ws-pct"><b id="balancePct" class="tn">0%</b> ascended</span>
-        </div>
         <button class="ws-me" id="wsMe"><canvas id="wsMeCv"></canvas>
           <span class="me-txt"><span id="wsMeName">Create character</span>
-          <span class="me-sub">LV <b id="hudLv">1</b> · <span id="hudTitle">Wanderer</span></span></span></button>
+          <span class="me-sub">LV <b id="hudLv">1</b> · <span id="hudTitle">Drifter</span></span></span></button>
         <div class="ws-xp"><i id="hudBar"></i></div>
+        <div class="hpwrap">
+          <div class="hpbar"><i id="hpFill"></i><span id="hpTxt">110 / 110</span></div>
+          <div class="hud-chips">
+            <span class="hchip" id="zoneChip"><span id="zoneTxt">Emberhold</span></span>
+            <span class="hchip">◈ <b id="goldTxt" class="tn">0</b></span>
+            <button class="hchip" id="potBtn" aria-label="Drink a draught">🧪 <b id="potTxt" class="tn">2</b></button>
+          </div>
+        </div>
+        <div class="bossbar" id="bossBar" hidden><span id="bossBarName"></span>
+          <div class="bb"><i id="bossBarFill"></i></div></div>
         <div class="enter-prompt" id="enterPrompt" hidden></div>
         <div class="dialog" id="dialog" hidden>
           <div class="dlg-name" id="dlgName"></div>
           <div class="dlg-text" id="dlgText"></div>
+          <div class="dlg-foot" id="dlgFoot" hidden>
+            <button class="btn btn-primary" id="dlgAct">Accept</button>
+          </div>
         </div>
+        <div class="fxlayer" id="fxLayer"></div>
+        <div class="hurtvig" id="hurtVig"></div>
+        <div class="downed" id="downed" hidden>You died</div>
         <div class="dpad" id="dpad">
           <button class="dp up" data-d="up" aria-label="Move up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7l6 10H6z"/></svg></button>
           <button class="dp left" data-d="left" aria-label="Move left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12l10-6v12z"/></svg></button>
@@ -894,91 +982,35 @@
           <button class="dp down" data-d="down" aria-label="Move down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17L6 7h12z"/></svg></button>
           <span class="dp-hub"></span>
         </div>
-        <button class="abtn" id="aBtn" aria-label="Action"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l5.5 15h-3l-1.1-3.2H10.6L9.5 19h-3zm0 4.9l-1.1 3.4h2.2z"/></svg></button>
+        <button class="abtn dim" id="aBtn" aria-label="Interact"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l5.5 15h-3l-1.1-3.2H10.6L9.5 19h-3zm0 4.9l-1.1 3.4h2.2z"/></svg></button>
+        <button class="atkbtn" id="atkBtn" aria-label="Attack"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3l-9.2 9.2 1.4 1.4L21.4 4.4 20 3zM7.6 13.9l-1.5 1.5 1 1-2.4 2.4 1.4 1.4 2.4-2.4 1 1 1.5-1.5-3.4-3.4z"/></svg></button>
       </div>
-      <div class="garden-sub" id="gardenSub">Move with the pad. Walk up to a building to enter.</div>
-      <div class="d-chips" id="dChips"></div>
+      <div class="garden-sub" id="gardenSub">Move with the pad. Walk north through the gate — that's where they are.</div>
 
-      <div class="reward" id="reward">
-        <div class="rico" id="rewardIco">🎧</div>
-        <div class="rt"><b id="rewardTitle">Today's reward track</b><span id="rewardSub">Finish everything to unlock</span></div>
-        <button class="play" id="rewardPlay" disabled aria-label="Play reward"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-      </div>
-
-      <div id="streakMount"></div>
-
-      <div id="dayMount"></div>
-
-      <div id="deepMount"></div>
-
-      <div id="campMount"></div>
-
+      <div id="hintMount"></div>
       <div id="bossMount"></div>
-
-      <div id="journeyMount"></div>
-
-      <div class="section-h"><h2>Daily inspiration</h2></div>
-      <div class="card inspire-card quote" id="quoteCard">
-        <div class="badge">✦ Motivation for today</div>
-        <div class="body" id="quoteText">—</div>
-        <div class="attr">— <b id="quoteAuthor"></b></div>
-        <div class="expand" id="quoteExpand"><div class="inner"><div class="lbl">What it means</div><p id="quoteBreak"></p></div></div>
-        <div class="card-foot">
-          <button class="more" id="quoteMore">Break it down <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
-          <button class="fav" id="quoteFav" aria-label="Save quote">♡</button>
-        </div>
-      </div>
-      <div class="card inspire-card verse" id="verseCard">
-        <div class="badge">✝ Verse for today</div>
-        <div class="body" id="verseText">—</div>
-        <div class="attr"><b id="verseRef"></b></div>
-        <div class="expand" id="verseExpand"><div class="inner"><div class="lbl">Reflection</div><p id="verseBreak"></p></div></div>
-        <div class="card-foot">
-          <button class="more" id="verseMore">Break it down <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
-          <button class="fav" id="verseFav" aria-label="Save verse">♡</button>
-        </div>
-      </div>
-
-      <div class="section-h"><h2>Today's quests</h2><span class="sub" id="todayCount">0 of 0</span></div>
-      <ul class="habits" id="todayHabits"></ul>
+      <div id="tipMount"></div>
     </section>
 
-    <!-- ============ GROW ============ -->
-    <section class="view" id="view-grow">
-      <div class="section-h"><h2>Five dimensions of growth</h2></div>
-      <div id="growMount"></div>
+    <!-- ============ HERO ============ -->
+    <section class="view" id="view-hero">
+      <div class="section-h"><h2>Your hero</h2><span class="sub" id="heroSub">gear & standing</span></div>
+      <div id="heroMount"></div>
     </section>
 
-    <!-- ============ TRACK ============ -->
-    <section class="view" id="view-track">
-      <div class="section-h"><h2>Track your progress</h2></div>
-      <div class="seg" id="trackSeg">
-        <button data-t="fitness" class="on">Fitness</button>
-        <button data-t="diet">Diet</button>
-        <button data-t="finance">Finance</button>
-        <button data-t="career">Career</button>
-      </div>
-      <div id="trackMount"></div>
+    <!-- ============ QUESTS ============ -->
+    <section class="view" id="view-quests">
+      <div class="section-h"><h2>Quest log</h2><span class="sub" id="qSub">0 active</span></div>
+      <div id="questMount"></div>
     </section>
 
-    <!-- ============ JOURNAL ============ -->
-    <section class="view" id="view-journal">
-      <div class="section-h"><h2>Journal</h2><span class="sub" id="jStreakSub">reflect & grow</span></div>
-      <div class="seg" id="jSeg">
-        <button data-j="morning" class="on">🌅 Morning</button>
-        <button data-j="evening">🌙 Evening</button>
-      </div>
-      <div id="journalMount"></div>
-    </section>
-
-    <!-- ============ INSPIRE ============ -->
-    <section class="view" id="view-inspire">
-      <div class="section-h"><h2>Inspiration</h2><span class="sub">grow the mind & spirit</span></div>
-      <div id="inspireMount"></div>
+    <!-- ============ BESTIARY ============ -->
+    <section class="view" id="view-bestiary">
+      <div class="section-h"><h2>Bestiary</h2><span class="sub">what walks past the wall</span></div>
+      <div id="bestMount"></div>
     </section>
   </main>
 
-  <button class="fab" id="fab" aria-label="New habit"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
 
   <!-- district (place) view -->
   <div class="district" id="district" hidden>
@@ -1079,11 +1111,10 @@
   </div>
 
   <nav class="nav"><div class="row">
-    <button data-v="today" class="on"><svg viewBox="0 0 24 24"><path d="M3 20h18L14 5l-2.6 4.4L9 6z"/><path d="M12 20v-3"/></svg>Summit</button>
-    <button data-v="grow"><svg viewBox="0 0 24 24"><path d="M12 21v-8M12 13c0-4 3-6 7-6 0 4-3 6-7 6zM12 13c0-3-2.2-4.5-5-4.5C7 11.5 9 13 12 13z"/></svg>Grow</button>
-    <button data-v="track"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M4 19h16"/></svg>Track</button>
-    <button data-v="journal"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2zM4 17a2 2 0 0 1 2-2h12M8 7h6M8 11h6"/></svg>Journal</button>
-    <button data-v="inspire"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.2 1 2.5h6c0-1.3.3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>Inspire</button>
+    <button data-v="today" class="on"><svg viewBox="0 0 24 24"><path d="M3 20h18L14 5l-2.6 4.4L9 6z"/><path d="M12 20v-3"/></svg>World</button>
+    <button data-v="hero"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6z"/></svg>Hero</button>
+    <button data-v="quests"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 9h7M9 13h7M9 17h4"/></svg>Quests</button>
+    <button data-v="bestiary"><svg viewBox="0 0 24 24"><path d="M5 10a7 7 0 0 1 14 0v6a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M9 11h.01M15 11h.01M10 16h4"/></svg>Bestiary</button>
   </div></nav>
 
   <!-- habit sheet -->
@@ -1271,7 +1302,8 @@ var DEFAULT={
   journal:{}, playlists:[], settings:{faith:false}, journey:null,
   avatar:{name:"",skin:"#C98A5E",hair:"#2A1C14",hairStyle:"short",outfit:"#45D5EC",made:false,
     gear:{head:"none",body:"none",hand:"none",back:"none"}},
-  dayCfg:null, days:{}, buffBonus:0, activeTimer:null, deepRun:null, focus:{totalMin:0,runs:0,collapsed:0,best:0}, focusLog:[], unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}}
+  dayCfg:null, days:{}, buffBonus:0, activeTimer:null, deepRun:null, focus:{totalMin:0,runs:0,collapsed:0,best:0}, focusLog:[], unlockedGear:[], gearInit:false, lastLevel:null, bosses:{}, bossInit:null, proofs:{}, games:{wordle:{},chess:{},square:{}},
+  rpg:{xp:0,gold:0,kills:{},deaths:0,bossKills:0,quests:{},questsDone:0,seen:{},deepest:0,potions:2}
 };
 var S=load();
 if(!S.settings)S.settings={faith:false};
@@ -1325,7 +1357,6 @@ function checkReminders(){
         try{new Notification("Flourish · "+h.name,{body:"It's time for your "+pillar(h.pillar).name.toLowerCase()+" goal 🌱",tag:fk});}catch(e){}}
     }
   });
-  if(current==="today")renderTodayHabits();
 }
 
 /* ============ AUDIO (achievement music) ============ */
@@ -1361,11 +1392,11 @@ function scoresNow(){return PILLARS.map(function(p){return growthScore(p.id);});
    14-day consistency. Spirit crowns the summit. Tap a tier to travel. */
 var TIER_ORDER=["physical","mental","emotional","intellectual","spiritual"];
 var DISTRICTS={
-  physical:{name:"Forge Core",tag:"Power systems online",emoji:"⚙️"},
-  mental:{name:"Mindstream",tag:"Signal over noise",emoji:"🌐"},
-  emotional:{name:"Pulse District",tag:"Feel everything. Fear nothing.",emoji:"💠"},
-  intellectual:{name:"The Archive",tag:"All knowledge, indexed",emoji:"💾"},
-  spiritual:{name:"The Beacon",tag:"The light above the grid",emoji:"🔆"}
+  physical:{name:"the Forge",tag:"Weapons and plate",emoji:"🔨"},
+  mental:{name:"the Watchtower",tag:"Everything they know about the horde",emoji:"🔭"},
+  emotional:{name:"the Hearth",tag:"Rest, draughts, and revival",emoji:"🔥"},
+  intellectual:{name:"the Archive",tag:"Contracts and bounties",emoji:"📜"},
+  spiritual:{name:"the Shrine",tag:"Word from the arena",emoji:"🛐"}
 };
 var worldTiers=[];
 function mixColor(hex1,hex2,t){
@@ -1402,7 +1433,7 @@ var TOWN=[
  {pid:"intellectual",x: 168, z:  55},
  {pid:"physical",    x:-168, z: -95},
  {pid:"mental",      x: 168, z: -95},
- {pid:"spiritual",   x:   0, z:-240}
+ {pid:"spiritual",   x:-250, z:-250}
 ];
 var ARCADE_PLACE={name:"The Puzzle Hall",tag:"Sharpen the mind",emoji:"🎲",color:"#5FD0A8"};
 var SOLIDS=[{x:0,z:65,r:34}].concat(TOWN.map(function(b){return {x:b.x,z:b.z,r:40};}));
@@ -1559,7 +1590,7 @@ var AGENTS=[
   a:{skin:"#C98A5E",hair:"#A96B2C",hairStyle:"curly",outfit:"#CE5285",gear:{head:"none",body:"none",hand:"none",back:"none"}}},
  {id:"tomas",name:"Old Tomas",pid:"intellectual",home:{x:168,z:55},
   a:{skin:"#F2D2B6",hair:"#D8C58A",hairStyle:"short",outfit:"#C0871A",gear:{head:"circlet",body:"none",hand:"staff",back:"none"}}},
- {id:"elowen",name:"Sister Elowen",pid:"spiritual",home:{x:0,z:-240},
+ {id:"elowen",name:"Sister Elowen",pid:"spiritual",home:{x:-250,z:-250},
   a:{skin:"#E0B48C",hair:"#5B3A21",hairStyle:"long",outfit:"#7659C6",gear:{head:"hood",body:"none",hand:"none",back:"none"}}}
 ];
 var agentPos={};
@@ -1580,36 +1611,46 @@ function updateAgents(dt,t){
     else p.walk=0;
   });
 }
+var AGENT_ROLE={bran:"Blacksmith",sera:"Watch Captain",mira:"Hearthkeeper",tomas:"Archivist",elowen:"Shrine Warden"};
+var AGENT_FLAVOR={
+ bran:["Iron doesn't care how you feel. It only answers the hammer.","Bring me shards and I'll keep your edge honest."],
+ sera:["I count them from the tower every night. The number is going up.","Shades don't make noise. That's the whole problem with them."],
+ mira:["Fire's hot, food's on. Sit if you're bleeding.","Come back through that gate. That's all I ask."],
+ tomas:["Everything out there used to be someone. I write the names down.","The Hall's puzzle today is a wicked one, if you want a break."],
+ elowen:["The ring past the Deadlands takes a new master every Sunday.","Whatever holds the arena this week, it has held it before."]
+};
 function agentLine(ag){
-  var pid=ag.pid, st=pillarStreak(pid), dark=daysDark(pid), lvl=levelInfo(), bs=bossState();
-  var ch=currentChapter();
-  var lines=[];
-  if(dark>=3)lines.push("The "+DISTRICTS[pid].name+" has been dark "+dark+" days. It only takes one visit to relight it.");
-  else if(st>=7)lines.push(st+" days running in the "+DISTRICTS[pid].name+". The whole street has noticed, "+(av().name||"traveler")+".");
-  else if(st>=3)lines.push("Three days is where it starts to hold. Keep the "+DISTRICTS[pid].name+" burning.");
-  if(!bs.won&&bs.dmg>bs.b.hp*0.6)lines.push(bs.b.name+" is wounded — "+bs.left+" left. Finish it before the week turns.");
-  else if(!bs.won)lines.push(bs.b.name+" still watches from beyond the wall. Every quest is a blow.");
-  if(ch){var next=ch.obj.filter(function(o){return o.f()<o.g;})[0];
-    if(next)lines.push("Chapter "+ch.n+", "+ch.name+". You still need: "+next.t.toLowerCase()+".");}
-  if(lvl.level>=10)lines.push("Level "+lvl.level+" already. They'll be calling you "+lvl.title+" in the songs.");
-  var flavor={
-   bran:["Iron doesn't care how you feel. It only answers the hammer.","Rest is part of the forging. Don't crack your own blade."],
-   sera:["Quiet the noise and the signal is obvious.","I watched the sky all night. Nothing changed. That's the lesson."],
-   mira:["Sit by the fire a while. Naming the hard thing makes it smaller.","You're allowed a bad day. You're not allowed to stay there."],
-   tomas:["Ten pages a day is a library in a year. I've done the arithmetic.","Come by the Hall — today's puzzle is a wicked one."],
-   elowen:["The Beacon burns whether you look at it or not. But look anyway.","Stillness isn't nothing. It's where the rest is built."]
-  }[ag.id];
-  lines.push(flavor[Math.floor((dayOfYear()+ag.id.length)%flavor.length)]);
-  return lines[Math.floor(Math.random()*Math.min(2,lines.length))]||lines[0];
+  var f=AGENT_FLAVOR[ag.id]||["..."];
+  return f[Math.floor((dayOfYear()+ag.id.length)%f.length)];
 }
 var talkTimer=null;
 function talkTo(id){
   var ag=AGENTS.find(function(a){return a.id===id;});if(!ag)return;
-  var box=document.getElementById("dialog");
-  document.getElementById("dlgName").textContent=ag.name;
-  document.getElementById("dlgText").textContent=agentLine(ag);
+  var box=document.getElementById("dialog"),
+      foot=document.getElementById("dlgFoot"),
+      btn=document.getElementById("dlgAct");
+  document.getElementById("dlgName").textContent=ag.name+" · "+(AGENT_ROLE[ag.id]||"");
+  var qa=questAt(id), text, action=null, label="";
+  if(!qa){
+    text=agentLine(ag)+" I've nothing more to ask of you.";
+  }else if(!qa.st){
+    text='"'+qa.q.t+'" — '+qa.q.d+" ("+qa.q.xp+" XP, "+qa.q.gold+" gold.)";
+    label="Accept";action=function(){acceptQuest(qa.q);};
+  }else if(questDone(qa.q)){
+    text="You did it. "+qa.q.t+" — take your pay: "+qa.q.xp+" XP and "+qa.q.gold+" gold.";
+    label="Claim reward";action=function(){claimQuest(qa.q);};
+  }else{
+    var cur=Math.min(questNow(qa.q),qa.q.g.n);
+    text=qa.q.t+" — "+cur+" of "+qa.q.g.n+" done. "+agentLine(ag);
+  }
+  document.getElementById("dlgText").textContent=text;
+  if(action){
+    foot.hidden=false;btn.textContent=label;
+    btn.onclick=function(){box.hidden=true;foot.hidden=true;action();};
+  }else{foot.hidden=true;btn.onclick=null;}
   box.hidden=false;audio();note(430,0,.16,"sine",.05);note(560,.09,.18,"sine",.04);
-  clearTimeout(talkTimer);talkTimer=setTimeout(function(){box.hidden=true;},7000);
+  clearTimeout(talkTimer);
+  talkTimer=setTimeout(function(){box.hidden=true;foot.hidden=true;},action?14000:7000);
 }
 /* ---- renaissance kit: tiled roofs, banners, arches, towers ---- */
 function drawRoof(ctx,proj,cosT,sinT,cx,cz,hw,hd,y,rh,col,lit,fogc,fog){
@@ -1877,43 +1918,67 @@ function skyFor3D(){
     dim:(sk.phase==="dusk"||sk.phase==="dawn"),
     sun:night?"#8FA8D8":(sk.phase==="dusk"||sk.phase==="dawn")?"#FFB877":"#FFE6BD",night:night};
 }
+function clampWorld(prevZ){
+  player.x=Math.max(-740,Math.min(740,player.x));
+  player.z=Math.max(WILD_EDGE,Math.min(392,player.z));
+  // the north wall: only the gate between x -78..78 lets you through
+  if(Math.abs(player.x)>78){
+    if(prevZ>=GATE_Z&&player.z<GATE_Z)player.z=GATE_Z;
+    if(prevZ<=GATE_Z&&player.z>GATE_Z)player.z=GATE_Z;
+  }
+  SOLIDS.forEach(function(sd){
+    var dx=player.x-sd.x,dz=player.z-sd.z,d=Math.hypot(dx,dz);
+    if(d<sd.r&&d>0.01){player.x=sd.x+dx/d*sd.r;player.z=sd.z+dz/d*sd.r;}});
+}
 function step3D(t){
   var nowMs=performance.now();
   var dt=lastFrameMs?Math.min(0.1,(nowMs-lastFrameMs)/1000):0.033; lastFrameMs=nowMs;
-  var YAW=0, cosY=1, sinY=0;
   var mx=(held.right?1:0)-(held.left?1:0), mz=(held.up?1:0)-(held.down?1:0);
-  var wdx=0,wdz=0;
+  var wdx=0,wdz=0,prevZ=player.z;
+  if(PC.down>0){mx=0;mz=0;}
   if(mx||mz){
     var ml=Math.hypot(mx,mz)||1;mx/=ml;mz/=ml;
     wdx=mx; wdz=-mz;
-    player.x+=wdx*MOVE_SPEED*dt; player.z+=wdz*MOVE_SPEED*dt;
+    var sp=MOVE_SPEED*moveMul()*(PC.swing>0?0.42:1);
+    player.x+=wdx*sp*dt; player.z+=wdz*sp*dt;
     player.walk+=dt*9.5; if(wdx>0.05)player.face=1;else if(wdx<-0.05)player.face=-1;
+    PC.aimx=wdx;PC.aimz=wdz;
   }else player.walk=0;
-  player.x=Math.max(-395,Math.min(395,player.x));
-  player.z=Math.max(-400,Math.min(378,player.z));
-  SOLIDS.forEach(function(sd){
-    var dx2=player.x-sd.x,dz2=player.z-sd.z,d3=Math.hypot(dx2,dz2);
-    if(d3<sd.r&&d3>0.01){player.x=sd.x+dx2/d3*sd.r;player.z=sd.z+dz2/d3*sd.r;}});
+  clampWorld(prevZ);
+
+  updateCombat(dt,t);
+
   var nearT=null,nd=1e9;
-  TOWN.forEach(function(b2){var d2=Math.hypot(player.x-b2.x,player.z-b2.z);
-    if(d2<86&&d2<nd){nd=d2;nearT=b2.kind==="arcade"?"arcade":b2.pid;}});
-  updateAgents(dt,t);
-  AGENTS.forEach(function(ag){var p3=agentPos[ag.id];if(!p3)return;
-    var d3b=Math.hypot(player.x-p3.x,player.z-p3.z);
-    if(d3b<52&&d3b<nd){nd=d3b;nearT="npc:"+ag.id;}});
+  if(!inWilds()){
+    TOWN.forEach(function(b2){var d2=Math.hypot(player.x-b2.x,player.z-b2.z);
+      if(d2<86&&d2<nd){nd=d2;nearT=b2.kind==="arcade"?"arcade":b2.pid;}});
+    updateAgents(dt,t);
+    AGENTS.forEach(function(ag){var p3=agentPos[ag.id];if(!p3)return;
+      var d3b=Math.hypot(player.x-p3.x,player.z-p3.z);
+      if(d3b<74&&d3b<nd){nd=d3b;nearT="npc:"+ag.id;}});
+  }else updateAgents(dt,t);
   setPrompt(nearT);
+
+  var dn=document.getElementById("downed");if(dn)dn.hidden=!(PC.down>0);
+  var ab=document.getElementById("atkBtn");if(ab)ab.classList.toggle("cool",PC.cool>0||PC.down>0);
+
   var lit={},tier=[];
-  PILLARS.forEach(function(p,i){var sc=worldScores[i];lit[p.id]=!!(sc&&sc.todayAll);});
-  TIER_ORDER.forEach(function(pid){var i=PILLARS.findIndex(function(p){return p.id===pid;});
-    var sc=worldScores[i];tier.push(sc&&!sc.empty?sc.score:0);});
+  PILLARS.forEach(function(p){var qa=questAt(npcOfPillar(p.id));lit[p.id]=!!(qa&&(!qa.st||questDone(qa.q)));});
+  TIER_ORDER.forEach(function(){tier.push(Math.min(1,levelInfo().level/25));});
   var g=games();
   lit.arcade=["wordle","chess","square"].every(function(k){return g[k][TODAY]&&g[k][TODAY].solved;});
-  W3.frame({t:t,dt:dt,sky:skyFor3D(),lit:lit,tierScore:tier,
+
+  W3.frame({t:t,dt:dt,sky:skyFor3D(),lit:lit,tierScore:tier,shake:PC.shake,
     player:{x:player.x,z:player.z,walk:player.walk,face:player.face,
-      moving:!!(mx||mz),dx:wdx,dz:wdz},
+      moving:!!(mx||mz),dx:wdx,dz:wdz,aimx:PC.aimx,aimz:PC.aimz,swing:PC.swing,down:PC.down>0},
+    enemies:FOEZ.map(function(e){
+      return {id:e.id,kind:e.type,tint:e.tint,x:e.x,z:e.z,dx:e.dx,dz:e.dz,walk:e.walk,
+        hp:e.hp,maxhp:e.maxhp,hit:e.hit,lunge:e.lunge,tell:e.tell>0,fade:e.dead?e.fade:1};}),
+    loot:LOOT.map(function(d){return {id:d.id,x:d.x,z:d.z,color:d.color};}),
     agents:AGENTS.map(function(ag){var p3=agentPos[ag.id]||{x:ag.home.x,z:ag.home.z,walk:0};
       return {id:ag.id,x:p3.x,z:p3.z,walk:p3.walk,dx:p3.face||0,dz:1,look:ag.a};})});
 }
+function npcOfPillar(pid){var a=AGENTS.find(function(x){return x.pid===pid;});return a?a.id:"";}
 function renderWorldFrame(t){
   try3D();
   if(W3){step3D(t);return;}
@@ -1995,14 +2060,20 @@ function renderWorldFrame(t){
 
   /* ---------- DRIVE ---------- */
   var mx=(held.right?1:0)-(held.left?1:0), mz=(held.up?1:0)-(held.down?1:0);
+  var prevZ2D=player.z;
+  if(PC.down>0){mx=0;mz=0;}
   if(mx||mz){
     var ml=Math.hypot(mx,mz)||1;mx/=ml;mz/=ml;
     var wdx=mx*cosY+mz*sinY, wdz=mx*sinY-mz*cosY;
-    player.x+=wdx*MOVE_SPEED*dt; player.z+=wdz*MOVE_SPEED*dt;
+    var sp2=MOVE_SPEED*moveMul()*(PC.swing>0?0.42:1);
+    player.x+=wdx*sp2*dt; player.z+=wdz*sp2*dt;
     player.walk+=dt*9.5; if(wdx>0.05)player.face=1;else if(wdx<-0.05)player.face=-1;
+    PC.aimx=wdx;PC.aimz=wdz;
   }else player.walk=0;
-  player.x=Math.max(-290,Math.min(290,player.x));
-  player.z=Math.max(-330,Math.min(400,player.z));
+  clampWorld(prevZ2D);
+  updateCombat(dt,t);
+  var dn2=document.getElementById("downed");if(dn2)dn2.hidden=!(PC.down>0);
+  var ab2=document.getElementById("atkBtn");if(ab2)ab2.classList.toggle("cool",PC.cool>0||PC.down>0);
   SOLIDS.forEach(function(sd){
     var dx2=player.x-sd.x,dz2=player.z-sd.z,d3=Math.hypot(dx2,dz2);
     if(d3<sd.r&&d3>0.01){player.x=sd.x+dx2/d3*sd.r;player.z=sd.z+dz2/d3*sd.r;}});
@@ -2015,7 +2086,7 @@ function renderWorldFrame(t){
     if(d2<78&&d2<nd){nd=d2;nearT=b2.kind==="arcade"?"arcade":b2.pid;}});
   AGENTS.forEach(function(ag){var p3=agentPos[ag.id];if(!p3)return;
     var d3=Math.hypot(player.x-p3.x,player.z-p3.z);
-    if(d3<52&&d3<nd){nd=d3;nearT="npc:"+ag.id;}});
+    if(d3<74&&d3<nd){nd=d3;nearT="npc:"+ag.id;}});
   setPrompt(nearT);
 
   /* ---------- THE SPIRE, far to the north ---------- */
@@ -2153,6 +2224,38 @@ function renderWorldFrame(t){
       }}});
   });
   items.push({z:proj(player.x,0,player.z).z-1,draw:drawPlayer});
+  FOEZ.forEach(function(e){
+    var fp=proj(e.x,0,e.z);
+    if(fp.d<60)return;
+    items.push({z:fp.d,draw:function(){
+      var u=fp.s, al=e.dead?Math.max(0,e.fade):1;
+      if(al<=0)return;
+      ctx.globalAlpha=al;
+      ctx.fillStyle="rgba(4,8,16,.4)";
+      ctx.save();ctx.translate(fp.x,fp.y);ctx.scale(1,.3);
+      ctx.beginPath();ctx.arc(0,0,12*u,0,7);ctx.fill();ctx.restore();
+      var body=e.hit>0?"#FF6A4A":(e.tint||"#4A4436");
+      ctx.fillStyle=body;
+      ctx.beginPath();ctx.ellipse(fp.x,fp.y-16*u,8*u,16*u,0,0,7);ctx.fill();
+      ctx.beginPath();ctx.arc(fp.x,fp.y-36*u,7*u,0,7);ctx.fill();
+      ctx.fillStyle=e.tell>0?"#FFC23A":"#C6FF6B";
+      ctx.beginPath();ctx.arc(fp.x-2.6*u,fp.y-37*u,1.7*u,0,7);
+      ctx.arc(fp.x+2.6*u,fp.y-37*u,1.7*u,0,7);ctx.fill();
+      var bw=26*u, frac=Math.max(0,e.hp/e.maxhp);
+      ctx.fillStyle="rgba(8,6,10,.72)";ctx.fillRect(fp.x-bw/2,fp.y-52*u,bw,3.4*u);
+      ctx.fillStyle=e.tell>0?"#FFC23A":"#E8442E";ctx.fillRect(fp.x-bw/2,fp.y-52*u,bw*frac,3.4*u);
+      ctx.globalAlpha=1;
+    }});
+  });
+  LOOT.forEach(function(d){
+    var lp=proj(d.x,10,d.z);
+    if(lp.d<60)return;
+    items.push({z:lp.d,draw:function(){
+      ctx.fillStyle=d.color;ctx.globalAlpha=.9;
+      ctx.beginPath();ctx.arc(lp.x,lp.y-Math.abs(Math.sin(t*3))*5*lp.s,4*lp.s,0,7);ctx.fill();
+      ctx.globalAlpha=1;
+    }});
+  });
   items.sort(function(a,b){return b.z-a.z;});
   function drawPlayer(){
     var pos=proj(player.x,0,player.z), u=1.75*pos.s, a=av(), pulse=.6+.4*Math.sin(t*3);
@@ -2256,14 +2359,28 @@ function hexA(h,a){h=h.replace("#","");if(h.length===3)h=h.split("").map(functio
 /* ---- district travel ---- */
 var openDistrictPid=null;
 function openDistrict(pid){
-  travelWarp(pillar(pid).color,function(){
-    openDistrictPid=pid;renderDistrict(pid);
-    document.getElementById("district").hidden=false;
-    window.scrollTo(0,0);
-    startSectorFX(pid);
-    var pi=PILLARS.findIndex(function(p){return p.id===pid;});
-    try{note(300+pi*70,0,.5,"sine",.09);note((300+pi*70)*1.5,.09,.5,"sine",.06);}catch(e){}
-  });
+  audio();
+  var pi=PILLARS.findIndex(function(p){return p.id===pid;});
+  try{note(300+pi*70,0,.4,"sine",.07);note((300+pi*70)*1.5,.08,.4,"sine",.05);}catch(e){}
+  if(pid==="physical"){toast("The Forge","🔨");openAvatar();return;}
+  if(pid==="mental"){show("bestiary");return;}
+  if(pid==="intellectual"){show("quests");return;}
+  if(pid==="emotional"){openHearth();return;}
+  if(pid==="spiritual"){
+    show("today");
+    var b=document.getElementById("bossMount");
+    if(b)setTimeout(function(){b.scrollIntoView({behavior:"smooth",block:"center"});},120);
+    toast("The Shrine — the ring lies far north","🛐");
+    return;
+  }
+  show("today");
+}
+function openHearth(){
+  var r=R();
+  PC.hp=PC.max;syncHUD();
+  toast("Rested at the Hearth — fully healed","🔥");chimeDone();
+  if(r.gold>=80)setTimeout(function(){
+    toast("Draughts are 80 gold each — buy them on the Hero tab","🧪");},1700);
 }
 function closeDistrict(){
   var col=openDistrictPid?pillar(openDistrictPid).color:"#45D5EC";
@@ -3084,8 +3201,8 @@ function confirmProof(){
   pendingProof=null;proofRow=null;
 }
 /* ================= MOVEMENT ================= */
-var player={x:0,z:300,walk:0,face:1};
-var camX=0, camZ=300;
+var player={x:0,z:260,walk:0,face:1};
+var camX=0, camZ=260;
 var held={up:false,down:false,left:false,right:false};
 var lastFrameMs=0, nearPid=null, MOVE_SPEED=118, dust=[], lastDust=0;
 function setHeld(d,on){held[d]=on;
@@ -3104,23 +3221,33 @@ function setHeld(d,on){held[d]=on;
     btn.addEventListener("contextmenu",function(e){e.preventDefault();});
   });
   document.addEventListener("selectstart",function(e){
-    if(e.target.closest&&e.target.closest(".dpad,.abtn,.world-stage"))e.preventDefault();});
+    if(e.target.closest&&e.target.closest(".dpad,.abtn,.atkbtn,.world-stage"))e.preventDefault();});
   var stage=document.querySelector(".world-stage");
   if(stage){
     stage.addEventListener("selectstart",function(e){e.preventDefault();});
     stage.addEventListener("contextmenu",function(e){e.preventDefault();});
     stage.addEventListener("touchmove",function(e){
-      if(e.target.closest&&e.target.closest(".dpad,.abtn"))e.preventDefault();},{passive:false});
+      if(e.target.closest&&e.target.closest(".dpad,.abtn,.atkbtn"))e.preventDefault();},{passive:false});
   }
   document.addEventListener("pointerup",function(){["up","down","left","right"].forEach(function(d){if(held[d])setHeld(d,false);});});
   var KEY={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",w:"up",s:"down",a:"left",d:"right",W:"up",S:"down",A:"left",D:"right"};
   document.addEventListener("keydown",function(e){
     if(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
     var k=KEY[e.key];if(k){setHeld(k,true);e.preventDefault();}
-    if((e.key==="Enter"||e.key===" ")&&nearPid){enterNear();e.preventDefault();}});
+    if(e.key==="Enter"&&nearPid){enterNear();e.preventDefault();}
+    if(e.key===" "){attack();e.preventDefault();}
+    if(e.key==="q"||e.key==="Q"){drinkPotion();e.preventDefault();}});
   document.addEventListener("keyup",function(e){var k=KEY[e.key];if(k)setHeld(k,false);});
   document.getElementById("aBtn").addEventListener("click",function(){
-    if(nearPid)enterNear();else toast("Walk up to a building first","🚶");});
+    if(nearPid)enterNear();
+    else toast(inWilds()?"Nothing to talk to out here":"Walk up to a building or a townsperson","🚶");});
+  var atk=document.getElementById("atkBtn");
+  if(atk){
+    atk.addEventListener("pointerdown",function(e){e.preventDefault();attack();});
+    atk.addEventListener("contextmenu",function(e){e.preventDefault();});
+  }
+  var pot=document.getElementById("potBtn");
+  if(pot)pot.addEventListener("click",function(e){e.preventDefault();drinkPotion();});
 })();
 function enterNear(){
   if(!nearPid)return;
@@ -3129,7 +3256,8 @@ function enterNear(){
 function setPrompt(pid){
   if(pid===nearPid)return;
   nearPid=pid;
-  var dlg=document.getElementById("dialog");if(dlg&&!dlg.hidden)dlg.hidden=true;
+  var dlg=document.getElementById("dialog"),ft=document.getElementById("dlgFoot");
+  if(dlg&&!dlg.hidden&&(!ft||ft.hidden))dlg.hidden=true;
   var el=document.getElementById("enterPrompt"),ab=document.getElementById("aBtn");
   if(pid&&pid.indexOf("npc:")===0){
     var ag=AGENTS.find(function(a){return a.id===pid.slice(4);});
@@ -3138,65 +3266,458 @@ function setPrompt(pid){
   else{el.hidden=true;ab.classList.add("dim");}
 }
 
-/* ================= BOSS ================= */
-var BOSSES=[
- {id:"sloth",name:"The Sloth Wyrm",ico:"🐉",diff:0.46,line:"It grows fat on the days you skip."},
- {id:"doubt",name:"Doubt Wraith",ico:"👻",diff:0.50,line:"It whispers that you were never the type."},
- {id:"chaos",name:"Chaos Golem",ico:"🗿",diff:0.54,line:"It rules wherever there is no routine."},
- {id:"hydra",name:"Procrastination Hydra",ico:"🐍",diff:0.58,line:"Cut one head and two grow by morning."},
- {id:"void",name:"Void Sentinel",ico:"👁️",diff:0.62,line:"It guards the summit from the unproven."}
-];
-/* HP scales to what a perfect week of YOUR routine would deal */
-function weeklyCapacity(){
-  var n=S.habits.length; if(!n)return 0;
-  var sectors=PILLARS.filter(function(p){return S.habits.some(function(h){return h.pillar===p.id;});}).length;
-  return (n*10 + sectors*25 + 100 + 30)*7;
+/* ================= ACTION RPG — GEAR, FOES, COMBAT ================= */
+function R(){
+  var r=S.rpg||(S.rpg={});
+  if(typeof r.xp!=="number")r.xp=0;
+  if(typeof r.gold!=="number")r.gold=0;
+  if(!r.kills)r.kills={};
+  if(typeof r.deaths!=="number")r.deaths=0;
+  if(typeof r.bossKills!=="number")r.bossKills=0;
+  if(!r.quests)r.quests={};
+  if(typeof r.questsDone!=="number")r.questsDone=0;
+  if(!r.seen)r.seen={};
+  if(typeof r.deepest!=="number")r.deepest=0;
+  if(typeof r.potions!=="number")r.potions=2;
+  if(!r.bag)r.bag={shard:0,core:0};
+  if(!r.bosses)r.bosses={};
+  return r;
 }
+var _saveT=null;
+function saveSoon(){clearTimeout(_saveT);_saveT=setTimeout(function(){save();},450);}
+
+/* ---- what you swing ---- */
+var WEAPONS={
+ none:   {name:"Bare hands",        dmg:8,  cd:0.38, reach:32, arc:1.5},
+ short:  {name:"Iron Shortsword",   dmg:16, cd:0.40, reach:44, arc:1.5},
+ long:   {name:"Steel Longsword",   dmg:26, cd:0.52, reach:54, arc:1.6, knock:22},
+ hammer: {name:"Warhammer",         dmg:48, cd:0.92, reach:48, arc:1.9, knock:46},
+ flame:  {name:"Flame Greatsword",  dmg:40, cd:0.56, reach:60, arc:1.7, knock:26},
+ staff:  {name:"Scholar's Staff",   dmg:22, cd:0.42, reach:66, arc:1.25},
+ torch:  {name:"Beacon Torch",      dmg:18, cd:0.36, reach:40, arc:1.7},
+ lantern:{name:"Deeplight Lantern", dmg:25, cd:0.46, reach:46, arc:1.6}
+};
+var ARMOR ={none:0,vest:5,mail:11,guard:17,aether:26};
+var HELMS ={none:0,visor:1,phones:1,band:3,hood:3,circlet:4,halo:6,helm:8,crown:11};
+var CLOAKS={none:0,cape:8,ember:10,delver:12,champ:15,wings:22};
+function gearOf(){var a=av();return a.gear||(a.gear={head:"none",body:"none",hand:"none",back:"none"});}
+function weapon(){return WEAPONS[gearOf().hand]||WEAPONS.none;}
+function armorOf(){var g=gearOf();return (ARMOR[g.body]||0)+(HELMS[g.head]||0);}
+function moveMul(){return 1+(CLOAKS[gearOf().back]||0)/100;}
+function maxHP(){return 110+(levelInfo().level-1)*20+(ARMOR[gearOf().body]||0)*2;}
+function attackPower(){return weapon().dmg+Math.floor((levelInfo().level-1)*1.7);}
+function critChance(){return 0.08+(HELMS[gearOf().head]||0)/140;}
+
+/* ---- what comes for you ---- */
+var FOES={
+ husk:   {n:"Husk",         hp:38,  dmg:11, sp:38, ag:210, rch:28, cd:1.5, tell:0.55, xp:22,  gold:5,  tint:"#4A4436",
+          lore:"What is left of the farmers who stayed out past the wall. Slow — but there are always more."},
+ prowler:{n:"Dune Prowler", hp:28,  dmg:14, sp:66, ag:280, rch:26, cd:1.05,tell:0.32, xp:30,  gold:8,  tint:"#3A2A44",
+          lore:"Fast, thin, and fully committed once it lunges. Step around the lunge and it is yours."},
+ brute:  {n:"Ash Brute",    hp:96,  dmg:26, sp:30, ag:180, rch:36, cd:2.0, tell:0.80, xp:66,  gold:18, tint:"#4E3020", armor:3,
+          lore:"Telegraphs everything and hits like a collapsing wall. Punish the wind-up."},
+ shade:  {n:"Night Shade",  hp:54,  dmg:19, sp:56, ag:320, rch:28, cd:1.25,tell:0.38, xp:58,  gold:14, tint:"#1E1B2E", night:1,
+          lore:"Only walks the wilds after dark. It sees you a long time before you see it."},
+ warden: {n:"Bone Warden",  hp:160, dmg:33, sp:36, ag:240, rch:34, cd:1.65,tell:0.70, xp:130, gold:38, tint:"#2E3642", armor:8,
+          lore:"Older than the town wall. It holds the road to the arena and it does not tire."},
+ boss:   {n:"Warlord",      hp:800, dmg:40, sp:44, ag:700, rch:52, cd:1.45,tell:0.78, xp:1400,gold:520,tint:"#2A1218", armor:10,
+          lore:"A new one claims the ring every week."}
+};
+var GATE_Z=-400, WILD_EDGE=-1520, ARENA_Z=-1260;
+var ZONES=[
+ {id:"gate",  n:"The Gate Fields", d0:0,   pool:["husk","husk","prowler"],                    cap:6, lv:1},
+ {id:"barren",n:"The Barrens",     d0:280, pool:["husk","prowler","prowler","brute"],         cap:8, lv:5},
+ {id:"dead",  n:"The Deadlands",   d0:580, pool:["brute","brute","warden","prowler","shade"], cap:9, lv:10}
+];
+function depthOf(z){return Math.max(0,GATE_Z-z);}          // metres past the gate
+function zoneAt(z){var d=depthOf(z);
+  for(var i=ZONES.length-1;i>=0;i--)if(d>=ZONES[i].d0)return ZONES[i];return null;}
+function inWilds(){return player.z<GATE_Z+18;}
+function isNight(){try{return skyPalette().phase==="night";}catch(e){return false;}}
+
+/* ---- runtime state (never persisted) ---- */
+var FOEZ=[], LOOT=[], foeSeq=0, lootSeq=0, spawnTimer=0;
+var PC={hp:0,max:110,swingT:-1,hitDone:false,cool:0,inv:0,down:0,sinceHurt:99,shake:0,aimx:0,aimz:1,swing:0};
+var LOOT_NAME={shard:"Iron Shard",core:"Ember Core",gold:"gold",relic:"Relic"};
+
+function floatWorld(x,y,z,txt,cls){
+  if(REDUCED)return;
+  var layer=document.getElementById("fxLayer");if(!layer)return;
+  var p=(W3&&W3.project)?W3.project(x,y,z):null;
+  if(!p){var b=layer.getBoundingClientRect();p={x:b.width/2,y:b.height*0.55};}
+  var d=document.createElement("div");d.className="wfx "+(cls||"");d.textContent=txt;
+  d.style.left=p.x+"px";d.style.top=p.y+"px";
+  layer.appendChild(d);
+  setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},950);
+}
+function hurtFlash(){
+  var v=document.getElementById("hurtVig");if(!v)return;
+  v.classList.remove("on");void v.offsetWidth;v.classList.add("on");
+}
+
+/* ---- spawning ---- */
+function spawnFoe(type,x,z,scaleOverride){
+  var f=FOES[type]||FOES.husk, lv=levelInfo().level;
+  var k=scaleOverride||(1+(lv-1)*0.10);
+  var hp=Math.round(f.hp*k);
+  var e={id:"f"+(++foeSeq),type:type,kind:type,tint:f.tint,
+    x:x,z:z,hx:x,hz:z,wx:x,wz:z,wt:0,
+    hp:hp,maxhp:hp,dmg:Math.round(f.dmg*(1+(lv-1)*0.06)),
+    dx:0,dz:1,walk:0,st:"idle",cd:0.6+Math.random()*1.2,tell:0,lunge:0,hit:0,fade:1,dead:false};
+  FOEZ.push(e);
+  R().seen[type]=1;
+  return e;
+}
+function bossAlive(){return FOEZ.some(function(e){return e.type==="boss"&&!e.dead;});}
+function liveFoe(){return FOEZ.filter(function(e){return !e.dead;});}
+function maintainSpawns(dt){
+  if(!inWilds()){
+    FOEZ=FOEZ.filter(function(e){return !e.dead&&Math.hypot(e.x-player.x,e.z-player.z)<560;});
+    return;
+  }
+  maybeSpawnBoss();
+  if(bossAlive())return;
+  var zn=zoneAt(player.z);if(!zn)return;
+  var cap=Math.min(13,zn.cap+Math.floor(levelInfo().level/5));
+  spawnTimer-=dt;
+  if(liveFoe().length>=cap||spawnTimer>0)return;
+  spawnTimer=0.7+Math.random()*1.3;
+  var pool=zn.pool.slice();
+  if(isNight())pool.push("shade","shade");
+  var type=pool[Math.floor(Math.random()*pool.length)];
+  if(FOES[type].night&&!isNight())type="prowler";
+  var a=Math.random()*Math.PI*2, r=310+Math.random()*170;
+  var x=player.x+Math.cos(a)*r, z=player.z+Math.sin(a)*r;
+  if(z>GATE_Z-52)z=GATE_Z-52-Math.random()*140;
+  spawnFoe(type,Math.max(-720,Math.min(720,x)),Math.max(WILD_EDGE+20,z));
+}
+function maybeSpawnBoss(){
+  if(bossAlive())return;
+  var b=bossOfWeek();
+  if(R().bosses[b.wk])return;
+  if(Math.hypot(player.x,player.z-ARENA_Z)>180)return;
+  var lv=levelInfo().level;
+  FOEZ=[];LOOT=[];
+  var e=spawnFoe("boss",0,ARENA_Z-110,1+(lv-1)*0.24);
+  e.name=b.name;
+  toast(b.name+" takes the ring","⚔️");
+  chimeReward();
+  if(navigator.vibrate)navigator.vibrate([40,80,40]);
+}
+
+/* ---- your swing ---- */
+function attack(){
+  if(PC.down>0||PC.cool>0||PC.swingT>=0)return;
+  var w=weapon();
+  PC.cool=w.cd;PC.swingT=0;PC.hitDone=false;
+  var best=null,bd=1e9;
+  FOEZ.forEach(function(e){if(e.dead)return;var d=Math.hypot(e.x-player.x,e.z-player.z);
+    if(d<w.reach+40&&d<bd){bd=d;best=e;}});
+  if(best){var dx=best.x-player.x,dz=best.z-player.z,d=Math.hypot(dx,dz)||1;PC.aimx=dx/d;PC.aimz=dz/d;}
+  audio();note(150,0,.09,"sawtooth",.05);note(95,.03,.14,"square",.035);
+}
+function landHit(){
+  var w=weapon(),hit=false,base=attackPower();
+  FOEZ.forEach(function(e){
+    if(e.dead)return;
+    var dx=e.x-player.x,dz=e.z-player.z,d=Math.hypot(dx,dz)||1;
+    if(d>w.reach+(e.type==="boss"?26:14))return;
+    if((dx*PC.aimx+dz*PC.aimz)/d<Math.cos(w.arc))return;
+    var crit=Math.random()<critChance();
+    var raw=base*(0.86+Math.random()*0.28)*(crit?2:1);
+    hurtFoe(e,Math.max(1,Math.round(raw-(FOES[e.type].armor||0))),crit,dx/d,dz/d,w.knock||14);
+    hit=true;
+  });
+  if(hit){PC.shake=0.34;if(navigator.vibrate)navigator.vibrate(12);note(110,0,.09,"square",.055);}
+  else note(300,0,.05,"sine",.018);
+}
+function hurtFoe(e,dmg,crit,nx,nz,knock){
+  e.hp-=dmg;e.hit=0.28;e.st="chase";e.tell=0;e.lunge=0;
+  if(e.type!=="boss"){e.x+=nx*knock*0.5;e.z+=nz*knock*0.5;}
+  floatWorld(e.x,30,e.z,(crit?"✦ ":"")+dmg,crit?"crit":"dmg");
+  if(e.hp<=0)killFoe(e);
+}
+function killFoe(e){
+  if(e.dead)return;
+  e.hp=0;e.dead=true;e.fade=1;
+  var f=FOES[e.type]||FOES.husk,r=R(),lv=levelInfo().level;
+  r.kills[e.type]=(r.kills[e.type]||0)+1;
+  grantXP(Math.round(f.xp*(1+(lv-1)*0.05)));
+  dropLoot(e,f.gold+Math.floor(Math.random()*(f.gold+1)));
+  questProgress("kill",e.type,1);
+  note(200,0,.14,"triangle",.05);note(300,.07,.2,"triangle",.04);
+  if(e.type==="boss"){
+    var b=bossOfWeek();
+    r.bosses[b.wk]=true;r.bossKills++;
+    questProgress("boss",null,1);
+    var g=unlockRandomGear();
+    toast((e.name||b.name)+" falls!"+(g?" Took their "+g.name+".":""),"🏆");
+    chimeReward();
+    if(navigator.vibrate)navigator.vibrate([30,70,30,70,90]);
+    PC.shake=1.1;
+  }
+  save();
+}
+function dropLoot(e,gold){
+  var drops=[{k:"gold",n:gold,color:"#FFD268"}];
+  if(Math.random()<0.55)drops.push({k:"shard",n:1,color:"#9BE8FF"});
+  if(Math.random()<(e.type==="boss"?1:0.16))drops.push({k:"core",n:e.type==="boss"?4:1,color:"#FF7BD0"});
+  if(Math.random()<(e.type==="boss"?0.6:0.035))drops.push({k:"relic",n:1,color:"#B6FF7A"});
+  drops.forEach(function(d,i){
+    LOOT.push({id:"l"+(++lootSeq),k:d.k,n:d.n,color:d.color,t:0,
+      x:e.x+Math.cos(i*2.1)*(10+i*7),z:e.z+Math.sin(i*2.1)*(10+i*7)});
+  });
+}
+function collect(d){
+  var r=R();
+  if(d.k==="gold"){r.gold+=d.n;floatWorld(player.x,42,player.z,"+"+d.n+"g","gold");}
+  else if(d.k==="relic"){
+    var g=unlockRandomGear();
+    if(g){floatWorld(player.x,42,player.z,"Relic: "+g.name,"relic");toast("Relic recovered — "+g.name,g.ico);chimeReward();}
+    else{r.gold+=200;floatWorld(player.x,42,player.z,"+200g","gold");}
+  }else{
+    r.bag[d.k]=(r.bag[d.k]||0)+d.n;
+    floatWorld(player.x,42,player.z,"+"+d.n+" "+LOOT_NAME[d.k],"item");
+    questProgress("loot",d.k,d.n);
+  }
+  note(880,0,.08,"triangle",.045);note(1320,.05,.1,"triangle",.035);
+  syncHUD();saveSoon();
+}
+function grantXP(n){
+  R().xp+=n;
+  floatWorld(player.x,58,player.z,"+"+n+" XP","xp");
+  updateHUD();checkLevelUp();checkUnlocks();saveSoon();
+}
+function hurtPlayer(dmg){
+  if(PC.inv>0||PC.down>0)return;
+  var d=Math.max(1,Math.round(dmg*(1-Math.min(0.62,armorOf()/72))));
+  PC.hp-=d;PC.inv=0.55;PC.sinceHurt=0;PC.shake=0.62;
+  floatWorld(player.x,52,player.z,"-"+d,"hurt");
+  hurtFlash();
+  note(70,0,.18,"square",.07);
+  if(navigator.vibrate)navigator.vibrate([24]);
+  if(PC.hp<=0)downPlayer();
+  syncHUD();
+}
+function downPlayer(){
+  PC.hp=0;PC.down=3.2;
+  var r=R();r.deaths++;
+  var lost=Math.floor(r.gold*0.15);r.gold-=lost;
+  save();
+  toast("You fell in the wilds"+(lost?" — lost "+lost+" gold":""),"💀");
+  note(170,0,.5,"sawtooth",.09);note(90,.22,.7,"sawtooth",.08);
+  if(navigator.vibrate)navigator.vibrate([60,80,120]);
+}
+function drinkPotion(){
+  var r=R();
+  if(PC.down>0)return;
+  if(!r.potions){toast("No draughts left — buy them at the Hearth","🧪");return;}
+  if(PC.hp>=PC.max){toast("You are already whole","❤️");return;}
+  r.potions--;PC.hp=Math.min(PC.max,PC.hp+Math.round(PC.max*0.5));
+  floatWorld(player.x,52,player.z,"+"+Math.round(PC.max*0.5),"heal");
+  toast("Draught of Vigour","🧪");chimeDone();syncHUD();save();
+}
+
+/* ---- the combat loop ---- */
+function updateCombat(dt,t){
+  PC.max=maxHP();
+  if(!PC.hp&&!PC.down)PC.hp=PC.max;
+  if(PC.hp>PC.max)PC.hp=PC.max;
+  PC.shake=Math.max(0,PC.shake-dt*3.0);
+  PC.inv=Math.max(0,PC.inv-dt);
+  PC.cool=Math.max(0,PC.cool-dt);
+  PC.sinceHurt+=dt;
+
+  if(PC.down>0){
+    PC.down-=dt;
+    if(PC.down<=0){
+      PC.down=0;PC.hp=PC.max;PC.inv=2.4;
+      player.x=0;player.z=150;FOEZ=[];LOOT=[];
+      toast("The Hearth pulls you back","🔥");
+    }
+  }else{
+    var regen=inWilds()?(PC.sinceHurt>8?2.6:0):16;
+    if(PC.hp<PC.max&&regen)PC.hp=Math.min(PC.max,PC.hp+regen*dt);
+  }
+
+  var dur=weapon().cd*0.8;
+  if(PC.swingT>=0){
+    PC.swingT+=dt;
+    if(!PC.hitDone&&PC.swingT>=dur*0.42){PC.hitDone=true;landHit();}
+    if(PC.swingT>=dur)PC.swingT=-1;
+  }
+  PC.swing=PC.swingT>=0?Math.min(1,PC.swingT/dur):0;
+
+  maintainSpawns(dt);
+
+  var r=R();
+  if(depthOf(player.z)>r.deepest){r.deepest=Math.round(depthOf(player.z));questProgress("reach",null,0);}
+
+  FOEZ.forEach(function(e){
+    e.hit=Math.max(0,e.hit-dt);
+    if(e.dead){e.fade-=dt*1.5;e.walk=0;return;}
+    var f=FOES[e.type]||FOES.husk;
+    var dx=player.x-e.x,dz=player.z-e.z,d=Math.hypot(dx,dz)||1;
+    e.cd=Math.max(0,e.cd-dt);
+    if(PC.down>0){e.st="idle";e.tell=0;e.lunge=0;}
+    else if(d<f.ag)e.st="chase";
+    else if(e.st==="chase"&&d>f.ag*1.7)e.st="idle";
+
+    if(e.tell>0){
+      e.tell-=dt;e.walk=0;
+      e.lunge=Math.max(0.02,1-e.tell/f.tell);
+      e.dx=dx/d;e.dz=dz/d;
+      if(e.tell<=0){
+        e.lunge=0;e.cd=f.cd;
+        if(Math.hypot(player.x-e.x,player.z-e.z)<f.rch+24)hurtPlayer(e.dmg);
+        else note(220,0,.08,"sine",.02);
+      }
+    }else if(e.st==="chase"){
+      e.dx=dx/d;e.dz=dz/d;
+      if(d>f.rch){var sp=f.sp*dt;e.x+=e.dx*sp;e.z+=e.dz*sp;e.walk+=dt*7.5;}
+      else{e.walk=0;if(e.cd<=0){e.tell=f.tell;e.lunge=0.02;}}
+    }else{
+      e.wt-=dt;
+      if(e.wt<=0){e.wt=2.4+Math.random()*3.4;e.wx=e.hx+(Math.random()-0.5)*180;e.wz=Math.min(GATE_Z-60,e.hz+(Math.random()-0.5)*180);}
+      var ux=e.wx-e.x,uz=e.wz-e.z,ud=Math.hypot(ux,uz);
+      if(ud>6){var s2=f.sp*0.36*dt;e.x+=ux/ud*s2;e.z+=uz/ud*s2;e.walk+=dt*4;e.dx=ux/ud;e.dz=uz/ud;}
+      else e.walk=0;
+    }
+    if(e.z>GATE_Z-16)e.z=GATE_Z-16;          // the wall keeps them out of town
+    e.x=Math.max(-760,Math.min(760,e.x));
+    e.z=Math.max(WILD_EDGE-20,e.z);
+  });
+
+  for(var i=0;i<FOEZ.length;i++){            // stop them stacking on one tile
+    var a=FOEZ[i];if(a.dead)continue;
+    for(var j=i+1;j<FOEZ.length;j++){
+      var b=FOEZ[j];if(b.dead)continue;
+      var ox=b.x-a.x,oz=b.z-a.z,od=Math.hypot(ox,oz);
+      var mn=(a.type==="boss"||b.type==="boss")?58:26;
+      if(od<mn&&od>0.01){var pu=(mn-od)/2;a.x-=ox/od*pu;a.z-=oz/od*pu;b.x+=ox/od*pu;b.z+=oz/od*pu;}
+    }
+  }
+  FOEZ=FOEZ.filter(function(e){return !e.dead||e.fade>0;});
+
+  LOOT=LOOT.filter(function(d){
+    d.t+=dt;
+    if(d.t>90)return false;
+    var dd=Math.hypot(d.x-player.x,d.z-player.z);
+    if(dd<46){d.x+=(player.x-d.x)*Math.min(1,dt*5.5);d.z+=(player.z-d.z)*Math.min(1,dt*5.5);}
+    if(dd<15){collect(d);return false;}
+    return true;
+  });
+  syncHUD();
+}
+
+/* ================= QUESTS ================= */
+var QUEST_LINES={
+ bran:[
+  {id:"bran1",t:"Cull the Husks",d:"Six Husks are pressing the gate. Walk out and put them down — I pay per head.",g:{t:"kill",k:"husk",n:6},xp:150,gold:50},
+  {id:"bran2",t:"Iron for the Forge",d:"Everything out there sheds shards when it dies. Bring me eight and I keep your edge sharp.",g:{t:"loot",k:"shard",n:8},xp:260,gold:90},
+  {id:"bran3",t:"Break the Brutes",d:"Three Ash Brutes on the Barrens. Wait for the wind-up, then hit them mid-swing.",g:{t:"kill",k:"brute",n:3},xp:520,gold:200}
+ ],
+ sera:[
+  {id:"sera1",t:"Eyes in the Dark",d:"Shades only walk after nightfall. Take four of them and I will sleep easier.",g:{t:"kill",k:"shade",n:4},xp:340,gold:120},
+  {id:"sera2",t:"Past the Barrens",d:"Nobody has marked the Deadlands in years. Reach them and come back breathing.",g:{t:"reach",z:580,n:1},xp:400,gold:150}
+ ],
+ mira:[
+  {id:"mira1",t:"Embers for the Hearth",d:"Ember Cores keep the fire lit and the draughts brewing. Five will do.",g:{t:"loot",k:"core",n:5},xp:300,gold:110},
+  {id:"mira2",t:"Thin the Prowlers",d:"They come in fast and low. Ten of them and the north road is walkable again.",g:{t:"kill",k:"prowler",n:10},xp:420,gold:160}
+ ],
+ tomas:[
+  {id:"tomas1",t:"Field Notes",d:"Twenty of anything, killed past the wall. For the record, you understand.",g:{t:"kill",k:null,n:20},xp:380,gold:130},
+  {id:"tomas2",t:"The Bone Wardens",d:"Two Wardens hold the arena road. They were men once. They are not now.",g:{t:"kill",k:"warden",n:2},xp:700,gold:280}
+ ],
+ elowen:[
+  {id:"elo1",t:"The Arena",d:"A Warlord claims the ring past the Deadlands every week. Go and unclaim it.",g:{t:"boss",k:null,n:1},xp:900,gold:400},
+  {id:"elo2",t:"Thrice Crowned",d:"One was luck. Fell three Warlords and I will believe the songs.",g:{t:"boss",k:null,n:3},xp:1600,gold:800}
+ ]
+};
+function questAt(npc){
+  var line=QUEST_LINES[npc]||[],r=R();
+  for(var i=0;i<line.length;i++){
+    var q=line[i],st=r.quests[q.id];
+    if(!st||!st.claimed)return {q:q,st:st||null,idx:i};
+  }
+  return null;
+}
+function questNow(q){
+  var r=R();
+  if(q.g.t==="boss")return r.bossKills;
+  if(q.g.t==="reach")return r.deepest>=q.g.z?1:0;
+  var st=r.quests[q.id];
+  return st?(st.n||0):0;
+}
+function questDone(q){return questNow(q)>=q.g.n;}
+function activeQuests(){
+  var out=[],r=R();
+  for(var npc in QUEST_LINES)QUEST_LINES[npc].forEach(function(q){
+    var st=r.quests[q.id];
+    if(st&&!st.claimed)out.push({npc:npc,q:q,st:st});
+  });
+  return out;
+}
+function questProgress(kind,key,n){
+  var r=R(),touched=false;
+  for(var npc in QUEST_LINES)QUEST_LINES[npc].forEach(function(q){
+    var st=r.quests[q.id];
+    if(!st||st.claimed)return;
+    if(q.g.t!==kind)return;
+    if(q.g.k&&q.g.k!==key)return;
+    var was=questDone(q);
+    if((kind==="kill"||kind==="loot")&&n)st.n=(st.n||0)+n;
+    touched=true;
+    if(!was&&questDone(q)){
+      toast("Objective complete — "+q.t,"📜");chimeDone();
+      var giver=AGENTS.find(function(a){return a.id===npc;});
+      if(giver)setTimeout(function(){toast("Report back to "+giver.name,"↩️");},1700);
+    }
+  });
+  if(touched)saveSoon();
+}
+function acceptQuest(q){
+  R().quests[q.id]={n:0,claimed:false};
+  save();toast("Quest accepted — "+q.t,"📜");chimeDone();renderCurrent();
+}
+function claimQuest(q){
+  var r=R(),st=r.quests[q.id];
+  if(!st||st.claimed||!questDone(q))return;
+  st.claimed=true;r.questsDone++;r.gold+=q.gold;
+  grantXP(q.xp);save();
+  toast(q.t+" — +"+q.xp+" XP, +"+q.gold+"g","🏅");chimeReward();
+  if(navigator.vibrate)navigator.vibrate([20,60,30]);
+  renderCurrent();
+}
+
+/* ================= THE WARLORD ================= */
+var BOSSES=[
+ {id:"kharn",name:"Kharn the Sloth Wyrm",ico:"🐉",line:"It has eaten every traveller who turned back."},
+ {id:"vurn", name:"Vurn the Doubt Wraith",ico:"👻",line:"It fights by making you hesitate."},
+ {id:"golem",name:"The Chaos Golem",ico:"🗿",line:"No pattern, and no tell you can trust twice."},
+ {id:"skarn",name:"Skarn the Nine-Necked",ico:"🐍",line:"Cut it once and it comes back harder."},
+ {id:"void", name:"The Void Sentinel",ico:"👁️",line:"It has held the ring a very long time."}
+];
 function hashStr(x){var h=0;for(var i=0;i<x.length;i++)h=(h*31+x.charCodeAt(i))|0;return Math.abs(h);}
 function weekKey(){var d=new Date(),oj=new Date(d.getFullYear(),0,1);
   var wk=Math.ceil((((d-oj)/86400000)+oj.getDay()+1)/7);return d.getFullYear()+"-W"+wk;}
-function weekDayKeys(){var out=[],dow=new Date().getDay();
-  for(var i=dow;i>=0;i--){var x=new Date();x.setDate(x.getDate()-i);out.push(keyOf(x));}return out;}
 function bossOfWeek(){var wk=weekKey(),b=BOSSES[hashStr(wk)%BOSSES.length];
-  var hp=Math.max(250,Math.round(weeklyCapacity()*b.diff));
-  return {id:b.id,name:b.name,ico:b.ico,hp:hp,line:b.line,wk:wk};}
-function bossDamage(){
-  var days=weekDayKeys(),dmg=0;
-  S.habits.forEach(function(h){days.forEach(function(k){if(h.history[k])dmg+=10;});});
-  PILLARS.forEach(function(p){var hs=S.habits.filter(function(h){return h.pillar===p.id;});
-    if(hs.length)days.forEach(function(k){if(hs.every(function(h){return h.history[k];}))dmg+=25;});});
-  if(S.habits.length)days.forEach(function(k){if(S.habits.every(function(h){return h.history[k];}))dmg+=100;});
-  days.forEach(function(k){var j=S.journal[k];if(j){if(j.morning)dmg+=15;if(j.evening)dmg+=15;}});
-  dmg+=difficultyDamage(days);
-  dmg+=40*puzzlesSolvedIn(days)+focusDamageThisWeek();
-  return dmg;
-}
-function bossState(){var b=bossOfWeek(),d=bossDamage();
-  return {b:b,dmg:d,left:Math.max(0,b.hp-d),won:d>=b.hp||!!(S.bosses&&S.bosses[b.wk])};}
-function checkBoss(){
-  if(!S.bosses)S.bosses={};
-  var st=bossState();
-  if(st.dmg>=st.b.hp&&!S.bosses[st.b.wk]){
-    S.bosses[st.b.wk]=true;save();
-    if(S.bossInit===false||S.bossInit==null){S.bossInit=true;save();return;}
-    setTimeout(function(){toast(st.b.name+" vanquished!","🏆");chimeReward();
-      if(navigator.vibrate)navigator.vibrate([30,60,30,60,60]);},700);
-  }
-  if(S.bossInit==null){S.bossInit=true;save();}
-}
-function bossesWon(){return S.bosses?Object.keys(S.bosses).length:0;}
+  return {id:b.id,name:b.name,ico:b.ico,line:b.line,wk:wk};}
+function bossBeaten(){return !!R().bosses[bossOfWeek().wk];}
+function bossesWon(){return R().bossKills;}
 function renderBoss(){
   var m=document.getElementById("bossMount");if(!m)return;
-  var st=bossState(),pct=Math.max(0,Math.round(st.left/st.b.hp*100));
-  m.innerHTML='<div class="card boss-card'+(st.won?" won":"")+'">'+
-    '<div class="boss-top"><div class="boss-ico">'+(st.won?"🏆":st.b.ico)+'</div>'+
-    '<div class="boss-main"><div class="boss-eyebrow">'+(st.won?"Vanquished this week":"Weekly boss")+'</div>'+
-    '<div class="boss-name">'+esc(st.b.name)+'</div>'+
-    '<div class="boss-line">'+esc(st.won?"The town is safe. A new foe rises Sunday.":st.b.line)+'</div></div></div>'+
-    (st.won?'':'<div class="boss-hp"><i style="width:'+pct+'%"></i></div>'+
-    '<div class="boss-nums"><span>Damage dealt <b class="tn">'+st.dmg+'</b></span>'+
-    '<span><b class="tn">'+st.left+'</b> HP left</span></div>')+'</div>';
+  var b=bossOfWeek(),won=bossBeaten(),lv=levelInfo().level;
+  var hp=Math.round(FOES.boss.hp*(1+(lv-1)*0.24));
+  m.innerHTML='<div class="card boss-card'+(won?" won":"")+'">'+
+    '<div class="boss-top"><div class="boss-ico">'+(won?"🏆":b.ico)+'</div>'+
+    '<div class="boss-main"><div class="boss-eyebrow">'+(won?"Ring cleared this week":"This week in the arena")+'</div>'+
+    '<div class="boss-name">'+esc(b.name)+'</div>'+
+    '<div class="boss-line">'+esc(won?"The ring is yours until Sunday. Something else will claim it then.":b.line)+'</div></div></div>'+
+    (won?'':'<div class="boss-nums"><span>About <b class="tn">'+hp+'</b> HP at your level</span>'+
+      '<span>North gate → Deadlands → the ring</span></div>')+'</div>';
 }
+
 /* ================= PROGRESSION ================= */
 var XP_HABIT=15, XP_SECTOR=25, XP_JOURNAL=20, XP_JOURNEY=30, XP_PERFECT=100, XP_VERIFY=10;
 function pillarCompletions(pid){var n=0;S.habits.filter(function(h){return h.pillar===pid;})
@@ -3209,21 +3730,24 @@ function sectorClearCount(){var n=0;
     var days={};hs.forEach(function(h){for(var k in h.history)days[k]=1;});
     for(var d in days){if(hs.every(function(h){return h.history[d];}))n++;}
   });return n;}
-function totalXP(){
-  return XP_HABIT*totalCompletions()+XP_SECTOR*sectorClearCount()+XP_JOURNAL*journalSessions()
-    +XP_JOURNEY*journeyDaysDone()+XP_PERFECT*perfectDayCount()+250*bossesWon()+difficultyXP()+XP_PUZZLE*puzzleSolvedCount()+focusXP()+dayCycleXP()+campaignXP();
-}
-function xpNeed(L){return 120+(L-1)*80;}
-function titleFor(L){return L>=25?"Ascendant":L>=18?"Vanguard":L>=14?"Champion":L>=10?"Warden":
-  L>=7?"Adept":L>=5?"Apprentice":L>=3?"Seeker":"Wanderer";}
+/* XP is earned in the field: kills, quest turn-ins, warlords, and the Puzzle Hall */
+function totalXP(){return R().xp+XP_PUZZLE*puzzleSolvedCount();}
+function xpNeed(L){return 150+(L-1)*115;}
+function titleFor(L){return L>=25?"Warlord-Slayer":L>=18?"Blademaster":L>=14?"Champion":L>=10?"Warden":
+  L>=7?"Hunter":L>=5?"Skirmisher":L>=3?"Recruit":"Drifter";}
 function levelInfo(){
   var xp=totalXP(),L=1,rem=xp,guard=0;
   while(rem>=xpNeed(L)&&guard++<999){rem-=xpNeed(L);L++;}
   return {level:L,cur:rem,need:xpNeed(L),xp:xp,title:titleFor(L)};
 }
-var STATS=[{k:"STR",pid:"physical"},{k:"MIND",pid:"mental"},{k:"HEART",pid:"emotional"},
-           {k:"SPIRIT",pid:"spiritual"},{k:"WIS",pid:"intellectual"}];
-function statValue(pid){return 1+Math.floor(pillarCompletions(pid)/5);}
+function totalKills(){var n=0,k=R().kills;for(var t in k)n+=k[t];return n;}
+var STATS=[
+ {k:"ATTACK", v:function(){return attackPower();},           max:function(){return 70;},  c:"#E8563C"},
+ {k:"ARMOUR", v:function(){return armorOf();},               max:function(){return 40;},  c:"#5F8DE8"},
+ {k:"VITALITY",v:function(){return maxHP();},                max:function(){return 400;}, c:"#3FBF7F"},
+ {k:"CRIT",   v:function(){return Math.round(critChance()*100);},max:function(){return 25;},c:"#E8B93C"},
+ {k:"SPEED",  v:function(){return Math.round(moveMul()*100);},max:function(){return 130;}, c:"#9E6BE8"}
+];
 function updateHUD(){
   var li=levelInfo();
   var lv=document.getElementById("hudLv");if(lv)lv.textContent=li.level;
@@ -3260,57 +3784,86 @@ function renderRPG(){
   document.getElementById("cXp").style.width=Math.round(li.cur/li.need*100)+"%";
   document.getElementById("cXpT").textContent=li.cur+" / "+li.need+" XP";
   var m=document.getElementById("cStats");m.innerHTML="";
-  var vals=STATS.map(function(st){return statValue(st.pid);});
-  var mx=Math.max(5,Math.max.apply(null,vals));
-  STATS.forEach(function(st,i){
-    var row=document.createElement("div");row.className="stat-row";
-    row.style.setProperty("--sc2",pillar(st.pid).color);
+  STATS.forEach(function(st){
+    var v=st.v(),row=document.createElement("div");row.className="stat-row";
+    row.style.setProperty("--sc2",st.c);
     row.innerHTML='<span class="sk">'+st.k+'</span><span class="sb"><i style="width:'+
-      Math.round(vals[i]/mx*100)+'%"></i></span><span class="sv tn">'+vals[i]+'</span>';
+      Math.max(4,Math.min(100,Math.round(v/st.max()*100)))+'%"></i></span><span class="sv tn">'+v+'</span>';
     m.appendChild(row);
   });
+}
+/* ---- helpers the combat layer leans on ---- */
+function weekDayKeys(){var out=[],dow=new Date().getDay();
+  for(var i=dow;i>=0;i--){var x=new Date();x.setDate(x.getDate()-i);out.push(keyOf(x));}return out;}
+function unlockRandomGear(){
+  if(!S.unlockedGear)S.unlockedGear=[];
+  var pool=GEAR.filter(function(g){return !gearOwned(g);});
+  if(!pool.length)return null;
+  var g=pool[Math.floor(Math.random()*pool.length)];
+  S.unlockedGear.push(gearKey(g));save();
+  return g;
+}
+function syncHUD(){
+  var f=document.getElementById("hpFill");
+  if(f)f.style.width=Math.max(0,Math.min(100,Math.round(PC.hp/PC.max*100)))+"%";
+  var tx=document.getElementById("hpTxt");
+  if(tx)tx.textContent=Math.max(0,Math.ceil(PC.hp))+" / "+PC.max;
+  var gd=document.getElementById("goldTxt");if(gd)gd.textContent=R().gold;
+  var pt=document.getElementById("potTxt");if(pt)pt.textContent=R().potions;
+  var zn=document.getElementById("zoneTxt");
+  if(zn){var z=inWilds()?zoneAt(player.z):null;zn.textContent=z?z.n:"Emberhold";}
+  var bb=document.getElementById("bossBar"),boss=FOEZ.filter(function(e){return e.type==="boss"&&!e.dead;})[0];
+  if(bb){
+    bb.hidden=!boss;
+    if(boss){
+      document.getElementById("bossBarName").textContent=boss.name||"Warlord";
+      document.getElementById("bossBarFill").style.width=Math.max(0,Math.round(boss.hp/boss.maxhp*100))+"%";
+    }
+  }
 }
 /* ================= ARMORY ================= */
 var SLOTS=[{k:"head",l:"Head"},{k:"body",l:"Body"},{k:"hand",l:"Hand"},{k:"back",l:"Back"}];
 var GEAR=[
- {id:"none",slot:"head",name:"Bare",ico:"—",free:true},
- {id:"visor",slot:"head",name:"Visor",ico:"🕶️",free:true},
- {id:"phones",slot:"head",name:"Headphones",ico:"🎧",free:true},
- {id:"hood",slot:"head",name:"Pilgrim's Hood",ico:"🧙",req:{t:"pillar",pid:"spiritual",n:3}},
- {id:"circlet",slot:"head",name:"Sage's Circlet",ico:"🎓",req:{t:"pillar",pid:"intellectual",n:7}},
- {id:"halo",slot:"head",name:"Halo Crown",ico:"😇",req:{t:"pillar",pid:"spiritual",n:7}},
- {id:"helm",slot:"head",name:"Warlord's Helm",ico:"🪖",req:{t:"pillar",pid:"physical",n:10}},
- {id:"crown",slot:"head",name:"Ascendant Crown",ico:"👑",req:{t:"days",n:21}},
- {id:"none",slot:"body",name:"Plain",ico:"—",free:true},
- {id:"vest",slot:"body",name:"Leather Vest",ico:"🦺",req:{t:"days",n:3}},
- {id:"mail",slot:"body",name:"Chainmail",ico:"⛓️",req:{t:"days",n:7}},
- {id:"guard",slot:"body",name:"Guardian Plate",ico:"🛡️",req:{t:"pillar",pid:"emotional",n:7}},
- {id:"aether",slot:"body",name:"Aether Plate",ico:"✨",req:{t:"days",n:21}},
- {id:"none",slot:"hand",name:"Empty",ico:"—",free:true},
- {id:"short",slot:"hand",name:"Iron Shortsword",ico:"🗡️",req:{t:"pillar",pid:"physical",n:3}},
- {id:"long",slot:"hand",name:"Steel Longsword",ico:"⚔️",req:{t:"pillar",pid:"physical",n:7}},
- {id:"hammer",slot:"hand",name:"Warhammer",ico:"🔨",req:{t:"pillar",pid:"physical",n:14}},
- {id:"flame",slot:"hand",name:"Flame Greatsword",ico:"🔥",req:{t:"pillar",pid:"physical",n:30}},
- {id:"staff",slot:"hand",name:"Scholar's Staff",ico:"🪄",req:{t:"pillar",pid:"intellectual",n:10}},
- {id:"torch",slot:"hand",name:"Beacon Torch",ico:"🔦",req:{t:"pillar",pid:"spiritual",n:14}},
- {id:"band",slot:"head",name:"Focus Band",ico:"🎯",req:{t:"focus",n:60}},
- {id:"lantern",slot:"hand",name:"Deeplight Lantern",ico:"🏮",req:{t:"focus",n:600}},
- {id:"none",slot:"back",name:"None",ico:"—",free:true},
- {id:"delver",slot:"back",name:"Delver's Cloak",ico:"🕯️",req:{t:"focus",n:240}},
- {id:"cape",slot:"back",name:"Traveler's Cape",ico:"🧣",req:{t:"pillar",pid:"mental",n:5}},
- {id:"ember",slot:"back",name:"Ember Aura",ico:"🌀",req:{t:"journal",n:7}},
- {id:"champ",slot:"back",name:"Champion's Cape",ico:"🏅",req:{t:"journey",n:10}},
- {id:"wings",slot:"back",name:"Ascendant Wings",ico:"🕊️",req:{t:"perfect",n:3}}
+ {id:"none",slot:"head",name:"Bare",ico:"—",free:true,note:"No protection."},
+ {id:"visor",slot:"head",name:"Visor",ico:"🕶️",free:true,note:"+1 armour"},
+ {id:"phones",slot:"head",name:"Headphones",ico:"🎧",free:true,note:"+1 armour"},
+ {id:"band",slot:"head",name:"Hunter's Band",ico:"🎯",req:{t:"kills",n:15},note:"+3 armour, +2% crit"},
+ {id:"hood",slot:"head",name:"Scout's Hood",ico:"🧙",req:{t:"kind",k:"prowler",n:8},note:"+3 armour, +2% crit"},
+ {id:"circlet",slot:"head",name:"Warden's Circlet",ico:"🎓",req:{t:"level",n:6},note:"+4 armour, +3% crit"},
+ {id:"halo",slot:"head",name:"Ring-Crown",ico:"😇",req:{t:"boss",n:1},note:"+6 armour, +4% crit"},
+ {id:"helm",slot:"head",name:"Warlord's Helm",ico:"🪖",req:{t:"kind",k:"warden",n:5},note:"+8 armour, +6% crit"},
+ {id:"crown",slot:"head",name:"Crown of the Ring",ico:"👑",req:{t:"boss",n:4},note:"+11 armour, +8% crit"},
+ {id:"none",slot:"body",name:"Rags",ico:"—",free:true,note:"No protection."},
+ {id:"vest",slot:"body",name:"Leather Vest",ico:"🦺",req:{t:"kills",n:10},note:"+5 armour, +10 HP"},
+ {id:"mail",slot:"body",name:"Chainmail",ico:"⛓️",req:{t:"kills",n:40},note:"+11 armour, +22 HP"},
+ {id:"guard",slot:"body",name:"Guardian Plate",ico:"🛡️",req:{t:"quests",n:4},note:"+17 armour, +34 HP"},
+ {id:"aether",slot:"body",name:"Aether Plate",ico:"✨",req:{t:"boss",n:3},note:"+26 armour, +52 HP"},
+ {id:"none",slot:"hand",name:"Bare hands",ico:"—",free:true,note:"8 dmg · fast"},
+ {id:"short",slot:"hand",name:"Iron Shortsword",ico:"🗡️",free:true,note:"16 dmg · fast"},
+ {id:"long",slot:"hand",name:"Steel Longsword",ico:"⚔️",req:{t:"kills",n:25},note:"26 dmg · balanced · knockback"},
+ {id:"staff",slot:"hand",name:"Reaver's Staff",ico:"🪄",req:{t:"loot",k:"shard",n:20},note:"22 dmg · longest reach"},
+ {id:"torch",slot:"hand",name:"Beacon Torch",ico:"🔦",req:{t:"kind",k:"shade",n:6},note:"18 dmg · fastest swing"},
+ {id:"hammer",slot:"hand",name:"Warhammer",ico:"🔨",req:{t:"kind",k:"brute",n:10},note:"48 dmg · slow · big knockback"},
+ {id:"lantern",slot:"hand",name:"Deeplight Lantern",ico:"🏮",req:{t:"deep",n:640},note:"25 dmg · balanced"},
+ {id:"flame",slot:"hand",name:"Flame Greatsword",ico:"🔥",req:{t:"boss",n:2},note:"40 dmg · long reach · knockback"},
+ {id:"none",slot:"back",name:"None",ico:"—",free:true,note:"Base speed."},
+ {id:"cape",slot:"back",name:"Traveler's Cape",ico:"🧣",req:{t:"kills",n:20},note:"+8% move speed"},
+ {id:"ember",slot:"back",name:"Ember Aura",ico:"🌀",req:{t:"loot",k:"core",n:10},note:"+10% move speed"},
+ {id:"delver",slot:"back",name:"Delver's Cloak",ico:"🕯️",req:{t:"deep",n:420},note:"+12% move speed"},
+ {id:"champ",slot:"back",name:"Champion's Cape",ico:"🏅",req:{t:"quests",n:8},note:"+15% move speed"},
+ {id:"wings",slot:"back",name:"Warlord's Wings",ico:"🕊️",req:{t:"boss",n:5},note:"+22% move speed"}
 ];
 function gearKey(g){return g.slot+":"+g.id;}
 function reqProgress(r){
+  var R2=R();
   if(!r)return {cur:1,need:1,label:""};
-  if(r.t==="pillar")return {cur:pillarStreak(r.pid),need:r.n,label:r.n+"-day "+pillar(r.pid).name.toLowerCase()+" streak"};
-  if(r.t==="days")return {cur:currentStreak(activeDaySet()),need:r.n,label:r.n+"-day streak"};
-  if(r.t==="journal")return {cur:currentStreak(journalDaySet()),need:r.n,label:r.n+"-day journal streak"};
-  if(r.t==="journey")return {cur:journeyDaysDone(),need:r.n,label:r.n+" journey days"};
-  if(r.t==="perfect")return {cur:perfectDayCount()+perfectDays(),need:r.n,label:r.n+" perfect days"};
-  if(r.t==="focus")return {cur:focusState().totalMin,need:r.n,label:r.n+" min in the dungeon"};
+  if(r.t==="kills")return {cur:totalKills(),need:r.n,label:r.n+" kills in the wilds"};
+  if(r.t==="kind")return {cur:R2.kills[r.k]||0,need:r.n,label:r.n+" "+FOES[r.k].n+(r.n>1?"s":"")+" slain"};
+  if(r.t==="level")return {cur:levelInfo().level,need:r.n,label:"reach level "+r.n};
+  if(r.t==="boss")return {cur:R2.bossKills,need:r.n,label:r.n+" warlord"+(r.n>1?"s":"")+" felled"};
+  if(r.t==="quests")return {cur:R2.questsDone,need:r.n,label:r.n+" quests completed"};
+  if(r.t==="loot")return {cur:(R2.bag[r.k]||0),need:r.n,label:r.n+" "+LOOT_NAME[r.k]+"s gathered"};
+  if(r.t==="deep")return {cur:R2.deepest,need:r.n,label:"push "+r.n+"m past the gate"};
   return {cur:0,need:1,label:""};
 }
 function gearOwned(g){return g.free||S.unlockedGear.indexOf(gearKey(g))>=0;}
@@ -3755,91 +4308,142 @@ function pillarFrac(pid){var hs=S.habits.filter(function(h){return h.pillar===pi
   return hs.filter(function(h){return h.history[TODAY];}).length/hs.length;}
 
 function renderToday(){
-  var now=new Date(),hr=now.getHours();
-  var g=hr<5?"Night watch, traveler":hr<8?"Dawn over the Spire":hr<12?"Morning shift, traveler":hr<17?"The city hums, traveler":hr<21?"Dusk settles, traveler":"Night falls, traveler";
+  var now=new Date(),hr=now.getHours(),li=levelInfo();
+  var g=hr<5?"Night in Emberhold":hr<8?"Dawn over the wall":hr<12?"Morning in Emberhold":hr<17?"The town holds":hr<21?"Dusk — they come out soon":"Night — the Shades are walking";
   document.getElementById("greeting").textContent=g;
-  document.getElementById("subdate").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+  document.getElementById("subdate").textContent="Level "+li.level+" · "+li.title+" · "+totalKills()+" kills";
+  drawWorld(scoresNow());
+  syncHUD();
 
-  var scores=scoresNow();
-  drawWorld(scores);
-  var doneT=S.habits.filter(function(h){return h.history[TODAY];}).length,tot=S.habits.length;
-  var planted=scores.filter(function(s){return !s.empty;});
-  var overall=planted.length?planted.reduce(function(a,s){return a+s.score;},0)/planted.length:0;
-  var grownPct=Math.round(overall*100);
-  document.getElementById("balancePct").textContent=grownPct+"%";
+  var wp=weapon();
+  document.getElementById("gardenSub").textContent=
+    "Wielding the "+wp.name+" — "+attackPower()+" damage, "+armorOf()+" armour. Head north through the gate to find a fight.";
 
-  var sub;
-  if(!tot)sub="The town is quiet. Install your first protocol in Grow.";
-  else{var nonEmpty=PILLARS.map(function(p,i){return {p:p,s:scores[i]};}).filter(function(o){return !o.s.empty;});
-    var weakest=nonEmpty.slice().sort(function(a,b){return a.s.score-b.s.score;})[0];
-    var allToday=doneT===tot;
-    if(allToday)sub="All sectors blaze. The Spire sings tonight, traveler. ⚡";
-    else if(weakest&&!weakest.s.todayAll&&weakest.s.score<0.6){
-      var dk=daysDark(weakest.p.id);
-      sub=dk>=2?DISTRICTS[weakest.p.id].name+" has been dark for "+dk+" days.":DISTRICTS[weakest.p.id].name+" flickers — one visit would relight it.";
-    }else sub=(tot-doneT)+" protocol"+(tot-doneT>1?"s":"")+" left before the beacon lights. Tap a building to travel.";}
-  document.getElementById("gardenSub").textContent=sub;
+  var hm=document.getElementById("hintMount");
+  if(hm){
+    var aq=activeQuests(), ready=aq.filter(function(a){return questDone(a.q);});
+    var line;
+    if(!aq.length)line="No quests yet — walk up to any townsfolk and press <b>A</b> to talk.";
+    else if(ready.length)line="<b>"+ready.length+"</b> objective"+(ready.length>1?"s":"")+" complete. Report back to collect.";
+    else{var a0=aq[0];line=a0.q.t+" — <b>"+Math.min(questNow(a0.q),a0.q.g.n)+" / "+a0.q.g.n+"</b>";}
+    hm.innerHTML='<div class="card" style="padding:13px 15px"><div style="font-size:9.5px;font-weight:800;letter-spacing:.1em;'+
+      'text-transform:uppercase;color:var(--muted);margin-bottom:4px">Current task</div>'+
+      '<div style="font-size:13px;line-height:1.5">'+line+'</div></div>';
+  }
+  renderBoss();
 
-  var chips=document.getElementById("dChips");chips.innerHTML="";
-  PILLARS.forEach(function(p,i){
-    var lv=scores[i].empty?0:Math.round(scores[i].score*100);
-    var b=document.createElement("button");b.style.setProperty("--dc",p.color);
-    b.innerHTML='<span class="de">'+DISTRICTS[p.id].emoji+'</span><b>'+DISTRICTS[p.id].name.replace("The ","")+'</b>'+
-      '<span class="dlv"><i style="width:'+lv+'%"></i></span>';
-    b.addEventListener("click",function(){openDistrict(p.id);});
-    chips.appendChild(b);
-  });
-
-  // reward
-  var complete=tot>0&&doneT===tot;
-  var rw=document.getElementById("reward"),play=document.getElementById("rewardPlay");
-  if(complete){rw.classList.add("unlocked");document.getElementById("rewardIco").textContent="🏆";
-    document.getElementById("rewardTitle").textContent="Reward unlocked!";
-    document.getElementById("rewardSub").textContent="You completed all "+tot+" today. Play your track.";play.disabled=false;}
-  else{rw.classList.remove("unlocked");document.getElementById("rewardIco").textContent="🎧";
-    document.getElementById("rewardTitle").textContent="Today's reward track";
-    document.getElementById("rewardSub").textContent=tot?(doneT+" of "+tot+" done — finish to unlock"):"Add habits to begin";play.disabled=true;}
-
-  // inspiration
-  var qi=dayOfYear()%QUOTES.length, vi=dayOfYear()%VERSES.length, q=QUOTES[qi], v=VERSES[vi];
-  document.getElementById("quoteText").textContent="“"+q.t+"”";
-  document.getElementById("quoteAuthor").textContent=q.a;
-  document.getElementById("quoteBreak").textContent=q.b;
-  document.getElementById("verseCard").style.display=S.settings.faith?"":"none";
-  document.getElementById("verseText").textContent="“"+v.t+"”";
-  document.getElementById("verseRef").textContent=v.r;
-  document.getElementById("verseBreak").textContent=v.b;
-  document.getElementById("quoteFav").classList.toggle("on",S.favQuotes.indexOf(qi)>=0);
-  document.getElementById("quoteFav").textContent=S.favQuotes.indexOf(qi)>=0?"♥":"♡";
-  document.getElementById("verseFav").classList.toggle("on",S.favVerses.indexOf(vi)>=0);
-  document.getElementById("verseFav").textContent=S.favVerses.indexOf(vi)>=0?"♥":"♡";
-
-  // streaks
-  var actSet=activeDaySet();
-  var sm=document.getElementById("streakMount");
-  sm.innerHTML='<div class="streakcard">'+
-    '<div class="sc"><div class="scv'+(currentStreak(actSet)>0?" flameon":"")+'">'+flame()+'<span class="tn">'+currentStreak(actSet)+'</span></div><div class="sck">Day streak</div></div>'+
-    '<div class="sc"><div class="scv"><span class="tn">'+maxConsec(actSet)+'</span></div><div class="sck">Longest</div></div>'+
-    '<div class="sc"><div class="scv"><span class="tn">'+currentStreak(journalDaySet())+'</span></div><div class="sck">Journaling</div></div></div>';
-
-  renderDayCard();
-  renderDeepCard();
-  checkCampaign();renderCampaign();
-  checkBoss();renderBoss();
-  renderJourneyCard();
-
-  // habits
-  renderTodayHabits();
-}
-function renderTodayHabits(){
-  var doneT=S.habits.filter(function(h){return h.history[TODAY];}).length, tot=S.habits.length;
-  document.getElementById("todayCount").textContent=doneT+" of "+tot;
-  var ul=document.getElementById("todayHabits");ul.innerHTML="";
-  if(!tot){var e=document.createElement("div");e.className="empty";
-    e.innerHTML='<div class="ei">🌱</div><h3>Plant your first habit</h3><p>Open the <b>Grow</b> tab to add daily habits across your five dimensions.</p>';ul.appendChild(e);}
-  else S.habits.forEach(function(h){ul.appendChild(habitRow(h,true));});
+  var tm=document.getElementById("tipMount");
+  if(tm){
+    var tips=[
+      "Enemies telegraph before they strike — their health bar turns gold. Step back, then swing.",
+      "Shades only spawn at night. The Bestiary tracks what you've met.",
+      "Fall in the wilds and you lose 15% of your gold. The Hearth revives you in town.",
+      "Health only regenerates in the wilds after 8 quiet seconds. In town it comes back fast.",
+      "Rare relics drop from anything and unlock a random piece of gear outright.",
+      "The arena sits far north past the Deadlands. A new Warlord claims it every Sunday."
+    ];
+    tm.innerHTML='<div class="card" style="padding:13px 15px;font-size:12px;color:var(--muted);line-height:1.55">'+
+      '<b style="color:var(--fg)">Tip · </b>'+esc(tips[dayOfYear()%tips.length])+'</div>';
+  }
 }
 
+/* ============ HERO ============ */
+function renderHero(){
+  var m=document.getElementById("heroMount");if(!m)return;
+  var li=levelInfo(),r=R(),a=av();
+  document.getElementById("heroSub").textContent=(a.name||"Unnamed")+" · "+li.title;
+  var owned=GEAR.filter(gearOwned).length;
+  m.innerHTML=
+    '<div class="card" style="padding:15px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'+
+        '<b style="font-family:var(--fr);font-size:17px">Level '+li.level+' · '+esc(li.title)+'</b>'+
+        '<span style="font-size:11px;color:var(--muted)">'+li.cur+' / '+li.need+' XP</span></div>'+
+      '<div class="ws-xp" style="position:static;width:100%;margin-bottom:12px"><i style="width:'+
+        Math.round(li.cur/li.need*100)+'%"></i></div>'+
+      '<div class="stat-list" id="hStats"></div>'+
+    '</div>'+
+    '<div class="hero-grid">'+
+      '<div class="hstat"><div class="hk">Gold</div><div class="hv tn">'+r.gold+'</div></div>'+
+      '<div class="hstat"><div class="hk">Kills</div><div class="hv tn">'+totalKills()+'</div></div>'+
+      '<div class="hstat"><div class="hk">Warlords felled</div><div class="hv tn">'+r.bossKills+'</div></div>'+
+      '<div class="hstat"><div class="hk">Deaths</div><div class="hv tn">'+r.deaths+'</div></div>'+
+      '<div class="hstat"><div class="hk">Iron Shards</div><div class="hv tn">'+(r.bag.shard||0)+'</div></div>'+
+      '<div class="hstat"><div class="hk">Ember Cores</div><div class="hv tn">'+(r.bag.core||0)+'</div></div>'+
+      '<div class="hstat"><div class="hk">Deepest push</div><div class="hv tn">'+r.deepest+'m</div></div>'+
+      '<div class="hstat"><div class="hk">Gear found</div><div class="hv tn">'+owned+'/'+GEAR.length+'</div></div>'+
+    '</div>'+
+    '<button class="btn btn-primary" id="heroArmory" style="width:100%;margin-top:12px">Open the Armory</button>'+
+    '<button class="btn btn-ghost" id="heroPot" style="width:100%;margin-top:8px">Buy a Draught of Vigour · 80 gold</button>';
+  var sm=document.getElementById("hStats");
+  if(sm){
+    sm.innerHTML="";
+    STATS.forEach(function(st){
+      var v=st.v(),row=document.createElement("div");row.className="stat-row";
+      row.style.setProperty("--sc2",st.c);
+      row.innerHTML='<span class="sk">'+st.k+'</span><span class="sb"><i style="width:'+
+        Math.max(4,Math.min(100,Math.round(v/st.max()*100)))+'%"></i></span><span class="sv tn">'+v+'</span>';
+      sm.appendChild(row);
+    });
+  }
+  document.getElementById("heroArmory").addEventListener("click",openAvatar);
+  document.getElementById("heroPot").addEventListener("click",buyPotion);
+}
+function buyPotion(){
+  var r=R();
+  if(r.gold<80){toast("Not enough gold — go and earn it","◈");return;}
+  r.gold-=80;r.potions++;save();
+  toast("Draught bought · "+r.potions+" in the bag","🧪");chimeDone();
+  renderHero();syncHUD();
+}
+
+/* ============ QUEST LOG ============ */
+function renderQuests(){
+  var m=document.getElementById("questMount");if(!m)return;
+  var aq=activeQuests();
+  document.getElementById("qSub").textContent=aq.length+" active · "+R().questsDone+" done";
+  var html="";
+  if(!aq.length){
+    html='<div class="empty"><div class="ei">📜</div><h3>No quests</h3>'+
+      '<p>Walk up to any of the five townsfolk and press <b>A</b>. They all want something killed.</p></div>';
+  }else{
+    aq.forEach(function(a){
+      var cur=Math.min(questNow(a.q),a.q.g.n),done=questDone(a.q);
+      var giver=AGENTS.find(function(x){return x.id===a.npc;});
+      html+='<div class="qrow'+(done?" ready":"")+'"><div class="qi">'+(done?"✔":"📜")+'</div><div class="qb">'+
+        '<b>'+esc(a.q.t)+'</b><p>'+esc(a.q.d)+'</p>'+
+        '<div class="qbar"><i style="width:'+Math.round(cur/a.q.g.n*100)+'%"></i></div>'+
+        '<div class="qmeta"><span>'+cur+' / '+a.q.g.n+(done?" — report to "+esc(giver?giver.name:"the giver"):"")+'</span>'+
+        '<span><b>+'+a.q.xp+' XP · +'+a.q.gold+'g</b></span></div></div></div>';
+    });
+  }
+  var lines=[];
+  for(var npc in QUEST_LINES){
+    var nxt=questAt(npc);
+    if(nxt&&!nxt.st){
+      var ag=AGENTS.find(function(x){return x.id===npc;});
+      lines.push('<div class="qrow"><div class="qi">❓</div><div class="qb"><b>'+esc(ag?ag.name:npc)+' has work</b>'+
+        '<p>'+esc(nxt.q.t)+' — find them in town and press A.</p></div></div>');
+    }
+  }
+  if(lines.length)html+='<div class="section-h" style="margin-top:16px"><h2>Available</h2></div>'+lines.join("");
+  m.innerHTML=html;
+}
+
+/* ============ BESTIARY ============ */
+function renderBestiary(){
+  var m=document.getElementById("bestMount");if(!m)return;
+  var r=R(),ICO={husk:"🧟",prowler:"🐺",brute:"👹",shade:"👻",warden:"💀",boss:"🐉"};
+  var order=["husk","prowler","brute","shade","warden","boss"];
+  m.innerHTML=order.map(function(k){
+    var f=FOES[k],seen=!!r.seen[k],n=r.kills[k]||0;
+    if(!seen)return '<div class="bcard unknown"><div class="bi">?</div><div><b>Unknown</b>'+
+      '<p>You have not met this yet.</p></div></div>';
+    return '<div class="bcard"><div class="bi">'+ICO[k]+'</div><div><b>'+esc(f.n)+'</b>'+
+      '<p>'+esc(f.lore)+'</p><div class="bstats">'+
+      '<span>HP <b>'+f.hp+'</b></span><span>DMG <b>'+f.dmg+'</b></span>'+
+      '<span>XP <b>'+f.xp+'</b></span><span>Slain <b>'+n+'</b></span></div></div></div>';
+  }).join("");
+}
 function habitRow(h,showTag){
   var p=pillar(h.pillar);
   var li=document.createElement("li");li.className="habit"+(h.history[TODAY]?" done":"");li.style.setProperty("--hc",p.color);
@@ -4396,33 +5000,23 @@ function closeSheets(){scrim.classList.remove("open");habitSheet.classList.remov
   document.getElementById("hName").blur();}
 scrim.addEventListener("click",closeSheets);
 
-/* ============ TODAY interactions ============ */
-document.getElementById("quoteMore").addEventListener("click",function(){
-  this.classList.toggle("open");document.getElementById("quoteExpand").classList.toggle("open");});
-document.getElementById("verseMore").addEventListener("click",function(){
-  this.classList.toggle("open");document.getElementById("verseExpand").classList.toggle("open");});
-document.getElementById("quoteFav").addEventListener("click",function(){var i=dayOfYear()%QUOTES.length,p=S.favQuotes.indexOf(i);
-  if(p>=0)S.favQuotes.splice(p,1);else S.favQuotes.push(i);save();renderToday();});
-document.getElementById("verseFav").addEventListener("click",function(){var i=dayOfYear()%VERSES.length,p=S.favVerses.indexOf(i);
-  if(p>=0)S.favVerses.splice(p,1);else S.favVerses.push(i);save();renderToday();});
-document.getElementById("rewardPlay").addEventListener("click",function(){if(!this.disabled){audio();chimeReward();}});
-
 /* ============ NAV ============ */
 var current="today";
-function renderCurrent(){checkUnlocks();updateHUD();checkLevelUp();if(current==="today")renderToday();else if(current==="grow")renderGrow();else if(current==="track")renderTrack();else if(current==="journal")renderJournal();else renderInspire();
-  if(openDistrictPid)renderDistrict(openDistrictPid);}
-var journalSeen=false;
-function show(v){if(v==="today"&&current!=="today")worldSpawnT=Date.now();current=v;
-  if(v==="journal"&&!journalSeen){journalSeen=true;jTab=new Date().getHours()>=17||new Date().getHours()<4?"evening":"morning";}
-  document.querySelectorAll(".view").forEach(function(s){s.classList.toggle("on",s.id==="view-"+v);});
+function renderCurrent(){
+  checkUnlocks();updateHUD();checkLevelUp();
+  if(current==="today")renderToday();
+  else if(current==="hero")renderHero();
+  else if(current==="quests")renderQuests();
+  else if(current==="bestiary")renderBestiary();
+}
+function show(v){
+  if(v==="today"&&current!=="today")worldSpawnT=Date.now();
+  current=v;
+  document.querySelectorAll(".view").forEach(function(sec){sec.classList.toggle("on",sec.id==="view-"+v);});
   document.querySelectorAll(".nav button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-v")===v);});
-  document.getElementById("fab").style.display=(v==="grow")?"grid":"none";
-  window.scrollTo(0,0);renderCurrent();}
+  window.scrollTo(0,0);renderCurrent();
+}
 document.querySelectorAll(".nav button").forEach(function(b){b.addEventListener("click",function(){show(b.getAttribute("data-v"));});});
-document.getElementById("jSeg").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){jTab=b.getAttribute("data-j");renderJournal();});});
-document.getElementById("fab").addEventListener("click",function(){openHabit(null);});
-document.getElementById("trackSeg").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){
-  trackTab=b.getAttribute("data-t");document.getElementById("trackSeg").querySelectorAll("button").forEach(function(x){x.classList.toggle("on",x===b);});renderTrack();});});
 
 /* ============ THEME + MUSIC ============ */
 function applyTheme(t){if(t==="system")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",t);
@@ -4566,11 +5160,17 @@ initCloud();
 /* redraw garden on resize (responsive canvas) */
 var _grz;window.addEventListener("resize",function(){clearTimeout(_grz);_grz=setTimeout(function(){if(current==="today")drawWorld(scoresNow());},160);});
 
+/* a small hook so the world can be inspected and driven from the console */
+window.GAME={get player(){return player;},get PC(){return PC;},get foes(){return FOEZ;},
+  get loot(){return LOOT;},state:function(){return R();},level:function(){return levelInfo();},
+  spawn:spawnFoe,attack:attack,go:function(x,z){player.x=x;player.z=z;},
+  step:function(dt,t){updateCombat(dt||1/60,t||0);}};
+
 /* ============ GO ============ */
-resolveNight();noteAppOpen();
-if(activeTimer())setTimeout(openTimerVeil,600);
 paintMeChip();
+PC.max=maxHP();PC.hp=PC.max;
 show("today");
+syncHUD();
 if(!av().made)setTimeout(function(){if(!av().made&&!document.getElementById("authGate").hidden===false)openAvatar();},900);
 })();
 </script>

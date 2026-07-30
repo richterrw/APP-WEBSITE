@@ -14,6 +14,7 @@ const rad = (d) => (d * Math.PI) / 180;
 let renderer, scene, camera, sun, hemi, skyMat, ground, composer, bloom;
 let lamps = [], starField = null, envRT = null;
 let playerRig, playerParts, figures = {}, buildingMeshes = [], pickables = [];
+let foePool = {}, lootPool = {}, arenaRing = null;
 let ready = false, canvasEl = null, camPos = V3(0, 60, 400);
 const clock = { last: 0 };
 
@@ -243,9 +244,53 @@ void main(){
   gl_FragColor = vec4(c + vec3(glow * 0.25, glow * 0.16, glow * 0.05), 1.0);
 }`;
 
+/* ---------- weapons, swung from a shoulder pivot ---------- */
+function makeWeapon(id) {
+  const pivot = new THREE.Group();
+  pivot.position.set(4.4, 13.4, 0);                       // right shoulder
+  const steel = stdMat("#E2EAF4", { metal: 0.92, rough: 0.16, envInt: 1.6 });
+  const wood = stdMat("#4A3524", { rough: 0.9 });
+  const gold = stdMat("#D8B14A", { metal: 0.9, rough: 0.25, envInt: 1.4 });
+  const arm = new THREE.Group();                          // everything hangs down from the grip
+  const put = (m, y) => { m.position.y = y; m.castShadow = true; arm.add(m); };
+  const bar = (w, h, d, mat) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+
+  if (id === "hammer") {
+    put(new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 12, 8), wood), 3);
+    const head = bar(6.5, 5.4, 5.4, stdMat("#8A9099", { metal: 0.7, rough: 0.4, envInt: 1.2 }));
+    put(head, 11.5);
+  } else if (id === "staff") {
+    put(new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 20, 8), wood), 6);
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(1.9, 14, 12),
+      stdMat("#8FD8FF", { emissive: "#3FA9E0", emissiveIntensity: 2.2, rough: 0.3 }));
+    put(orb, 17);
+  } else if (id === "torch" || id === "lantern") {
+    put(new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.55, 11, 8), wood), 2.5);
+    const fire = new THREE.Mesh(new THREE.SphereGeometry(2.1, 12, 10),
+      stdMat("#FFC46B", { emissive: id === "lantern" ? "#7FD8FF" : "#FF8A2B", emissiveIntensity: 2.6, rough: 0.4 }));
+    fire.scale.set(1, 1.5, 1);
+    put(fire, 9.5);
+  } else {
+    const len = id === "flame" ? 17 : id === "long" ? 14.5 : 11;
+    const mat = id === "flame"
+      ? stdMat("#FFB067", { metal: 0.6, rough: 0.3, emissive: "#FF5A1E", emissiveIntensity: 1.5, envInt: 1.4 })
+      : steel;
+    put(new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.46, 3.4, 8), wood), 0.6);
+    put(bar(3.4, 0.7, 1.1, gold), 2.6);                   // crossguard
+    const blade = bar(0.65, len, 2.0, mat);
+    put(blade, 3 + len / 2);
+  }
+  arm.rotation.x = Math.PI;                               // point the blade at the ground at rest
+  arm.position.y = -2.2;
+  pivot.add(arm);
+  pivot.userData.arm = arm;
+  return pivot;
+}
+
 /* ---------- a low-poly person ---------- */
 function makeFigure(look) {
   const g = new THREE.Group();
+  let weapon = null;
   const skin = stdMat(look.skin || "#C98A5E", { rough: 0.72, envInt: 0.5 });
   const cloth = stdMat(look.outfit || "#45D5EC", { rough: 0.85, envInt: 0.45 });
   const dark = stdMat("#28324A", { rough: 0.9, envInt: 0.4 });
@@ -291,11 +336,8 @@ function makeFigure(look) {
       g.add(plate);
     }
     if (look.gear.hand && look.gear.hand !== "none") {
-      const grip = cap(0.42, 3.0, stdMat("#4A3524", { rough: 0.9 })); grip.position.set(5.0, 8.6, 0);
-      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.7, 13, 2.2),
-        stdMat("#E2EAF4", { metal: 0.92, rough: 0.16, envInt: 1.6 }));
-      blade.position.set(5.0, 16.5, 0); blade.castShadow = true;
-      g.add(grip, blade);
+      weapon = makeWeapon(look.gear.hand);
+      g.add(weapon);
     }
     if (look.gear.back && look.gear.back !== "none") {
       const capeMat = stdMat(look.gear.back === "champ" ? "#C79A2E" : "#2F4A70", { rough: 0.95, envInt: 0.4 });
@@ -305,9 +347,10 @@ function makeFigure(look) {
       g.add(cape);
     }
   }
-  return { group: g, legL, legR, armL, armR, torso, footL, footR, handL, handR };
+  return { group: g, legL, legR, armL, armR, torso, footL, footR, handL, handR, weapon };
 }
-function animateFigure(parts, walk, t) {
+/* swing: 0 at rest, 1 at the peak of a strike */
+function animateFigure(parts, walk, t, swing) {
   const s = walk ? Math.sin(walk) : 0;
   const sw = s * 3.1;
   parts.legL.position.z = sw; parts.legR.position.z = -sw;
@@ -318,6 +361,92 @@ function animateFigure(parts, walk, t) {
   parts.armL.rotation.x = -s * 0.34; parts.armR.rotation.x = s * 0.34;
   parts.group.position.y = walk ? Math.abs(Math.sin(walk)) * 0.55 : Math.sin(t * 1.6) * 0.22;
   parts.group.rotation.z = walk ? Math.sin(walk) * 0.02 : 0;
+
+  const k = swing || 0;
+  if (k > 0.001) {
+    // wind up behind the shoulder, then chop forward past the hip
+    const arc = k < 0.35 ? -(k / 0.35) * 0.9 : ((k - 0.35) / 0.65) * 3.3 - 0.9;
+    parts.armR.rotation.x = arc * 0.62;
+    parts.armR.position.z = -Math.sin(arc) * 2.6;
+    if (parts.handR) parts.handR.position.z = -Math.sin(arc) * 3.4;
+    parts.group.rotation.z = Math.sin(arc) * 0.09;
+    if (parts.weapon) { parts.weapon.rotation.x = arc; parts.weapon.rotation.z = -k * 0.3; }
+  } else if (parts.weapon) {
+    parts.weapon.rotation.x += (0 - parts.weapon.rotation.x) * 0.25;
+    parts.weapon.rotation.z += (0 - parts.weapon.rotation.z) * 0.25;
+  }
+}
+
+/* ---------- the things that come out of the dark ---------- */
+const FOE_LOOK = {
+  husk:    { skin: "#7E8A72", cloth: "#4A4436", eye: "#C6FF6B", h: 1.0, horn: 0, bulk: 1.0 },
+  prowler: { skin: "#6E5A78", cloth: "#3A2A44", eye: "#FF6BD2", h: 0.94, horn: 1, bulk: 0.82 },
+  brute:   { skin: "#8A6A4E", cloth: "#4E3020", eye: "#FFB03B", h: 1.34, horn: 2, bulk: 1.5 },
+  shade:   { skin: "#3A3550", cloth: "#1E1B2E", eye: "#9BE8FF", h: 1.06, horn: 1, bulk: 0.9 },
+  warden:  { skin: "#5C6672", cloth: "#2E3642", eye: "#FF4D4D", h: 1.2, horn: 2, bulk: 1.3 },
+  boss:    { skin: "#6B2E2E", cloth: "#2A1218", eye: "#FF3A1E", h: 2.5, horn: 3, bulk: 2.1 },
+};
+function makeEnemy(kind, tint) {
+  const L = FOE_LOOK[kind] || FOE_LOOK.husk;
+  const g = new THREE.Group();
+  const flesh = stdMat(L.skin, { rough: 0.92, envInt: 0.35 });
+  const rag = stdMat(tint || L.cloth, { rough: 0.98, envInt: 0.3 });
+  const eyeMat = stdMat("#111111", { emissive: L.eye, emissiveIntensity: 3.4, rough: 0.3 });
+  const claw = stdMat("#D8D2C4", { rough: 0.5, metal: 0.2, envInt: 0.8 });
+  const B = L.bulk;
+  const cap = (r, h, mat) => { const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, h, 6, 12), mat); m.castShadow = true; m.receiveShadow = true; return m; };
+
+  const legL = cap(1.5 * B, 5.0, rag); legL.position.set(-1.9 * B, 4.8, 0);
+  const legR = cap(1.5 * B, 5.0, rag); legR.position.set(1.9 * B, 4.8, 0);
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(3.1 * B, 3.9 * B, 7.6, 12), flesh);
+  torso.position.set(0, 11.2, 0);
+  const shoulders = cap(3.5 * B, 2.0, flesh); shoulders.rotation.z = Math.PI / 2; shoulders.position.set(0, 14.4, 0);
+  const armL = cap(1.2 * B, 5.4, flesh); armL.position.set(-4.6 * B, 11.2, 0);
+  const armR = cap(1.2 * B, 5.4, flesh); armR.position.set(4.6 * B, 11.2, 0);
+  const handL = new THREE.Mesh(new THREE.ConeGeometry(1.4 * B, 3.4, 6), claw);
+  handL.position.set(-4.6 * B, 7.2, 0); handL.rotation.x = Math.PI;
+  const handR = handL.clone(); handR.position.x = 4.6 * B;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(2.7 * B, 16, 12), flesh);
+  head.scale.set(1, 1.05, 1.12); head.position.set(0, 17.6, 0);
+  const jaw = new THREE.Mesh(new THREE.ConeGeometry(1.7 * B, 3.2, 7), flesh);
+  jaw.position.set(0, 16.8, 2.4 * B); jaw.rotation.x = -Math.PI / 2;
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.62 * B, 8, 6), eyeMat);
+  eyeL.position.set(-1.1 * B, 18.2, 2.3 * B);
+  const eyeR = eyeL.clone(); eyeR.position.x = 1.1 * B;
+
+  g.add(legL, legR, torso, shoulders, armL, armR, handL, handR, head, jaw, eyeL, eyeR);
+  for (let i = 0; i < L.horn; i++) {
+    const hn = new THREE.Mesh(new THREE.ConeGeometry(0.75 * B, 4.2 + i * 1.6, 6), claw);
+    const sgn = i % 2 ? 1 : -1;
+    hn.position.set(sgn * (1.5 + i * 0.4) * B, 19.6 + i * 0.5, -0.4);
+    hn.rotation.z = sgn * 0.42; hn.rotation.x = -0.3;
+    g.add(hn);
+  }
+  g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  g.add(groundAO(13 * B * L.h));
+  g.scale.setScalar(L.h);
+
+  // floating health bar
+  const barBg = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0x120c10, depthTest: false, transparent: true, opacity: 0.72 }));
+  const barFg = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xe8442e, depthTest: false, transparent: true }));
+  const barY = 24 + L.bulk * 4;
+  barBg.scale.set(30, 3.6, 1); barBg.position.set(0, barY, 0); barBg.renderOrder = 20;
+  barFg.scale.set(28, 2.4, 1); barFg.position.set(0, barY, 0.1); barFg.renderOrder = 21;
+  g.add(barBg, barFg);
+
+  const tintable = [flesh, rag];
+  return { group: g, legL, legR, armL, armR, torso, handL, handR, head, barBg, barFg, mats: tintable, kind };
+}
+function animateEnemy(f, walk, t, k) {
+  const s = walk ? Math.sin(walk) : 0;
+  f.legL.position.z = s * 3.2; f.legR.position.z = -s * 3.2;
+  f.legL.rotation.x = s * 0.5; f.legR.rotation.x = -s * 0.5;
+  const lunge = k ? Math.sin(Math.min(1, k) * Math.PI) : 0;
+  f.armL.rotation.x = -s * 0.4 - lunge * 1.5;
+  f.armR.rotation.x = s * 0.4 - lunge * 1.5;
+  f.armL.position.z = -s * 2.4 - lunge * 4; f.armR.position.z = s * 2.4 - lunge * 4;
+  f.handL.position.z = -s * 3 - lunge * 6.5; f.handR.position.z = s * 3 - lunge * 6.5;
+  f.group.position.y = walk ? Math.abs(Math.sin(walk)) * 0.7 : Math.sin(t * 2.2 + f.group.position.x) * 0.4;
 }
 
 /* ---------- buildings ---------- */
@@ -435,7 +564,7 @@ function groundAO(radius) {
 function build(opts) {
   scene = new THREE.Scene();
 
-  const skyGeo = new THREE.SphereGeometry(2600, 24, 16);
+  const skyGeo = new THREE.SphereGeometry(4200, 24, 16);
   skyMat = new THREE.ShaderMaterial({
     uniforms: { top: { value: new THREE.Color("#3E7FB8") }, bottom: { value: new THREE.Color("#F0C48A") }, horizon: { value: 0.5 } },
     vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, side: THREE.BackSide, depthWrite: false,
@@ -445,7 +574,7 @@ function build(opts) {
   skyMesh.frustumCulled = false;
   scene.add(skyMesh);
   scene.userData.skyMesh = skyMesh;
-  scene.fog = new THREE.Fog(0xbfd0e0, 900, 3400);
+  scene.fog = new THREE.Fog(0xbfd0e0, 1000, 5000);
 
   hemi = new THREE.HemisphereLight(0xbfd8ff, 0x2c3a28, 0.28);
   scene.add(hemi);
@@ -514,7 +643,7 @@ function build(opts) {
   const sg2 = new THREE.BufferGeometry();
   const pts = [];
   for (let i = 0; i < 420; i++) {
-    const th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * 0.75 + 0.1), r = 2200;
+    const th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * 0.75 + 0.1), r = 3600;
     pts.push(Math.sin(ph) * Math.cos(th) * r, Math.cos(ph) * r, Math.sin(ph) * Math.sin(th) * r);
   }
   sg2.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
@@ -548,20 +677,29 @@ function build(opts) {
     scene.add(g);
   });
 
-  // town wall and gate to the south
+  // the north wall and its gate — the only way out to the wilds
   const wallMat = houseStone;
-  [[-1, 1], [1, 1]].forEach(([sgn]) => {
-    const wsec = box(300, 34, 16, wallMat, sgn * 230, 0, 400);
+  [-1, 1].forEach((sgn) => {
+    const wsec = box(300, 34, 16, wallMat, sgn * 230, 0, -400);
     wsec.receiveShadow = true; scene.add(wsec);
   });
   [-92, 92].forEach((gx) => {
     const t2 = new THREE.Group();
-    t2.add(box(34, 52, 30, wallMat, 0, 0, 0));
-    t2.add(box(40, 6, 36, wallMat, 0, 52, 0));
-    t2.add(cone(26, 22, houseRoof, 0, 58, 0));
-    t2.position.set(gx, 0, 400);
+    t2.add(box(34, 56, 30, wallMat, 0, 0, 0));
+    t2.add(box(40, 6, 36, wallMat, 0, 56, 0));
+    t2.add(cone(26, 22, houseRoof, 0, 62, 0));
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(3.2, 12, 10),
+      new THREE.MeshStandardMaterial({ color: 0xfff0cf, emissive: 0xffa83b, emissiveIntensity: 1.6, roughness: 0.4 }));
+    lamp.position.set(gx > 0 ? -13 : 13, 46, -16);
+    t2.add(lamp);
+    t2.position.set(gx, 0, -400);
     t2.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     scene.add(t2);
+  });
+  // the town's back wall
+  [-1, 0, 1].forEach((sgn) => {
+    const wsec = box(300, 34, 16, wallMat, sgn * 280, 0, 400);
+    wsec.receiveShadow = true; scene.add(wsec);
   });
 
   // greenery + skyline
@@ -577,7 +715,7 @@ function build(opts) {
     g.add(box(30, 150, 30, stdMat("#D3C7AC"), 0, 10, 0));
     g.add(box(36, 8, 36, stdMat("#C9BCA0"), 0, 160, 0));
     g.add(cone(26, 44, stdMat("#A8442C"), 0, 168, 0));
-    g.position.set(x, 0, -560);
+    g.position.set(x, 0, 760);
     g.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
     scene.add(g);
   });
@@ -587,11 +725,11 @@ function build(opts) {
   const sandMat = stdMat("#C2A067", { rough: 0.97, metal: 0, map: texSand(), normal: nrmSand(), nScale: 1.8, envInt: 0.5 });
   const capMat = stdMat("#D8C089", { rough: 0.55, metal: 0.35, envInt: 1.2 });
 
-  const plateau = new THREE.Mesh(new THREE.CylinderGeometry(660, 720, 40, 6), sandMat);
+  const plateau = new THREE.Mesh(new THREE.CylinderGeometry(1150, 1250, 46, 6), sandMat);
   plateau.position.y = -14; plateau.receiveShadow = true;
   spire.add(plateau);
 
-  const PY_H = 430, PY_B = 560;
+  const PY_H = 800, PY_B = 1000;
   const great = new THREE.Mesh(new THREE.ConeGeometry(PY_B, PY_H, 4, 24), sandMat);
   great.position.y = PY_H / 2 + 4; great.rotation.y = Math.PI / 4;
   great.castShadow = false; great.receiveShadow = true;
@@ -605,23 +743,23 @@ function build(opts) {
     ring.receiveShadow = true;
     spire.add(ring);
   }
-  const cap = new THREE.Mesh(new THREE.ConeGeometry(52, 62, 4), capMat);
-  cap.position.y = 4 + PY_H - 26; cap.rotation.y = Math.PI / 4;
+  const cap = new THREE.Mesh(new THREE.ConeGeometry(90, 106, 4), capMat);
+  cap.position.y = 4 + PY_H - 46; cap.rotation.y = Math.PI / 4;
   spire.add(cap);
 
   // a lesser pyramid and an obelisk for scale
-  const small = new THREE.Mesh(new THREE.ConeGeometry(210, 165, 4, 12), sandMat);
-  small.position.set(-620, 84, 210); small.rotation.y = Math.PI / 4;
+  const small = new THREE.Mesh(new THREE.ConeGeometry(360, 285, 4, 12), sandMat);
+  small.position.set(-1180, 144, 420); small.rotation.y = Math.PI / 4;
   small.receiveShadow = true;
   spire.add(small);
-  const obel = new THREE.Mesh(new THREE.CylinderGeometry(11, 17, 150, 4), sandMat);
-  obel.position.set(560, 75, 250); obel.rotation.y = Math.PI / 4;
+  const obel = new THREE.Mesh(new THREE.CylinderGeometry(18, 28, 250, 4), sandMat);
+  obel.position.set(1020, 125, 470); obel.rotation.y = Math.PI / 4;
   spire.add(obel);
-  const obelCap = new THREE.Mesh(new THREE.ConeGeometry(16, 26, 4), capMat);
-  obelCap.position.set(560, 163, 250); obelCap.rotation.y = Math.PI / 4;
+  const obelCap = new THREE.Mesh(new THREE.ConeGeometry(26, 42, 4), capMat);
+  obelCap.position.set(1020, 271, 470); obelCap.rotation.y = Math.PI / 4;
   spire.add(obelCap);
 
-  spire.position.set(0, 0, -1180);
+  spire.position.set(0, 0, -2650);
   spire.traverse((o) => { if (o.isMesh) o.castShadow = false; });
   scene.add(spire);
   scene.userData.tiers = [cap, obelCap];
@@ -642,12 +780,68 @@ function build(opts) {
   scene.add(sunSpr);
   scene.userData.sunSpr = sunSpr;
 
+  // ---------- the wilds, past the south gate ----------
+  const blight = new THREE.Mesh(new THREE.PlaneGeometry(1700, 1250),
+    stdMat("#4A4636", { rough: 1, map: texGrass(), envInt: 0.22 }));
+  blight.material.color.set("#5C543C");
+  blight.rotation.x = -Math.PI / 2; blight.position.set(0, 0.12, -1000);
+  blight.receiveShadow = true;
+  scene.add(blight);
+
+  const rockMat = stdMat("#6E6A62", { rough: 1, map: texStone(), normal: nrmStone(), nScale: 1.4, envInt: 0.35 });
+  const deadMat = stdMat("#3D3226", { rough: 1, envInt: 0.2 });
+  for (let i = 0; i < 46; i++) {
+    const a = (i * 2.399), r = 130 + ((i * 97) % 640);
+    const rx = Math.cos(a) * r * 1.35, rz = -(490 + Math.abs(Math.sin(a)) * 900 + ((i * 53) % 110));
+    if (Math.abs(rx) > 780) continue;
+    if (i % 3 === 0) {
+      const rock = new THREE.Mesh(new THREE.IcosahedronGeometry(9 + (i % 5) * 4, 0), rockMat);
+      rock.position.set(rx, 3 + (i % 5), rz);
+      rock.rotation.set(i * 0.7, i * 1.3, i * 0.4);
+      rock.castShadow = true; rock.receiveShadow = true;
+      scene.add(rock);
+    } else {
+      const tr = new THREE.Group();
+      tr.add(cyl(1.4, 2.6, 22 + (i % 4) * 6, deadMat, 0, 0, 0, 7));
+      for (let b = 0; b < 3; b++) {
+        const br = cyl(0.7, 1.2, 12, deadMat, 0, 0, 0, 5);
+        br.position.set(0, 16 + b * 4, 0);
+        br.rotation.z = (b % 2 ? 1 : -1) * (0.7 + b * 0.15);
+        tr.add(br);
+      }
+      tr.add(groundAO(11));
+      tr.position.set(rx, 0, rz);
+      tr.rotation.y = i;
+      scene.add(tr);
+    }
+  }
+
+  // the arena where the warlord waits
+  arenaRing = new THREE.Group();
+  const arenaFloor = new THREE.Mesh(new THREE.CircleGeometry(190, 40),
+    stdMat("#7A6E5C", { rough: 0.94, map: texCobble(), normal: nrmCobble(), nScale: 1.4, envInt: 0.4 }));
+  arenaFloor.rotation.x = -Math.PI / 2; arenaFloor.position.y = 0.4;
+  arenaFloor.receiveShadow = true;
+  arenaRing.add(arenaFloor);
+  for (let i = 0; i < 14; i++) {
+    const a = (i / 14) * Math.PI * 2;
+    const col = cyl(6, 7.5, 44 + (i % 3) * 10, rockMat, Math.cos(a) * 196, 0, Math.sin(a) * 196, 8);
+    arenaRing.add(col);
+    const braz = new THREE.Mesh(new THREE.SphereGeometry(4.4, 10, 8),
+      stdMat("#FF9A3C", { emissive: "#FF5A14", emissiveIntensity: 2.4, rough: 0.5 }));
+    braz.position.set(Math.cos(a) * 196, 50 + (i % 3) * 10, Math.sin(a) * 196);
+    arenaRing.add(braz);
+  }
+  arenaRing.position.set(0, 0, -1260);
+  arenaRing.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  scene.add(arenaRing);
+
   // the player
   const pf = makeFigure(opts.avatar);
   playerRig = pf.group; playerParts = pf;
   scene.add(playerRig);
 
-  camera = new THREE.PerspectiveCamera(46, 1, 1, 3000);
+  camera = new THREE.PerspectiveCamera(46, 1, 1, 6000);
   scene.add(camera);
 }
 
@@ -706,8 +900,8 @@ function frame(s) {
   skyMat.uniforms.bottom.value.set(sky.bottom);
   skyMat.uniforms.horizon.value = sky.night ? 0.15 : 0.8;
   scene.fog.color.set(sky.fog);
-  scene.fog.near = sky.night ? 620 : 900;
-  scene.fog.far = sky.night ? 2400 : 3400;
+  scene.fog.near = sky.night ? 700 : 1000;
+  scene.fog.far = sky.night ? 3200 : 5000;
   hemi.intensity = sky.night ? 0.16 : 0.30;
   hemi.color.set(sky.night ? "#5d74a8" : "#bfd8ff");
   sun.color.set(sky.sun);
@@ -725,7 +919,9 @@ function frame(s) {
   playerRig.position.set(s.player.x, 0, s.player.z);
   playerRig.rotation.y = s.player.face < 0 ? rad(200) : rad(-20);
   if (s.player.moving) playerRig.rotation.y = Math.atan2(s.player.dx || 0, s.player.dz || 1);
-  animateFigure(playerParts, s.player.walk, s.t);
+  else if (s.player.aimx || s.player.aimz) playerRig.rotation.y = Math.atan2(s.player.aimx, s.player.aimz);
+  animateFigure(playerParts, s.player.walk, s.t, s.player.swing);
+  playerRig.visible = !s.player.down;
 
   // townsfolk
   (s.agents || []).forEach((a) => {
@@ -737,8 +933,56 @@ function frame(s) {
     }
     fig.group.position.set(a.x, 0, a.z);
     fig.group.rotation.y = Math.atan2(a.dx || 0, a.dz || 1);
-    animateFigure(fig, a.walk, s.t);
+    animateFigure(fig, a.walk, s.t, 0);
   });
+
+  // ---------- the horde ----------
+  const liveFoes = {};
+  (s.enemies || []).forEach((e) => {
+    liveFoes[e.id] = 1;
+    let f = foePool[e.id];
+    if (!f) {
+      f = makeEnemy(e.kind, e.tint);
+      foePool[e.id] = f;
+      scene.add(f.group);
+    }
+    f.group.position.set(e.x, 0, e.z);
+    f.group.rotation.y = Math.atan2(e.dx || 0, e.dz || 1);
+    animateEnemy(f, e.walk, s.t, e.lunge);
+    const frac = Math.max(0, Math.min(1, e.hp / e.maxhp));
+    f.barFg.scale.x = 28 * frac * (e.kind === "boss" ? 3.2 : 1);
+    f.barFg.position.x = -(28 * (e.kind === "boss" ? 3.2 : 1)) * (1 - frac) / 2;
+    f.barBg.scale.x = 30 * (e.kind === "boss" ? 3.2 : 1);
+    f.barFg.material.color.setHex(e.tell ? 0xffc23a : 0xe8442e);
+    const flash = e.hit > 0 ? Math.min(1, e.hit * 4) : 0;
+    f.mats.forEach((m) => { m.emissive.setHex(0xff2a10); m.emissiveIntensity = flash * 1.6; });
+    f.group.scale.setScalar((FOE_LOOK[e.kind] || FOE_LOOK.husk).h * (1 + flash * 0.06) * (e.fade === undefined ? 1 : e.fade));
+    f.group.visible = e.fade === undefined || e.fade > 0.02;
+  });
+  for (const id in foePool) {
+    if (!liveFoes[id]) { scene.remove(foePool[id].group); delete foePool[id]; }
+  }
+
+  // ---------- loot on the ground ----------
+  const liveLoot = {};
+  (s.loot || []).forEach((d) => {
+    liveLoot[d.id] = 1;
+    let m = lootPool[d.id];
+    if (!m) {
+      m = new THREE.Mesh(new THREE.OctahedronGeometry(4.4, 0),
+        stdMat(d.color || "#FFD268", { emissive: d.color || "#FFB02E", emissiveIntensity: 2.6, rough: 0.25, metal: 0.5 }));
+      m.castShadow = true;
+      lootPool[d.id] = m;
+      scene.add(m);
+    }
+    m.position.set(d.x, 9 + Math.sin(s.t * 3 + d.x) * 2.2, d.z);
+    m.rotation.y = s.t * 2.2;
+    m.rotation.x = 0.5;
+  });
+  for (const id in lootPool) {
+    if (!liveLoot[id]) { scene.remove(lootPool[id]); delete lootPool[id]; }
+  }
+  if (arenaRing) arenaRing.visible = true;
 
   // buildings react to your day
   buildingMeshes.forEach((g) => {
@@ -767,6 +1011,10 @@ function frame(s) {
   const want = V3(s.player.x + 30, 132, s.player.z + 238);
   camPos.lerp(want, Math.min(1, s.dt * 3.2));
   camera.position.copy(camPos);
+  if (s.shake) {
+    camera.position.x += (Math.random() - 0.5) * s.shake * 26;
+    camera.position.y += (Math.random() - 0.5) * s.shake * 20;
+  }
   if (scene.userData.skyMesh) scene.userData.skyMesh.position.copy(camPos);
   if (starField) starField.position.copy(camPos);
   camera.lookAt(s.player.x, 62, s.player.z - 170);
@@ -794,5 +1042,13 @@ function pick(nx, ny) {
   return hits.length ? hits[0].object.userData.id : null;
 }
 
-window.World3D = { init, frame, pick, setAvatar, get ok() { return ready; }, get scene() { return scene; }, get camera() { return camera; } };
+/* world point -> css pixels inside the canvas, so the page can float text over it */
+function project(x, y, z) {
+  if (!ready || !canvasEl) return null;
+  const v = V3(x, y, z).project(camera);
+  if (v.z > 1) return null;
+  return { x: (v.x * 0.5 + 0.5) * canvasEl.clientWidth, y: (-v.y * 0.5 + 0.5) * canvasEl.clientHeight };
+}
+
+window.World3D = { init, frame, pick, setAvatar, project, get ok() { return ready; }, get scene() { return scene; }, get camera() { return camera; } };
 window.dispatchEvent(new Event("world3d-ready"));
